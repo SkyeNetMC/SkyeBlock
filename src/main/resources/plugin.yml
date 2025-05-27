@@ -1,0 +1,38 @@
+name: SkyeBlock
+version: '${project.version}'
+main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
+api-version: '1.21'
+authors: [SkyeNetwork]
+description: SkyeBlock plugin for creating and managing skyblock islands
+website: https://skyenetwork.com
+depend: [WorldEdit, WorldGuard]
+softdepend: [SlimeWorldManager]
+
+commands:
+  island:
+    description: Main island command
+    usage: /island <create|tp|delete|list> [args...]
+    permission: skyeblock.island
+    aliases: [sb, skyblock]
+  hub:
+    description: Teleport to hub world
+    usage: /hub
+    permission: skyeblock.hub
+
+permissions:
+  skyeblock.*:
+    description: All SkyeBlock permissions
+    default: op
+    children:
+      skyeblock.island: true
+      skyeblock.hub: true
+      skyeblock.admin: true
+  skyeblock.island:
+    description: Basic island commands
+    default: true
+  skyeblock.hub:
+    description: Hub teleport command
+    default: true
+  skyeblock.admin:
+    description: Admin commands
+    default: op

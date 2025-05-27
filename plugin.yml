@@ -1,0 +1,29 @@
+name: SkyeBlock
+version: '1.0.0'
+main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
+api-version: '1.21'
+authors: [NobleSkye, SkyeNetwork Team]
+description: SkyeBlock plugin for creating and managing skyblock islands
+website: https://skyenet.co.in
+depend: [WorldEdit, WorldGuard]
+
+commands:
+  island:
+    description: Main island command
+    usage: /island <create|tp|delete|list> [args...]
+    permission: skyeblock.island
+    aliases: [sb, skyblock]
+
+permissions:
+  skyeblock.*:
+    description: All SkyeBlock permissions
+    default: op
+    children:
+      skyeblock.island: true
+      skyeblock.admin: true
+  skyeblock.island:
+    description: Basic island commands
+    default: true
+  skyeblock.admin:
+    description: Admin commands
+    default: op

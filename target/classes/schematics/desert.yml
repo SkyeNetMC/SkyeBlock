@@ -1,0 +1,68 @@
+# Desert Island Schematic
+# A desert-themed island with sand, cactus, and desert survival items
+
+name: "Desert Island"
+description: "Survive in a desert-themed island with sand, cactus, and unique challenges"
+size:
+  width: 11
+  height: 4
+  length: 11
+
+spawn_offset:
+  x: 5
+  y: 1
+  z: 5
+
+structure:
+  - level: 0
+    blocks:
+      - "air air air air air air air air air air air"
+      - "air air air sandstone sandstone sandstone sandstone air air air air"
+      - "air air sandstone sandstone sandstone sandstone sandstone sandstone air air air"
+      - "air sandstone sandstone sandstone sandstone sandstone sandstone sandstone sandstone air air"
+      - "air sandstone sandstone sandstone sandstone sandstone sandstone sandstone sandstone air air"
+      - "air sandstone sandstone sandstone sandstone sandstone sandstone sandstone sandstone air air"
+      - "air sandstone sandstone sandstone sandstone sandstone sandstone sandstone sandstone air air"
+      - "air air sandstone sandstone sandstone sandstone sandstone sandstone air air air"
+      - "air air air sandstone sandstone sandstone sandstone air air air air"
+      - "air air air air air air air air air air air"
+      - "air air air air air air air air air air air"
+
+  - level: 1
+    blocks:
+      - "air air air air air air air air air air air"
+      - "air air air sand sand sand sand air air air air"
+      - "air air sand sand sand sand sand sand air air air"
+      - "air sand sand sand sand sand sand sand sand air air"
+      - "air sand sand sand sand sand sand sand sand air air"
+      - "air sand sand sand sand sand sand sand sand air air"
+      - "air sand sand sand sand sand sand sand sand air air"
+      - "air air sand sand sand sand sand sand air air air"
+      - "air air air sand sand sand sand air air air air"
+      - "air air air air air air air air air air air"
+      - "air air air air air air air air air air air"
+
+  - level: 2
+    blocks:
+      - "air air air air air air air air air air air"
+      - "air air air air air air air air air air air"
+      - "air air air cactus air air air dead_bush air air air"
+      - "air air air air air air air air air air air"
+      - "air air air air chest[facing=south] air air air air air air"
+      - "air air air air air air air air air air air"
+      - "air air air air air air air air air air air"
+      - "air air cactus air air air air cactus air air air"
+      - "air air air air air air air air air air air"
+      - "air air air air air air air air air air air"
+      - "air air air air air air air air air air air"
+
+chest_contents:
+  - location: [5, 2, 4]
+    items:
+      - "water_bucket:1"
+      - "cactus:3"
+      - "sand:16"
+      - "wheat_seeds:2"
+      - "cooked_beef:8"
+      - "string:4"
+      - "stick:6"

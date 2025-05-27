@@ -1,0 +1,66 @@
+# Classic SkyBlock Island Schematic
+# This defines a simple classic skyblock island with a small dirt platform, tree, and chest
+
+name: "Classic SkyBlock"
+description: "The classic skyblock experience with a small platform, tree, and basic supplies"
+size:
+  width: 9
+  height: 5
+  length: 9
+
+# Y-level relative to spawn point (0 = spawn level)
+spawn_offset:
+  x: 4
+  y: 1
+  z: 4
+
+# Block structure (from bottom to top, front to back, left to right)
+# Y=0 (base level)
+structure:
+  - level: 0
+    blocks:
+      - "air air air air air air air air air"
+      - "air air air dirt dirt dirt air air air"
+      - "air air dirt dirt dirt dirt dirt air air"
+      - "air dirt dirt dirt dirt dirt dirt dirt air"
+      - "air air dirt dirt dirt dirt dirt air air"
+      - "air air air dirt dirt dirt air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+  
+  - level: 1
+    blocks:
+      - "air air air air air air air air air"
+      - "air air air grass_block grass_block grass_block air air air"
+      - "air air grass_block grass_block grass_block grass_block grass_block air air"
+      - "air grass_block grass_block grass_block grass_block grass_block grass_block grass_block air"
+      - "air air grass_block grass_block grass_block grass_block grass_block air air"
+      - "air air air grass_block grass_block grass_block air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+
+  - level: 2
+    blocks:
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+      - "air air air air oak_sapling air air air air"
+      - "air air air air chest[facing=south] air air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+      - "air air air air air air air air air"
+
+# Items to place in chests
+chest_contents:
+  - location: [4, 2, 3]  # x, y, z relative to origin
+    items:
+      - "ice:2"
+      - "lava_bucket:1"
+      - "melon_seeds:1"
+      - "pumpkin_seeds:1"
+      - "sugar_cane:2"
+      - "bread:5"
+      - "bone_meal:3"

@@ -1,0 +1,75 @@
+# Nether Island Schematic
+# A challenging nether-themed island with netherrack, soul sand, and nether items
+
+name: "Nether Island"
+description: "A challenging nether-themed island for experienced players"
+size:
+  width: 13
+  height: 5
+  length: 13
+
+spawn_offset:
+  x: 6
+  y: 2
+  z: 6
+
+structure:
+  - level: 0
+    blocks:
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air blackstone blackstone blackstone blackstone blackstone air air air air air"
+      - "air air blackstone blackstone blackstone blackstone blackstone blackstone blackstone air air air air"
+      - "air air blackstone blackstone blackstone blackstone blackstone blackstone blackstone air air air air"
+      - "air air blackstone blackstone blackstone blackstone blackstone blackstone blackstone air air air air"
+      - "air air blackstone blackstone blackstone blackstone blackstone blackstone blackstone air air air air"
+      - "air air blackstone blackstone blackstone blackstone blackstone blackstone blackstone air air air air"
+      - "air air blackstone blackstone blackstone blackstone blackstone blackstone blackstone air air air air"
+      - "air air air blackstone blackstone blackstone blackstone blackstone air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+
+  - level: 1
+    blocks:
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air netherrack netherrack netherrack netherrack netherrack air air air air air"
+      - "air air netherrack netherrack netherrack netherrack netherrack netherrack netherrack air air air air"
+      - "air air netherrack netherrack netherrack netherrack netherrack netherrack netherrack air air air air"
+      - "air air netherrack netherrack netherrack netherrack netherrack netherrack netherrack air air air air"
+      - "air air netherrack netherrack netherrack netherrack netherrack netherrack netherrack air air air air"
+      - "air air netherrack netherrack netherrack netherrack netherrack netherrack netherrack air air air air"
+      - "air air netherrack netherrack netherrack netherrack netherrack netherrack netherrack air air air air"
+      - "air air air netherrack netherrack netherrack netherrack netherrack air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+
+  - level: 2
+    blocks:
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air soul_sand air air air air soul_sand air air air air"
+      - "air air air air air nether_wart air air air air air air air"
+      - "air air air air air air chest[facing=south] air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air soul_sand air air air air soul_sand air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+      - "air air air air air air air air air air air air air"
+
+chest_contents:
+  - location: [6, 2, 6]
+    items:
+      - "water_bucket:2"
+      - "obsidian:4"
+      - "flint_and_steel:1"
+      - "nether_wart:8"
+      - "blaze_rod:2"
+      - "ghast_tear:1"
+      - "cooked_porkchop:10"
+      - "magma_block:4"
