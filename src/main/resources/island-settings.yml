@@ -1,0 +1,42 @@
+# Island Settings Configuration
+# This file stores island-specific gamerule settings
+
+# Default settings that will be applied to new islands
+# Format: islands.<island-id>.<gamerule-name>: <value>
+
+# Example island settings:
+# islands:
+#   island-classic-12345678-1234-1234-1234-123456789abc:
+#     doDaylightCycle: true
+#     doWeatherCycle: true
+#     keepInventory: false
+#     mobGriefing: true
+#     doMobSpawning: true
+#     doFireTick: true
+#     fallDamage: true
+#     fireDamage: true
+#     drowningDamage: true
+#     doInsomnia: true
+#     doImmediateRespawn: false
+#     announceAdvancements: true
+#     disableElytraMovementCheck: false
+#     doLimitedCrafting: false
+#     naturalRegeneration: true
+#     reducedDebugInfo: false
+#     sendCommandFeedback: true
+#     showDeathMessages: true
+#     doEntityDrops: true
+#     doTileDrops: true
+#     doMobLoot: true
+#     doPatrolSpawning: true
+#     doTraderSpawning: true
+#     forgiveDeadPlayers: true
+#     universalAnger: false
+#     randomTickSpeed: 3
+#     spawnRadius: 10
+#     maxEntityCramming: 24
+#     maxCommandChainLength: 65536
+#     playersSleepingPercentage: 100
+
+# Note: Settings are automatically created when islands are created
+# and can be modified through the in-game GUI (/island settings)

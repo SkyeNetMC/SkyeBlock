@@ -1,0 +1,188 @@
+package skyeblock.nobleskye.dev.skyeblock.gui;
+
+import skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin;
+import skyeblock.nobleskye.dev.skyeblock.models.Island;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.*;
+
+public class MainSettingsGUI implements InventoryHolder, Listener {
+    private final SkyeBlockPlugin plugin;
+    private final Map<UUID, String> playerIslands;
+    
+    private static final int INVENTORY_SIZE = 27; // 3 rows
+    
+    public MainSettingsGUI(SkyeBlockPlugin plugin) {
+        this.plugin = plugin;
+        this.playerIslands = new HashMap<>();
+        
+        // Register this as an event listener
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
+    
+    @Override
+    public Inventory getInventory() {
+        return null; // Not used in this implementation
+    }
+    
+    public void openSettingsGUI(Player player, String islandId) {
+        Island island = plugin.getIslandManager().getIsland(player.getUniqueId());
+        if (island == null || !island.getIslandId().equals(islandId)) {
+            plugin.sendMessage(player, "island-not-found");
+            return;
+        }
+        
+        playerIslands.put(player.getUniqueId(), islandId);
+        
+        Inventory inventory = Bukkit.createInventory(this, INVENTORY_SIZE, 
+            Component.text("Island Settings")
+                .color(NamedTextColor.DARK_BLUE)
+                .decoration(TextDecoration.BOLD, true));
+        
+        // Visiting Settings (Ender Eye)
+        ItemStack visitingSettings = new ItemStack(Material.ENDER_EYE);
+        ItemMeta visitingMeta = visitingSettings.getItemMeta();
+        visitingMeta.displayName(Component.text("Visiting Settings")
+            .color(NamedTextColor.DARK_PURPLE)
+            .decoration(TextDecoration.ITALIC, false));
+        
+        List<Component> visitingLore = new ArrayList<>();
+        visitingLore.add(Component.empty());
+        visitingLore.add(Component.text("Configure island visiting:")
+            .color(NamedTextColor.GRAY));
+        visitingLore.add(Component.text("• Lock/unlock island")
+            .color(NamedTextColor.DARK_GRAY));
+        visitingLore.add(Component.text("• Adventure mode settings")
+            .color(NamedTextColor.DARK_GRAY));
+        visitingLore.add(Component.text("• Set home/visit locations")
+            .color(NamedTextColor.DARK_GRAY));
+        visitingLore.add(Component.empty());
+        visitingLore.add(Component.text("Click to open visiting settings")
+            .color(NamedTextColor.GREEN));
+        
+        visitingMeta.lore(visitingLore);
+        visitingSettings.setItemMeta(visitingMeta);
+        inventory.setItem(11, visitingSettings);
+        
+        // Gamerules Settings (Command Block)
+        ItemStack gameruleSettings = new ItemStack(Material.COMMAND_BLOCK);
+        ItemMeta gameruleMeta = gameruleSettings.getItemMeta();
+        gameruleMeta.displayName(Component.text("Gamerule Settings")
+            .color(NamedTextColor.GOLD)
+            .decoration(TextDecoration.ITALIC, false));
+        
+        List<Component> gameruleLore = new ArrayList<>();
+        gameruleLore.add(Component.empty());
+        gameruleLore.add(Component.text("Configure island gamerules:")
+            .color(NamedTextColor.GRAY));
+        gameruleLore.add(Component.text("• Keep inventory settings")
+            .color(NamedTextColor.DARK_GRAY));
+        gameruleLore.add(Component.text("• Mob spawning controls")
+            .color(NamedTextColor.DARK_GRAY));
+        gameruleLore.add(Component.text("• World mechanics")
+            .color(NamedTextColor.DARK_GRAY));
+        gameruleLore.add(Component.empty());
+        gameruleLore.add(Component.text("Click to open gamerule settings")
+            .color(NamedTextColor.GREEN));
+        
+        gameruleMeta.lore(gameruleLore);
+        gameruleSettings.setItemMeta(gameruleMeta);
+        inventory.setItem(15, gameruleSettings);
+        
+        // Close button
+        ItemStack close = new ItemStack(Material.BARRIER);
+        ItemMeta closeMeta = close.getItemMeta();
+        closeMeta.displayName(Component.text("Close")
+            .color(NamedTextColor.RED)
+            .decoration(TextDecoration.ITALIC, false));
+        close.setItemMeta(closeMeta);
+        inventory.setItem(22, close);
+        
+        // Info item
+        ItemStack info = new ItemStack(Material.BOOK);
+        ItemMeta infoMeta = info.getItemMeta();
+        infoMeta.displayName(Component.text("Island Settings")
+            .color(NamedTextColor.GOLD)
+            .decoration(TextDecoration.BOLD, true)
+            .decoration(TextDecoration.ITALIC, false));
+        
+        List<Component> infoLore = new ArrayList<>();
+        infoLore.add(Component.empty());
+        infoLore.add(Component.text("Configure your island settings")
+            .color(NamedTextColor.GRAY));
+        infoLore.add(Component.text("Choose a category to get started")
+            .color(NamedTextColor.GRAY));
+        
+        infoMeta.lore(infoLore);
+        info.setItemMeta(infoMeta);
+        inventory.setItem(13, info);
+        
+        player.openInventory(inventory);
+        
+        // Play opening sound
+        player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 1.0f, 1.2f);
+    }
+    
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!(event.getInventory().getHolder() instanceof MainSettingsGUI)) return;
+        
+        event.setCancelled(true);
+        
+        Player player = (Player) event.getWhoClicked();
+        String islandId = playerIslands.get(player.getUniqueId());
+        if (islandId == null) return;
+        
+        int slot = event.getSlot();
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+        
+        switch (slot) {
+            case 11: // Visiting Settings
+                if (clickedItem.getType() == Material.ENDER_EYE) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.0f, 1.0f);
+                    player.closeInventory();
+                    plugin.getVisitingSettingsGUI().openVisitingSettings(player, islandId);
+                }
+                break;
+                
+            case 15: // Gamerule Settings
+                if (clickedItem.getType() == Material.COMMAND_BLOCK) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0f, 1.2f);
+                    player.closeInventory();
+                    plugin.getIslandSettingsGUI().openSettingsGUI(player, islandId);
+                }
+                break;
+                
+            case 22: // Close
+                if (clickedItem.getType() == Material.BARRIER) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_CHEST_CLOSE, 1.0f, 1.0f);
+                    player.closeInventory();
+                }
+                break;
+        }
+    }
+    
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getInventory().getHolder() instanceof MainSettingsGUI) {
+            Player player = (Player) event.getPlayer();
+            playerIslands.remove(player.getUniqueId());
+        }
+    }
+}

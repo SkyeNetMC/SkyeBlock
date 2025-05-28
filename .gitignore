@@ -1,0 +1,47 @@
+# Compiled Java classes
+*.class
+
+# Jar files
+*.jar
+*.war
+*.ear
+
+# Maven files
+target/
+/target/
+/pom.xml.tag
+/pom.xml.releaseBackup
+/pom.xml.versionsBackup
+/pom.xml.nextVersion
+/pom.xml.timestamp
+/release.properties
+/dependency-reduced-pom.xml
+/buildNumber.properties
+
+# IntelliJ IDEA
+/.idea/
+/*.iml
+*.iws
+*.ipr
+
+# Eclipse
+/.settings/
+/bin/
+/tmp/
+/src/main/java/.apt_generated/
+/src/test/java/.apt_generated/
+/.apt_generated/
+
+# NetBeans
+/nbproject/private/
+/build/
+/dist/
+/nbdist/
+
+# Minecraft Plugin Specific
+/*.log
+/plugins/
+/world/
+/world_nether/
+/world_the_end/
+/crash-reports/
