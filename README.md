@@ -2,6 +2,38 @@
 
 A comprehensive SkyeBlock plugin for Paper/Spigot servers that allows players to create and manage their own skyblock islands with advanced features and a flexible dual command system.
 
+## 📋 Table of Contents
+
+- [Features](#features)
+  - [Core Functionality](#core-functionality)
+  - [Island Types Available](#island-types-available)
+  - [Advanced Features](#advanced-features)
+- [Commands](#commands)
+  - [🎯 Dual Command System](#-dual-command-system-new)
+  - [Direct Commands (Original)](#direct-commands-original)
+  - [Sub-Commands (NEW!)](#sub-commands-new)
+  - [Help & Information](#help--information)
+  - [🔑 Permission-Based Commands](#-permission-based-commands)
+- [Installation & Setup](#installation--setup)
+- [Configuration](#configuration)
+- [Island Settings System](#island-settings-system)
+  - [Gamerule Management](#gamerule-management)
+  - [Available Gamerules](#available-gamerules)
+  - [GUI Interface](#gui-interface)
+  - [Permission System](#permission-system)
+- [Custom Island Templates](#custom-island-templates)
+- [Permissions](#permissions)
+  - [Basic Permissions](#basic-permissions)
+  - [Gamerule Permissions (LuckPerms Integration)](#gamerule-permissions-luckperms-integration)
+  - [Individual Gamerule Controls](#individual-gamerule-controls)
+  - [LuckPerms Usage Examples](#luckperms-usage-examples)
+- [Technical Details](#technical-details)
+- [Usage Examples](#usage-examples)
+- [📚 Documentation](#-documentation)
+- [🚀 Recent Updates](#-recent-updates)
+- [💡 Support & Contributing](#-support--contributing)
+- [📄 License](#-license)
+
 ## Features
 
 ### Core Functionality
