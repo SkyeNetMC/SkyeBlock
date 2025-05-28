@@ -9,11 +9,16 @@ depend: [WorldEdit, WorldGuard]
 softdepend: [SlimeWorldManager, AdvancedSlimeWorldManager, luckperms]
 
 commands:
+  sb:
+    description: Main SkyeBlock command
+    usage: /sb <island|visit|delete|hub> [args...]
+    permission: skyeblock.island
+    aliases: [skyblock]
   island:
     description: Main island command
     usage: /island <create|home|visit|lock|unlock|edit|coop|vote|set|settings> [args...]
     permission: skyeblock.island
-    aliases: [sb, skyblock, is]
+    aliases: [is]
   visit:
     description: Visit other players' islands
     usage: /visit [player]

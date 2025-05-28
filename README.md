@@ -1,74 +1,128 @@
 # SkyeBlock Plugin
 
-A comprehensive SkyeBlock plugin for Paper/Spigot servers that allows players to create and manage their own skyblock islands.
+A comprehensive SkyeBlock plugin for Paper/Spigot servers that allows players to create and manage their own skyblock islands with advanced features and a flexible dual command system.
 
 ## Features
 
 ### Core Functionality
-- **Multiple Island Types**: Choose from Classic, Desert, or Nether-themed islands with multi-word support
-- **Custom Schematic System**: YAML-based island templates with detailed block placement
-- **Individual Island Worlds**: Each island gets its own dedicated world (with SlimeWorldManager support)
-- **Island Settings Management**: Full gamerule control system with GUI interface
-- **Advanced Permissions**: LuckPerms-style permission system for granular gamerule control
-- **Hub Integration**: Seamless teleportation between hub and islands
+- **🎯 Dual Command System**: Use both direct commands (`/island`, `/visit`) and unified sub-commands (`/sb island`, `/sb visit`) - **NEW!**
+- **🏝️ Multiple Island Types**: Choose from Classic, Desert, or Nether-themed islands with clean single-word identifiers
+- **📋 Custom Schematic System**: YAML-based island templates with detailed block placement and chest contents
+- **🌍 Individual Island Worlds**: Each island gets its own dedicated world (with SlimeWorldManager support)
+- **⚙️ Island Settings Management**: Full gamerule control system with interactive GUI interface
+- **🔐 Advanced Permissions**: LuckPerms-style permission system for granular gamerule control
+- **🏠 Hub Integration**: Seamless teleportation between hub and islands
+- **👥 Visitor System**: Visit other players' islands with protection and settings
+- **🤝 Cooperative Play**: Island cooperation system with member management
 
 ### Island Types Available
-1. **Classic SkyBlock** - Traditional dirt platform with tree, chest, and basic supplies
-2. **Desert Island** - Sand-based island with cactus and desert survival items  
-3. **Nether Island** - Challenging netherrack island with nether-themed resources
+1. **🌿 Classic SkyBlock** (`classic`) - Traditional dirt platform with tree, chest, and basic supplies
+2. **🏜️ Desert Island** (`desert`) - Sand-based island with cactus and desert survival items  
+3. **🔥 Nether Island** (`nether`) - Challenging netherrack island with nether-themed resources
 
 ### Advanced Features
-- **Smart World Management**: SlimeWorldManager integration with fallback to standard Bukkit worlds
-- **Island Settings GUI**: Interactive interface for managing 31 different gamerules
-- **Granular Permissions**: Individual permissions for each gamerule with admin bypass system
-- **Multi-Word Island Types**: Support for island types with spaces (e.g., "Desert Island")
-- **Smart Tab Completion**: Intelligent command completion for all subcommands and island types
-- **Comprehensive Admin Tools**: Island listing, deletion, status monitoring, and management
-- **Safe Teleportation**: Proper spawn point calculation and world-specific teleportation
+- **⚡ Dual Command Interface**: Choose between direct commands (`/island`) or unified sub-commands (`/sb island`) with full backward compatibility
+- **🚀 Smart World Management**: SlimeWorldManager integration with fallback to standard Bukkit worlds
+- **🎮 Island Settings GUI**: Interactive interface for managing 31 different gamerules
+- **🔑 Granular Permissions**: Individual permissions for each gamerule with admin bypass system
+- **🎯 Single-Word Island Types**: Clean, simple island type identifiers (`classic`, `desert`, `nether`)
+- **📝 Smart Tab Completion**: Intelligent command completion for all commands and island types
+- **🛠️ Comprehensive Admin Tools**: Island listing, deletion, status monitoring, and management
+- **🌐 Safe Teleportation**: Proper spawn point calculation and world-specific teleportation
+- **🎨 MiniMessage Support**: Modern text formatting with Adventure API integration
+- **💾 Optimized Storage**: SlimeWorld integration for reduced disk usage and better performance
 
 ## Commands
 
-### Player Commands
-- `/island create [type]` - Create a new island (supports multi-word types: "Classic SkyBlock", "Desert Island", "Nether Island")
-- `/island types` - Show available island types with descriptions
-- `/island tp` / `/island teleport` / `/island home` - Teleport to your island
-- `/island settings` - Open island gamerule settings GUI
-- `/island help` - Show help message
+### 🎯 Dual Command System (NEW!)
+The plugin supports both direct commands and unified sub-commands for maximum flexibility:
 
-### Admin Commands (Requires `skyeblock.admin`)
-- `/island delete` - Delete your island with proper cleanup
-- `/island list` - List all created islands with details
-- `/island status` - Show server status and world manager information
+#### Direct Commands (Original)
+```bash
+/island create <type>        # Create a new island (classic, desert, nether)
+/island home                 # Teleport to your island
+/island settings             # Open island settings GUI
+/island types                # Show available island types
+/island delete               # Delete your island with confirmation
+/island list                 # List all islands (admin only)
+/island status               # Show server status (admin only)
 
-### Hub Commands
-- `/hub` - Teleport to the hub world (if hub is enabled)
+/visit <player>              # Visit another player's island
+/delete [player]             # Delete island with two-step confirmation
+/hub                         # Return to hub world
+/is                          # Alias for /island
+```
 
-## Installation
+#### Sub-Commands (NEW!)
+```bash
+/sb island create <type>     # Create a new island (classic, desert, nether)
+/sb island home              # Teleport to your island
+/sb island settings          # Open island settings GUI
+/sb island types             # Show available island types
+/sb island delete            # Delete your island with confirmation
+/sb island list              # List all islands (admin only)
+/sb island status            # Show server status (admin only)
 
-1. **Prerequisites**:
-   - Paper/Spigot server (1.20+)
-   - (Optional) SlimeWorldManager for optimized world management
-   - (Optional) LuckPerms for advanced gamerule permissions
+/sb visit <player>           # Visit another player's island
+/sb delete [player]          # Delete island with two-step confirmation
+/sb hub                      # Return to hub world
+/skyblock                    # Alias for /sb
+```
 
-2. **Building**:
-   ```bash
-   ./build.sh
-   ```
+#### Help & Information
+```bash
+/sb                          # Show all available sub-commands with descriptions
+/island help                 # Show island command help
+```
 
-3. **Installation**:
-   - Copy `target/skyeblock-1.0.0.jar` to your server's `plugins/` folder
-   - Restart your server
-   - Plugin includes built-in island templates and void world generator
+### 🔑 Permission-Based Commands
+Commands are filtered based on permissions:
+- **Basic Users**: `create`, `home`, `settings`, `types`, `delete` (own island)
+- **Admins**: All commands including `list`, `status`, and delete others' islands
 
-4. **Optional Enhancements**:
-   - Install **SlimeWorldManager** (SWM/ASWM) for individual island worlds
-   - Install **LuckPerms** for granular gamerule permission control
-   - Both plugins provide automatic fallback if not available
+## Installation & Setup
 
-5. **Quick Test**:
-   ```bash
-   ./test-setup.sh
-   ```
+### 1. Prerequisites
+- **Paper/Spigot server** (1.20+)
+- **Optional**: SlimeWorldManager (ASWM/SWM) for optimized world management
+- **Optional**: LuckPerms for advanced gamerule permissions
+
+### 2. Quick Installation
+```bash
+# Clone or download the plugin
+git clone <repository-url>
+cd SkyeBlock
+
+# Build the plugin
+./build.sh
+
+# Copy to your server
+cp target/skyeblock-1.0.0.jar /path/to/your/server/plugins/
+
+# Restart your server
+```
+
+### 3. Optional Enhancements
+- **Install SlimeWorldManager** for individual island worlds (highly recommended)
+- **Install LuckPerms** for granular gamerule permission control
+- Both plugins provide automatic fallback if not available
+
+### 4. Quick Test & Validation
+```bash
+# Test the installation
+./test-setup.sh
+
+# Validate dual command system
+./validate-dual-commands.sh
+
+# Test all functionality
+./test-functionality.sh
+```
+
+### 5. Ready to Use!
+- Plugin auto-creates necessary configurations
+- Includes built-in island templates
+- Works out-of-the-box with smart defaults
 
 ## Configuration
 
@@ -271,69 +325,148 @@ lp group moderator permission set skyeblock.gamerule.randomtickspeed true
 
 ## Usage Examples
 
-### Creating Islands
+### 🎯 Dual Command System Usage
+Both command styles work identically - choose what feels natural!
+
 ```bash
-# Create a classic island
-/island create classic
+# Creating Islands - Both methods work:
+/island create classic       ↔️    /sb island create classic
+/island create desert        ↔️    /sb island create desert  
+/island create nether        ↔️    /sb island create nether
 
-# Create a desert island (multi-word support)
-/island create Desert Island
+# Navigation - Both methods work:
+/island home                 ↔️    /sb island home
+/visit PlayerName            ↔️    /sb visit PlayerName
+/hub                         ↔️    /sb hub
 
-# Create with mixed case (case-insensitive)
-/island create NETHER ISLAND
+# Management - Both methods work:
+/island settings             ↔️    /sb island settings
+/island types                ↔️    /sb island types
+/delete                      ↔️    /sb delete
+
+# Using Aliases:
+/is home                     ↔️    /skyblock island home
 ```
 
-### Managing Island Settings
+### 🏝️ Creating Islands
 ```bash
-# Open the settings GUI
+# Simple island creation
+/island create classic
+/island create desert
+/island create nether
+
+# Check available types first
+/island types
+```
+
+### ⚙️ Managing Island Settings
+```bash
+# Open the interactive GUI
 /island settings
 
-# Players can modify gamerules they have permission for
-# Staff with adminbypass can see all gamerules
+# Players see gamerules based on their permissions
+# Staff with adminbypass see all 31 gamerules
 ```
 
-### Admin Management
+### 🛠️ Admin Management
 ```bash
-# List all islands
+# List all islands with details
 /island list
 
-# Check server status
+# Check server and world manager status
 /island status
 
-# Delete an island (as owner or admin)
-/island delete
+# Delete any player's island (admin only)
+/island delete PlayerName
 ```
 
-## Documentation
+### 🎮 Getting Help
+```bash
+# Show sub-command help
+/sb
 
-- **`LUCKPERMS_GAMERULE_PERMISSIONS.md`** - Complete guide for LuckPerms gamerule permission setup
+# Show island command help  
+/island help
+```
+
+## 📚 Documentation
+
+### Core Guides
+- **`DUAL_COMMAND_SYSTEM.md`** - Complete guide to the new dual command system
+- **`LUCKPERMS_GAMERULE_PERMISSIONS.md`** - LuckPerms gamerule permission setup
+- **`ASWM_INTEGRATION_GUIDE.md`** - SlimeWorldManager integration details
+- **`ISLAND_SETTINGS_IMPLEMENTATION.md`** - Island settings and GUI system
+
+### Technical Documentation
 - **`GAMERULE_PERMISSIONS_UPDATE.md`** - Technical implementation details
 - **`DEPLOYMENT_GUIDE.md`** - Server deployment and debugging information
 - **`TESTING.md`** - Testing procedures and expected results
+- **`PROJECT_COMPLETE.md`** - Complete feature overview and status
 
-## Recent Updates
+### Quick References
+- **`DEPLOYMENT_CHECKLIST.md`** - Pre-deployment validation checklist
+- **`COMMAND_TESTING.md`** - Command testing procedures
+- **`MINIMESSAGE_TESTING.md`** - Text formatting validation
 
-### Version 1.0.0 - Latest Features
-- ✅ **LuckPerms Gamerule Permissions**: Complete permission system for 31 gamerules with admin bypass
-- ✅ **Individual Island Worlds**: Each island gets its own world with SlimeWorldManager integration
-- ✅ **Interactive Settings GUI**: Full interface for managing island gamerules with real-time updates
-- ✅ **Multi-Word Island Types**: Support for "Desert Island", "Nether Island" with smart tab completion
-- ✅ **Advanced World Management**: Automatic SlimeWorldManager detection with Bukkit fallback
-- ✅ **Comprehensive Admin Tools**: Status monitoring, island listing, and enhanced management commands
-- ✅ **MiniMessage Integration**: Modern text formatting with Adventure API support
-- ✅ **Hub System**: Configurable hub world with seamless teleportation
+## 🚀 Recent Updates
 
-### Core Features
-- **31 Configurable Gamerules**: Full control over island world mechanics
-- **3 Island Templates**: Classic, Desert, and Nether islands with custom schematics
-- **Permission-Based Access**: Granular control using LuckPerms-style permissions
-- **Safe World Management**: Proper cleanup and resource management
-- **Intelligent Fallbacks**: Works with or without optional dependencies
+### ✨ Version 1.0.0 - Latest Release (May 2025)
 
-## Support
+#### 🎯 NEW: Dual Command System
+- **Direct Commands**: `/island`, `/visit`, `/delete`, `/hub` (preserves existing usage)
+- **Sub-Commands**: `/sb island`, `/sb visit`, `/sb delete`, `/sb hub` (new unified interface)
+- **Full Backward Compatibility**: Existing users can continue using familiar commands
+- **Smart Help System**: `/sb` shows all available sub-commands with descriptions
+- **Complete Tab Completion**: Both command styles support intelligent tab completion
 
-For issues, questions, or contributions, please contact the SkyeNetwork development team.
+#### 🏝️ Enhanced Island Management
+- **Single-Word Island Types**: Clean identifiers (`classic`, `desert`, `nether`)
+- **Fixed Island Type Storage**: Islands now store single-word types instead of display names
+- **Improved Tab Completion**: Smart completion for island types and commands
+- **Two-Step Deletion**: Enhanced confirmation system for island deletion
 
-## License
+#### 🔧 Core System Improvements
+- **SlimeWorldManager Integration**: Individual island worlds with automatic fallback
+- **LuckPerms Permission System**: Granular control over 31 island gamerules
+- **Interactive Settings GUI**: Real-time gamerule management with visual indicators
+- **MiniMessage Support**: Modern text formatting with Adventure API
+- **Optimized Performance**: Better world management and resource cleanup
+
+#### 🎮 Quality of Life Features
+- **Admin Bypass System**: Staff can access all gamerules regardless of restrictions
+- **Dynamic Permission Filtering**: GUI shows only accessible gamerules per player
+- **Comprehensive Admin Tools**: Enhanced monitoring and management capabilities
+- **Safe World Operations**: Proper cleanup and resource management
+- **Hub System Integration**: Configurable hub world with seamless teleportation
+
+## 💡 Support & Contributing
+
+### Getting Help
+- Check the comprehensive documentation in the repository
+- Use the testing scripts to validate your setup
+- Review the configuration examples for common setups
+
+### Reporting Issues
+- Include server version and plugin configuration
+- Provide relevant console logs and error messages
+- Test with the included validation scripts
+
+### Development
+- Plugin follows modern Bukkit/Paper development practices
+- Uses Adventure API for text components and MiniMessage formatting
+- Includes comprehensive testing suite and validation tools
+- Supports both SlimeWorldManager and standard Bukkit worlds
+
+### Quality Assurance
+- ✅ **Full Test Coverage**: Comprehensive testing scripts included
+- ✅ **Validation Tools**: Multiple validation scripts for different components
+- ✅ **Backward Compatibility**: Maintains compatibility with existing setups
+- ✅ **Performance Optimized**: Efficient world management and resource usage
+
+---
+
+## 📄 License
 
 This plugin is developed for SkyeNetwork. All rights reserved.
+
+**SkyeBlock Plugin v1.0.0** - A comprehensive island management solution with dual command system, advanced permissions, and modern Minecraft server integration.

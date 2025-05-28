@@ -16,3 +16,4 @@
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/DeleteCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/managers/SchematicManager.java
+/mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/SkyeBlockCommand.java

@@ -150,6 +150,10 @@ public class IslandSettingsGUI implements InventoryHolder, Listener {
                 .color(NamedTextColor.GREEN));
             lore.add(Component.text("Shift + Left: Increase by 10")
                 .color(NamedTextColor.AQUA));
+            lore.add(Component.text("Shift + Right: Decrease by 1")
+                .color(NamedTextColor.YELLOW));
+            lore.add(Component.text("Right click: Decrease by 10")
+                .color(NamedTextColor.GOLD));
         }
         
         meta.lore(lore);
@@ -218,7 +222,7 @@ public class IslandSettingsGUI implements InventoryHolder, Listener {
         
         // Reset to defaults button
         Boolean hasPendingReset = pendingResets.get(player.getUniqueId());
-        ItemStack reset = new ItemStack(Material.TNT);
+        ItemStack reset = new ItemStack(hasPendingReset != null && hasPendingReset ? Material.REDSTONE_BLOCK : Material.TNT);
         ItemMeta resetMeta = reset.getItemMeta();
         
         if (hasPendingReset != null && hasPendingReset) {
@@ -299,7 +303,7 @@ public class IslandSettingsGUI implements InventoryHolder, Listener {
             return;
         }
         
-        if (slot == 50 && clickedItem.getType() == Material.TNT) { // Reset to defaults
+        if (slot == 50 && (clickedItem.getType() == Material.TNT || clickedItem.getType() == Material.REDSTONE_BLOCK)) { // Reset to defaults
             UUID playerId = player.getUniqueId();
             Boolean hasPendingReset = pendingResets.get(playerId);
             
@@ -308,6 +312,7 @@ public class IslandSettingsGUI implements InventoryHolder, Listener {
                 player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0f, 1.2f);
                 executeResetToDefaults(player, islandId);
                 pendingResets.remove(playerId);
+                refreshCurrentPage(player); // This will return the button to normal state
             } else {
                 // First click - show confirmation
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
@@ -347,9 +352,27 @@ public class IslandSettingsGUI implements InventoryHolder, Listener {
             newValue = !currentValue;
             settingsManager.setGameRule(islandId, (GameRule<Boolean>) gameRule, (Boolean) newValue);
         } else if (gameRule.getType() == Integer.class) {
-            // For integer, increase by 1 or 10 (shift)
             Integer currentValue = settingsManager.getGameRule(islandId, (GameRule<Integer>) gameRule);
-            int change = isShift ? 10 : 1;
+            int change;
+            
+            if (isRightClick) {
+                if (isShift) {
+                    // Shift + Right click: Decrease by 1
+                    change = -1;
+                } else {
+                    // Right click: Decrease by 10
+                    change = -10;
+                }
+            } else {
+                if (isShift) {
+                    // Shift + Left click: Increase by 10
+                    change = 10;
+                } else {
+                    // Left click: Increase by 1
+                    change = 1;
+                }
+            }
+            
             newValue = Math.max(0, currentValue + change);
             settingsManager.setGameRule(islandId, (GameRule<Integer>) gameRule, (Integer) newValue);
         } else {

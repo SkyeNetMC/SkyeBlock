@@ -50,8 +50,10 @@ public class CustomSchematicManager {
                     YamlConfiguration config = YamlConfiguration.loadConfiguration(new InputStreamReader(stream));
                     IslandSchematic schematic = parseSchematic(config);
                     if (schematic != null) {
-                        schematics.put(schematic.getName().toLowerCase(), schematic);
-                        plugin.getLogger().info("Loaded schematic: " + schematic.getName());
+                        // Use filename without extension as key (e.g., "classic.yml" -> "classic")
+                        String key = fileName.substring(0, fileName.lastIndexOf('.'));
+                        schematics.put(key, schematic);
+                        plugin.getLogger().info("Loaded schematic: " + schematic.getName() + " (key: " + key + ")");
                     }
                     stream.close();
                 }

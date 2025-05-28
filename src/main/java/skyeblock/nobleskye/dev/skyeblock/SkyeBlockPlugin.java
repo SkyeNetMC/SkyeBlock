@@ -75,6 +75,13 @@ public class SkyeBlockPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
+        // Register main /sb command with subcommands
+        skyeblock.nobleskye.dev.skyeblock.commands.SkyeBlockCommand sbCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.SkyeBlockCommand(this);
+        getCommand("sb").setExecutor(sbCommand);
+        getCommand("sb").setTabCompleter(sbCommand);
+        
+        // Register individual commands (so they work both as /command and /sb command)
         getCommand("island").setExecutor(new IslandCommand(this));
         getCommand("hub").setExecutor(new HubCommand(this));
         
