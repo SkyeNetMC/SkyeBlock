@@ -143,8 +143,12 @@ public class IslandManager {
             }
         }
 
-        // Set adventure mode for visitors if enabled
-        if (!isOwner && !hasCoopAccess && island.isAdventureModeForVisitors()) {
+        // Set gamemode based on player's status on the island
+        Island.CoopRole role = island.getCoopRole(playerUUID);
+        if (isOwner || role.getLevel() >= Island.CoopRole.MEMBER.getLevel()) {
+            // Set to survival mode if player is owner or has MEMBER or higher role
+            player.setGameMode(GameMode.SURVIVAL);
+        } else if (island.isAdventureModeForVisitors()) {
             player.setGameMode(GameMode.ADVENTURE);
             player.sendMessage(miniMessage.deserialize(
                 "<yellow>You are visiting in adventure mode. You cannot break blocks or access containers.</yellow>"));

@@ -264,6 +264,28 @@ public class VisitorProtectionListener implements Listener {
     }
     
     @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityInteractWithContainer(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        Entity entity = event.getRightClicked();
+        
+        if (!isVisitorOnIsland(player)) {
+            return;
+        }
+        
+        // Block interaction with container entities like minecarts with chests, etc.
+        if (entity.toString().contains("StorageMinecart") || 
+            entity.toString().contains("HopperMinecart") || 
+            entity.toString().contains("ChestMinecart") ||
+            entity.toString().contains("PoweredMinecart") ||
+            entity instanceof org.bukkit.entity.Villager ||
+            entity.toString().toLowerCase().contains("merchant") ||
+            (entity instanceof org.bukkit.entity.Vehicle && entity.toString().toLowerCase().contains("chest"))) {
+            event.setCancelled(true);
+            player.sendMessage(miniMessage.deserialize("<red>You cannot access containers while visiting this island!</red>"));
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) {
             return;

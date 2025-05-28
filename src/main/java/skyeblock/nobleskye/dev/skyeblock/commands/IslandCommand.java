@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -432,7 +433,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            player.sendMessage(miniMessage.deserialize("<red>Usage: /is coop <add|remove|role|leave|accept|reject> [player] [role]</red>"));
+            player.sendMessage(miniMessage.deserialize("<red>Usage: /is coop <add|remove|role|leave|accept|reject|visit|list> [player] [role]</red>"));
+            player.sendMessage(miniMessage.deserialize("<yellow>Use '/is coop visit <player>' to visit an island in survival mode if you have permission.</yellow>"));
             return;
         }
 
@@ -468,11 +470,19 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             case "reject":
                 handleCoopReject(player);
                 break;
+            case "visit":
+                if (args.length < 3) {
+                    player.sendMessage(miniMessage.deserialize("<red>Usage: /is coop visit <player></red>"));
+                    return;
+                }
+                handleCoopVisit(player, args[2]);
+                break;
             case "list":
                 handleCoopList(player, island);
                 break;
             default:
-                player.sendMessage(miniMessage.deserialize("<red>Usage: /is coop <add|remove|role|leave|accept|reject|list> [player] [role]</red>"));
+                player.sendMessage(miniMessage.deserialize("<red>Usage: /is coop <add|remove|role|leave|accept|reject|visit|list> [player] [role]</red>"));
+                player.sendMessage(miniMessage.deserialize("<yellow>Use '/is coop visit <player>' to visit an island in survival mode if you have permission.</yellow>"));
         }
     }
 
@@ -595,6 +605,42 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private void handleCoopReject(Player player) {
         // TODO: Implement coop invitation system
         player.sendMessage(miniMessage.deserialize("<yellow>Coop invitation system coming soon!</yellow>"));
+    }
+
+    private void handleCoopVisit(Player player, String targetPlayerName) {
+        // Check if player has permission to use coop visit
+        if (!player.hasPermission("skyeblock.island.visit")) {
+            plugin.sendMessage(player, "no-permission");
+            return;
+        }
+        
+        // Find target player and their island
+        OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(targetPlayerName);
+        if (targetPlayer.getName() == null) {
+            player.sendMessage(miniMessage.deserialize("<red>Player " + targetPlayerName + " not found!</red>"));
+            return;
+        }
+        
+        Island targetIsland = plugin.getIslandManager().getIsland(targetPlayer.getUniqueId());
+        if (targetIsland == null) {
+            player.sendMessage(miniMessage.deserialize("<red>" + targetPlayerName + " doesn't have an island!</red>"));
+            return;
+        }
+        
+        // Check if player has coop access to the island
+        Island.CoopRole role = targetIsland.getCoopRole(player.getUniqueId());
+        // Set to survival mode if player has appropriate coop role (MEMBER or higher)
+        if (role.getLevel() >= Island.CoopRole.MEMBER.getLevel()) {
+            player.setGameMode(GameMode.SURVIVAL);
+        }
+        
+        // Teleport player to the island
+        boolean success = plugin.getIslandManager().teleportToIsland(player, targetPlayer.getUniqueId());
+        if (success) {
+            player.sendMessage(miniMessage.deserialize("<green>Visiting " + targetPlayerName + "'s island as coop member!</green>"));
+        } else {
+            player.sendMessage(miniMessage.deserialize("<red>Failed to teleport to " + targetPlayerName + "'s island!</red>"));
+        }
     }
 
     private void handleCoopList(Player player, Island island) {
@@ -743,7 +789,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(miniMessage.deserialize("<yellow>/island visit [player]</yellow> <gray>-</gray> <gray>Visit islands or open island browser</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island lock/unlock</yellow> <gray>-</gray> <gray>Lock or unlock your island</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island edit <title|desc|icon> [value]</yellow> <gray>-</gray> <gray>Customize your island</gray>"));
-        player.sendMessage(miniMessage.deserialize("<yellow>/island coop <add|remove|role|list> [player] [role]</yellow> <gray>-</gray> <gray>Manage coop members</gray>"));
+        player.sendMessage(miniMessage.deserialize("<yellow>/island coop <add|remove|role|visit|list> [player] [role]</yellow> <gray>-</gray> <gray>Manage coop members</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island vote <player></yellow> <gray>-</gray> <gray>Vote for an island</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island set <home|visit></yellow> <gray>-</gray> <gray>Set custom teleport locations</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island settings</yellow> <gray>-</gray> <gray>Configure island settings</gray>"));
@@ -831,13 +877,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                     
                 case "coop":
                     if (args.length == 2) {
-                        List<String> coopActions = Arrays.asList("add", "remove", "role", "leave", "accept", "reject", "list");
+                        List<String> coopActions = Arrays.asList("add", "remove", "role", "leave", "accept", "reject", "visit", "list");
                         for (String action : coopActions) {
                             if (action.toLowerCase().startsWith(args[1].toLowerCase())) {
                                 completions.add(action);
                             }
                         }
-                    } else if (args.length == 3 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("role"))) {
+                    } else if (args.length == 3 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("role") || args[1].equalsIgnoreCase("visit"))) {
                         // Player names for coop commands
                         for (Player player : Bukkit.getOnlinePlayers()) {
                             if (player.getName().toLowerCase().startsWith(args[2].toLowerCase())) {
