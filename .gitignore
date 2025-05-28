@@ -1,47 +1,139 @@
 # Compiled Java classes
 *.class
 
-# Jar files
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files
 *.jar
 *.war
+*.nar
 *.ear
+*.zip
+*.tar.gz
+*.rar
 
-# Maven files
+# virtual machine crash logs
+hs_err_pid*
+
+# Maven
 target/
-/target/
-/pom.xml.tag
-/pom.xml.releaseBackup
-/pom.xml.versionsBackup
-/pom.xml.nextVersion
-/pom.xml.timestamp
-/release.properties
-/dependency-reduced-pom.xml
-/buildNumber.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
-# IntelliJ IDEA
-/.idea/
-/*.iml
+# IDE Files
+.idea/
+*.iml
 *.iws
 *.ipr
+.vscode/
+.settings/
+.classpath
+.project
+.metadata/
+bin/
+out/
 
 # Eclipse
-/.settings/
-/bin/
-/tmp/
-/src/main/java/.apt_generated/
-/src/test/java/.apt_generated/
-/.apt_generated/
+.metadata
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IntelliJ IDEA
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
 # NetBeans
 /nbproject/private/
-/build/
+/nbbuild/
 /dist/
 /nbdist/
+/.nb-gradle/
 
-# Minecraft Plugin Specific
-/*.log
-/plugins/
-/world/
-/world_nether/
-/world_the_end/
-/crash-reports/
+# VS Code
+.vscode/
+
+# Operating System Files
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+
+# Server Files (don't commit actual server files)
+server.jar
+plugins/
+logs/
+world/
+world_nether/
+world_the_end/
+crash-reports/
+banned-ips.json
+banned-players.json
+ops.json
+whitelist.json
+usercache.json
+usernamecache.json
+server.properties
+eula.txt
+
+# Minecraft Development
+run/
+*.mcmeta
+
+# Test artifacts and generated files
+test-output/
+test-results/
+*.orig
+
+# Local configuration files that might contain sensitive data
+local.properties
+secrets.properties
+
+# Node modules (if using any Node.js tools)
+node_modules/
+
+# Generated documentation
+docs/build/
+site/
+
+# Maven archiver and status files that are in target/
+target/maven-archiver/
+target/maven-status/
+target/generated-sources/
+target/classes/
+target/original-*.jar
+
+# META-INF directory in target
+target/META-INF/
