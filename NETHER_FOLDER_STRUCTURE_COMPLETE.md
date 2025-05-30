@@ -10,7 +10,7 @@ The SkyeBlock plugin has been successfully updated to restructure the folder org
 ```
 server/
 ├── skyeblock/
-│   ├── overworld/
+│   ├── islands/
 │   │   ├── island-classic-uuid1/
 │   │   ├── island-desert-uuid2/
 │   │   └── island-[type]-[uuid]/
@@ -23,8 +23,8 @@ server/
 ### SlimeWorlds (ASWM/SWM)
 ```
 SlimeWorld Names:
-• skyeblock_overworld_island-classic-uuid1
-• skyeblock_overworld_island-desert-uuid2  
+• skyeblock_islands_island-classic-uuid1
+• skyeblock_islands_island-desert-uuid2  
 • skyeblock_nether_island-nether-uuid3
 ```
 
@@ -54,8 +54,8 @@ The implementation maintains full backward compatibility:
 1. **Legacy**: `island-type-uuid` (direct world name)
 2. **Old Islands**: `islands/island-type-uuid` (islands directory)
 3. **Old SlimeWorld**: `islands_island-type-uuid` (islands prefix)
-4. **New Standard**: `skyeblock/[overworld|nether]/island-type-uuid`
-5. **New SlimeWorld**: `skyeblock_[overworld|nether]_island-type-uuid`
+4. **New Standard**: `skyeblock/[islands|nether]/island-type-uuid`
+5. **New SlimeWorld**: `skyeblock_[islands|nether]_island-type-uuid`
 
 ### Migration Strategy
 - **Existing Islands**: Continue to work with old naming
@@ -125,8 +125,8 @@ All tests pass successfully:
 ### Usage Examples
 ```bash
 # Create different island types
-/island create classic    # → skyeblock/overworld/island-classic-uuid
-/island create desert     # → skyeblock/overworld/island-desert-uuid  
+/island create classic    # → skyeblock/islands/island-classic-uuid
+/island create desert     # → skyeblock/islands/island-desert-uuid  
 /island create nether     # → skyeblock/nether/island-nether-uuid
 ```
 

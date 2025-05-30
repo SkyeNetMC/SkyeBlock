@@ -14,15 +14,11 @@ public class IslandManager {
     private final SkyeBlockPlugin plugin;
     private final Map<UUID, Island> playerIslands;
     private final MiniMessage miniMessage;
-    private int nextIslandX;
-    private int nextIslandZ;
 
     public IslandManager(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
         this.playerIslands = new HashMap<>();
         this.miniMessage = MiniMessage.miniMessage();
-        this.nextIslandX = plugin.getConfig().getInt("island.start-x", 0);
-        this.nextIslandZ = plugin.getConfig().getInt("island.start-z", 0);
     }
 
     public boolean hasIsland(UUID playerUUID) {
@@ -53,12 +49,6 @@ public class IslandManager {
         // Create island ID
         String islandId = "island-" + islandType + "-" + playerUUID.toString();
         
-        // Determine which world to use based on template type
-        boolean isNetherTemplate = islandType.equals("nether");
-        World targetWorld = isNetherTemplate && plugin.getWorldManager().hasNetherWorld() 
-            ? plugin.getWorldManager().getSkyBlockNetherWorld()
-            : plugin.getWorldManager().getSkyBlockWorld();
-            
         // Create individual world for this island
         World islandWorld = plugin.getWorldManager().createIslandWorld(islandId);
         if (islandWorld == null) {
@@ -311,23 +301,6 @@ public class IslandManager {
             }
         }
         return false;
-    }
-
-    private Location getNextIslandLocation(World world) {
-        return new Location(world, nextIslandX, 100, nextIslandZ);
-    }
-
-    private void moveToNextIslandPosition() {
-        int distance = plugin.getConfig().getInt("island.distance", 200);
-        
-        // Simple grid pattern: move east, then when we've gone far enough, move south and reset x
-        nextIslandX += distance;
-        
-        // Move to next row after every 10 islands
-        if (nextIslandX >= distance * 10) {
-            nextIslandX = plugin.getConfig().getInt("island.start-x", 0);
-            nextIslandZ += distance;
-        }
     }
 
     public Map<UUID, Island> getPlayerIslands() {

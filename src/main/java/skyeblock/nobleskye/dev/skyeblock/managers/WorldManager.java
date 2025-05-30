@@ -259,7 +259,7 @@ public class WorldManager {
         if (isNetherIsland) {
             worldName = "skyeblock_nether_" + islandId;
         } else {
-            worldName = "skyeblock_overworld_" + islandId;
+            worldName = "skyeblock_islands_" + islandId;
         }
         
         // Create properties using reflection for ASWM
@@ -318,7 +318,7 @@ public class WorldManager {
         if (isNetherIsland) {
             worldName = "skyeblock_nether_" + islandId;
         } else {
-            worldName = "skyeblock_overworld_" + islandId;
+            worldName = "skyeblock_islands_" + islandId;
         }
         
         // Create properties using reflection for old SWM
@@ -374,13 +374,13 @@ public class WorldManager {
             boolean isNetherIsland = islandId.contains("nether");
             
             // Create world in the appropriate directory structure
-            // root/skyeblock/overworld/ for normal islands
+            // root/skyeblock/islands/ for normal islands
             // root/skyeblock/nether/ for nether islands
             String worldPath;
             if (isNetherIsland) {
                 worldPath = "skyeblock/nether/" + islandId;
             } else {
-                worldPath = "skyeblock/overworld/" + islandId;
+                worldPath = "skyeblock/islands/" + islandId;
             }
             
             WorldCreator creator = new WorldCreator(worldPath);
@@ -428,11 +428,11 @@ public class WorldManager {
         String oldStandardWorldPath = "islands/" + islandId;
         String newStandardWorldPath = isNetherIsland ? 
             "skyeblock/nether/" + islandId : 
-            "skyeblock/overworld/" + islandId;
+            "skyeblock/islands/" + islandId;
         String oldSlimeWorldName = "islands_" + islandId;
         String newSlimeWorldName = isNetherIsland ?
             "skyeblock_nether_" + islandId :
-            "skyeblock_overworld_" + islandId;
+            "skyeblock_islands_" + islandId;
         
         // Try to find and unload the world (could be either name format)
         World bukkitWorld = Bukkit.getWorld(islandId);
@@ -555,7 +555,7 @@ public class WorldManager {
             if (isNetherIsland) {
                 world = Bukkit.getWorld("skyeblock/nether/" + islandId);
             } else {
-                world = Bukkit.getWorld("skyeblock/overworld/" + islandId);
+                world = Bukkit.getWorld("skyeblock/islands/" + islandId);
             }
         }
         
@@ -564,7 +564,7 @@ public class WorldManager {
             if (isNetherIsland) {
                 world = Bukkit.getWorld("skyeblock_nether_" + islandId);
             } else {
-                world = Bukkit.getWorld("skyeblock_overworld_" + islandId);
+                world = Bukkit.getWorld("skyeblock_islands_" + islandId);
             }
         }
         

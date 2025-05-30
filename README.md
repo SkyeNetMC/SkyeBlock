@@ -39,6 +39,7 @@ A comprehensive SkyeBlock plugin for Paper/Spigot servers that allows players to
 ### Core Functionality
 - **🎯 Dual Command System**: Use both direct commands (`/island`, `/visit`) and unified sub-commands (`/sb island`, `/sb visit`) - **NEW!**
 - **🏝️ Multiple Island Types**: Choose from Classic, Desert, or Nether-themed islands with clean single-word identifiers
+- **🌋 Nether Island System**: Dedicated nether void worlds with proper biome management and nether-specific templates - **NEW!**
 - **📋 Custom Schematic System**: YAML-based island templates with detailed block placement and chest contents
 - **🌍 Individual Island Worlds**: Each island gets its own dedicated world (with SlimeWorldManager support)
 - **⚙️ Island Settings Management**: Full gamerule control system with interactive GUI interface
@@ -50,7 +51,7 @@ A comprehensive SkyeBlock plugin for Paper/Spigot servers that allows players to
 ### Island Types Available
 1. **🌿 Classic SkyBlock** (`classic`) - Traditional dirt platform with tree, chest, and basic supplies
 2. **🏜️ Desert Island** (`desert`) - Sand-based island with cactus and desert survival items  
-3. **🔥 Nether Island** (`nether`) - Challenging netherrack island with nether-themed resources
+3. **🔥 Nether Island** (`nether`) - Challenging nether-themed island with netherrack, soul sand, and blackstone in dedicated nether void worlds
 
 ### Advanced Features
 - **⚡ Dual Command Interface**: Choose between direct commands (`/island`) or unified sub-commands (`/sb island`) with full backward compatibility
@@ -63,6 +64,8 @@ A comprehensive SkyeBlock plugin for Paper/Spigot servers that allows players to
 - **🌐 Safe Teleportation**: Proper spawn point calculation and world-specific teleportation
 - **🎨 MiniMessage Support**: Modern text formatting with Adventure API integration
 - **💾 Optimized Storage**: SlimeWorld integration for reduced disk usage and better performance
+- **🌋 Nether Island Support**: Dedicated nether void worlds with biome setting and nether-specific templates
+- **🔥 Multi-Environment Islands**: Support for both overworld and nether island environments
 
 ## Commands
 
@@ -166,6 +169,13 @@ world:
   name: "skyblock_world"
   environment: "NORMAL"
 
+# Nether world settings (NEW!)
+nether:
+  name: "skyblock_nether"
+  environment: "NETHER"
+  biome: "NETHER_WASTES"
+  enabled: true
+
 # Hub settings (optional)
 hub:
   enabled: true
@@ -238,6 +248,11 @@ The plugin includes a sophisticated YAML-based schematic system. Island template
 ```yaml
 name: "Island Name"
 description: "Island description"
+
+# Optional: Specify world type and biome (for nether islands)
+world: "skyblock_nether"
+biome: "NETHER_WASTES"
+
 size:
   width: 9
   height: 5  
@@ -263,6 +278,60 @@ chest_contents:
 2. Add it to `src/main/resources/schematics/`
 3. Update `CustomSchematicManager.java` to load your new template
 4. Rebuild the plugin
+
+## 🌋 Nether Island System
+
+SkyeBlock now features comprehensive Nether Island support with dedicated nether void worlds and biome management.
+
+### 🔥 Nether Island Features
+- **Dedicated Nether Worlds**: Each nether island gets its own void nether world environment
+- **Automatic Biome Setting**: Islands are automatically set to `NETHER_WASTES` biome
+- **Nether-Specific Template**: Custom schematic with blackstone, netherrack, and soul sand
+- **Starter Kit Integration**: Chest filled with nether survival essentials
+- **World Environment**: Proper NETHER environment with nether mechanics
+
+### 🏗️ Nether Island Structure
+The nether island template includes:
+- **Blackstone Platform Base**: Sturdy foundation for your nether island
+- **Netherrack Middle Layer**: Classic nether building material
+- **Soul Sand Patches**: Pre-planted areas for nether wart farming
+- **Starter Chest Contents**:
+  - Water buckets (2) - Essential for nether survival
+  - Obsidian (4) - For portal construction
+  - Flint and Steel (1) - Fire making tool
+  - Nether Wart (8) - For brewing and farming
+  - Blaze Rod (2) - Brewing stand fuel
+  - Ghast Tear (1) - Advanced brewing ingredient
+  - Cooked Porkchop (10) - Food supply
+  - Magma Block (4) - Light and building material
+
+### 🌍 Technical Implementation
+- **World Structure**: Nether islands are organized in `skyeblock/nether/` directories
+- **SlimeWorld Integration**: Uses structured naming `skyeblock_nether_<islandId>` 
+- **Biome Management**: Automatic 32x32 biome setting around the island
+- **Environment Settings**: Proper nether environment with mob spawning disabled by default
+- **Fallback Support**: Falls back to main nether world if individual worlds aren't available
+
+### 🎮 Creating Nether Islands
+```bash
+# Create a nether island using either command style
+/island create nether
+/sb island create nether
+
+# View available island types (includes nether)
+/island types
+/sb island types
+```
+
+### ⚙️ Configuration
+Nether worlds are configured in the main config:
+```yaml
+worlds:
+  nether:
+    enabled: true
+    environment: "NETHER"
+    biome: "NETHER_WASTES"
+```
 
 # Messages (customizable)
 messages:
@@ -334,13 +403,17 @@ lp group moderator permission set skyeblock.gamerule.randomtickspeed true
 ### World Management
 - **SlimeWorldManager Integration**: Automatic detection and use of SWM/ASWM for optimized world handling
 - **Individual Island Worlds**: Each island gets its own world when SlimeWorldManager is available
+- **Nether World Support**: Dedicated nether void worlds with proper environment and biome settings
+- **Structured World Organization**: Islands organized in `skyeblock/overworld/` and `skyeblock/nether/` directories
 - **Fallback Support**: Graceful fallback to standard Bukkit worlds if SlimeWorldManager is not installed
 - **World Cleanup**: Proper world deletion and resource cleanup on island deletion
 
 ### Island Management
 - **Island Format**: `island-<type>-<player-uuid>` for unique identification
+- **Multi-Environment Support**: Supports both overworld and nether environments
+- **Biome Management**: Automatic biome setting for nether islands (NETHER_WASTES)
 - **Safe Teleportation**: Smart spawn point calculation with template-based positioning
-- **Schematic Support**: Built-in YAML-based schematic system with chest population
+- **Schematic Support**: Built-in YAML-based schematic system with chest population and nether-specific features
 - **Settings Persistence**: Individual gamerule settings saved per island
 
 ### GUI System
@@ -350,9 +423,10 @@ lp group moderator permission set skyeblock.gamerule.randomtickspeed true
 - **Admin Bypass**: Staff can see all gamerules regardless of individual restrictions
 
 ### Performance Features
-- **Optimized World Loading**: Efficient world creation and management
+- **Optimized World Loading**: Efficient world creation and management for both overworld and nether environments
 - **Memory Management**: Proper cleanup and resource management
 - **Compressed Storage**: SlimeWorld integration for reduced disk usage
+- **Structured World Organization**: Organized folder structure for overworld and nether islands
 - **Async Operations**: Non-blocking world operations where possible
 
 ## Usage Examples
@@ -385,10 +459,11 @@ Both command styles work identically - choose what feels natural!
 # Simple island creation
 /island create classic
 /island create desert
-/island create nether
+/island create nether     # NEW! Creates nether island in dedicated nether void world
 
 # Check available types first
 /island types
+# Output: Available island types: classic, desert, nether
 ```
 
 ### ⚙️ Managing Island Settings
@@ -425,12 +500,14 @@ Both command styles work identically - choose what feels natural!
 
 ### Core Guides
 - **`DUAL_COMMAND_SYSTEM.md`** - Complete guide to the new dual command system
+- **`NETHER_ISLAND_GUIDE.md`** - Comprehensive nether island features and setup guide
 - **`LUCKPERMS_GAMERULE_PERMISSIONS.md`** - LuckPerms gamerule permission setup
 - **`ASWM_INTEGRATION_GUIDE.md`** - SlimeWorldManager integration details
 - **`ISLAND_SETTINGS_IMPLEMENTATION.md`** - Island settings and GUI system
 
 ### Technical Documentation
 - **`GAMERULE_PERMISSIONS_UPDATE.md`** - Technical implementation details
+- **`NETHER_FOLDER_STRUCTURE_COMPLETE.md`** - Nether world organization and structure
 - **`DEPLOYMENT_GUIDE.md`** - Server deployment and debugging information
 - **`TESTING.md`** - Testing procedures and expected results
 - **`PROJECT_COMPLETE.md`** - Complete feature overview and status
@@ -438,13 +515,21 @@ Both command styles work identically - choose what feels natural!
 ### Quick References
 - **`DEPLOYMENT_CHECKLIST.md`** - Pre-deployment validation checklist
 - **`COMMAND_TESTING.md`** - Command testing procedures
+- **`test-nether-folder-structure.sh`** - Nether island testing script
 - **`MINIMESSAGE_TESTING.md`** - Text formatting validation
 
 ## 🚀 Recent Updates
 
-### ✨ Version 1.0.0 - Latest Release (May 2025)
+### ✨ Version 1.1.0 - Latest Release (May 2025)
 
-#### 🎯 NEW: Dual Command System
+#### 🗂️ NEW: Directory Structure Reorganization
+- **Updated World Organization**: Normal islands now use `skyeblock/islands/` directory structure
+- **Maintained Nether Structure**: Nether islands continue using `skyeblock/nether/` for proper separation
+- **SlimeWorld Naming Updates**: Updated naming conventions to `skyeblock_islands_` for normal islands
+- **Backward Compatibility**: Seamless migration from old directory structure
+- **Enhanced World Lookup**: Improved world finding logic for both old and new structures
+
+#### 🎯 Dual Command System
 - **Direct Commands**: `/island`, `/visit`, `/delete`, `/hub` (preserves existing usage)
 - **Sub-Commands**: `/sb island`, `/sb visit`, `/sb delete`, `/sb hub` (new unified interface)
 - **Full Backward Compatibility**: Existing users can continue using familiar commands
@@ -453,12 +538,17 @@ Both command styles work identically - choose what feels natural!
 
 #### 🏝️ Enhanced Island Management
 - **Single-Word Island Types**: Clean identifiers (`classic`, `desert`, `nether`)
+- **🌋 NEW: Nether Island Support**: Complete nether island system with dedicated void worlds
+- **Advanced Biome Management**: Automatic biome setting for nether islands
+- **Multi-Environment Templates**: Support for both overworld and nether environments  
 - **Fixed Island Type Storage**: Islands now store single-word types instead of display names
 - **Improved Tab Completion**: Smart completion for island types and commands
 - **Two-Step Deletion**: Enhanced confirmation system for island deletion
 
 #### 🔧 Core System Improvements
 - **SlimeWorldManager Integration**: Individual island worlds with automatic fallback
+- **🌍 Advanced World Management**: Structured organization with overworld/nether directories
+- **🔥 Nether Environment Support**: Proper nether world creation with biome management
 - **LuckPerms Permission System**: Granular control over 31 island gamerules
 - **Interactive Settings GUI**: Real-time gamerule management with visual indicators
 - **MiniMessage Support**: Modern text formatting with Adventure API
@@ -491,6 +581,7 @@ Both command styles work identically - choose what feels natural!
 
 ### Quality Assurance
 - ✅ **Full Test Coverage**: Comprehensive testing scripts included
+- ✅ **Multi-Environment Testing**: Validation for both overworld and nether islands
 - ✅ **Validation Tools**: Multiple validation scripts for different components
 - ✅ **Backward Compatibility**: Maintains compatibility with existing setups
 - ✅ **Performance Optimized**: Efficient world management and resource usage
@@ -501,4 +592,4 @@ Both command styles work identically - choose what feels natural!
 
 This plugin is developed for SkyeNetwork. All rights reserved.
 
-**SkyeBlock Plugin v1.0.0** - A comprehensive island management solution with dual command system, advanced permissions, and modern Minecraft server integration.
+**SkyeBlock Plugin v1.1.0** - A comprehensive island management solution with dual command system, advanced permissions, modern Minecraft server integration, and full nether island support with dedicated void worlds and optimized directory structure.
