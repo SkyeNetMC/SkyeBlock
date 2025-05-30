@@ -31,6 +31,10 @@ commands:
     description: Teleport to hub world
     usage: /hub
     permission: skyeblock.hub
+  serverbrand:
+    description: Manage server brand settings
+    usage: /serverbrand [reload|update|set|toggle]
+    permission: skyeblock.admin.serverbrand
 
 permissions:
   skyeblock.*:
@@ -47,6 +51,7 @@ permissions:
       skyeblock.island.delete: true
       skyeblock.hub: true
       skyeblock.admin: true
+      skyeblock.admin.serverbrand: true
       skyeblock.gamerules.adminbypass: true
   skyeblock.island:
     description: Basic island commands (create, home, settings)

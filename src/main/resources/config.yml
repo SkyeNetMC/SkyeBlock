@@ -29,6 +29,17 @@ island:
   # Default template when creating islands
   default-template: "normal"
   
+# Server Brand Settings
+server-brand:
+  # Whether to enable custom server brand
+  enabled: true
+  # The custom brand name to show in the F3 debug screen
+  name: "LegitiSkyeSlimePaper"
+  # Whether to send brand updates periodically
+  periodic-updates: true
+  # Update interval in minutes (will send to all players every X minutes)
+  update-interval-minutes: 10
+
 # Messages (using MiniMessage format)
 messages:
   prefix: "<dark_gray>[<gold>SkyeBlock</gold>]</dark_gray> "

@@ -22,6 +22,15 @@ if [ $? -eq 0 ]; then
     echo "2. Make sure you have WorldEdit and WorldGuard installed"
     echo "3. Create island schematics in plugins/SkyeBlock/schematics/"
     echo "4. Restart your server"
+    echo ""
+    echo "Features:"
+    echo "- Island creation and management"
+    echo "- SlimeWorldManager integration"
+    echo "- Island settings and permissions"
+    echo "- Custom server brand: LegitiSkyeSlimePaper"
+    echo ""
+    echo "To test the server brand feature:"
+    echo "./test-server-brand.sh"
 else
     echo "Build failed!"
     exit 1

@@ -1,3 +1,4 @@
+skyeblock/nobleskye/dev/skyeblock/util/SpigotBrandModifier.class
 skyeblock/nobleskye/dev/skyeblock/SkyeBlockPlugin.class
 skyeblock/nobleskye/dev/skyeblock/commands/IslandCommand.class
 skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager$IslandSchematic.class
@@ -6,12 +7,16 @@ skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager.class
 skyeblock/nobleskye/dev/skyeblock/listeners/VisitorProtectionListener.class
 skyeblock/nobleskye/dev/skyeblock/commands/HubCommand.class
 skyeblock/nobleskye/dev/skyeblock/gui/DeleteConfirmationGUI.class
+skyeblock/nobleskye/dev/skyeblock/ServerBrandChanger.class
 skyeblock/nobleskye/dev/skyeblock/managers/WorldManager.class
 skyeblock/nobleskye/dev/skyeblock/gui/MainSettingsGUI.class
 skyeblock/nobleskye/dev/skyeblock/managers/SchematicManager.class
+skyeblock/nobleskye/dev/skyeblock/commands/ServerBrandCommand.class
 skyeblock/nobleskye/dev/skyeblock/gui/IslandVisitGUI.class
+skyeblock/nobleskye/dev/skyeblock/listeners/ServerBrandListener.class
 skyeblock/nobleskye/dev/skyeblock/models/Island.class
 skyeblock/nobleskye/dev/skyeblock/gui/VisitingSettingsGUI.class
+skyeblock/nobleskye/dev/skyeblock/listeners/PlayerJoinListener.class
 skyeblock/nobleskye/dev/skyeblock/managers/VoidWorldGenerator.class
 skyeblock/nobleskye/dev/skyeblock/commands/DeleteCommand.class
 skyeblock/nobleskye/dev/skyeblock/models/Island$CoopRole.class
@@ -20,4 +25,5 @@ skyeblock/nobleskye/dev/skyeblock/managers/IslandManager.class
 skyeblock/nobleskye/dev/skyeblock/managers/IslandSettingsManager.class
 skyeblock/nobleskye/dev/skyeblock/commands/VisitCommand.class
 skyeblock/nobleskye/dev/skyeblock/gui/IslandSettingsGUI.class
+skyeblock/nobleskye/dev/skyeblock/util/ServerBrandUtil.class
 skyeblock/nobleskye/dev/skyeblock/listeners/VisitorProtectionListener$1.class

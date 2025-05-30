@@ -3,6 +3,10 @@ package skyeblock.nobleskye.dev.skyeblock;
 import skyeblock.nobleskye.dev.skyeblock.commands.IslandCommand;
 import skyeblock.nobleskye.dev.skyeblock.commands.HubCommand;
 import skyeblock.nobleskye.dev.skyeblock.listeners.VisitorProtectionListener;
+import skyeblock.nobleskye.dev.skyeblock.listeners.ServerBrandListener;
+import skyeblock.nobleskye.dev.skyeblock.listeners.PlayerJoinListener;
+import skyeblock.nobleskye.dev.skyeblock.util.ServerBrandUtil;
+import skyeblock.nobleskye.dev.skyeblock.util.SpigotBrandModifier;
 import skyeblock.nobleskye.dev.skyeblock.managers.CustomSchematicManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.IslandManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.SchematicManager;
@@ -32,6 +36,10 @@ public class SkyeBlockPlugin extends JavaPlugin {
     private IslandVisitGUI islandVisitGUI;
     private DeleteConfirmationGUI deleteConfirmationGUI;
     private VisitorProtectionListener visitorProtectionListener;
+    private ServerBrandListener serverBrandListener;
+    private ServerBrandChanger serverBrandChanger;
+    private PlayerJoinListener playerJoinListener;
+    private SpigotBrandModifier spigotBrandModifier;
     private MiniMessage miniMessage;
 
     @Override
@@ -94,11 +102,60 @@ public class SkyeBlockPlugin extends JavaPlugin {
             new skyeblock.nobleskye.dev.skyeblock.commands.DeleteCommand(this);
         getCommand("delete").setExecutor(deleteCommand);
         getCommand("delete").setTabCompleter(deleteCommand);
+        
+        // Register server brand command
+        skyeblock.nobleskye.dev.skyeblock.commands.ServerBrandCommand serverBrandCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.ServerBrandCommand(this);
+        getCommand("serverbrand").setExecutor(serverBrandCommand);
+        getCommand("serverbrand").setTabCompleter(serverBrandCommand);
     }
     
     private void registerListeners() {
         this.visitorProtectionListener = new VisitorProtectionListener(this);
         getServer().getPluginManager().registerEvents(visitorProtectionListener, this);
+        
+        // Server brand configuration from config.yml
+        boolean brandEnabled = getConfig().getBoolean("server-brand.enabled", true);
+        if (!brandEnabled) {
+            getLogger().info("Custom server brand feature is disabled in config.yml");
+            return;
+        }
+        
+        // Get the custom brand name from config
+        String customBrand = getConfig().getString("server-brand.name", "LegitiSkyeSlimePaper");
+        
+        // Try all methods to modify the server brand for maximum compatibility
+        
+        // Method 1: Use our utility class with multiple approaches
+        ServerBrandUtil.modifyServerBrand(this, customBrand);
+        
+        // Method 2: Try to set the server brand using reflection-based listener
+        try {
+            this.serverBrandListener = new ServerBrandListener(this, customBrand);
+            getServer().getPluginManager().registerEvents(serverBrandListener, this);
+        } catch (Exception e) {
+            getLogger().warning("Failed to initialize reflection-based brand changer: " + e.getMessage());
+        }
+        
+        // Method 3: Try the plugin messaging approach
+        try {
+            this.serverBrandChanger = new ServerBrandChanger(this, customBrand);
+        } catch (Exception e) {
+            getLogger().warning("Failed to initialize plugin messaging brand changer: " + e.getMessage());
+        }
+        
+        // Method 4: Try the Spigot-specific brand modifier
+        try {
+            this.spigotBrandModifier = new SpigotBrandModifier(this, customBrand);
+        } catch (Exception e) {
+            getLogger().warning("Failed to initialize Spigot brand modifier: " + e.getMessage());
+        }
+        
+        // Register player join listener to update brand for joining players
+        this.playerJoinListener = new PlayerJoinListener(this);
+        getServer().getPluginManager().registerEvents(playerJoinListener, this);
+        
+        getLogger().info("Server brand set to: " + customBrand);
     }
 
     public IslandManager getIslandManager() {
@@ -139,6 +196,22 @@ public class SkyeBlockPlugin extends JavaPlugin {
 
     public DeleteConfirmationGUI getDeleteConfirmationGUI() {
         return deleteConfirmationGUI;
+    }
+    
+    public ServerBrandListener getServerBrandListener() {
+        return serverBrandListener;
+    }
+    
+    public ServerBrandChanger getServerBrandChanger() {
+        return serverBrandChanger;
+    }
+    
+    public PlayerJoinListener getPlayerJoinListener() {
+        return playerJoinListener;
+    }
+    
+    public SpigotBrandModifier getSpigotBrandModifier() {
+        return spigotBrandModifier;
     }
 
     public String getMessage(String key) {
