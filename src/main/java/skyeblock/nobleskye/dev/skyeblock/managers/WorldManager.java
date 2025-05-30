@@ -14,6 +14,7 @@ import java.util.Map;
 public class WorldManager {
     private final SkyeBlockPlugin plugin;
     private World skyBlockWorld;
+    private World skyBlockNetherWorld;
     private Plugin slimePlugin;
     private Object slimeLoader;
     private final Map<String, Object> islandWorlds;
@@ -57,6 +58,37 @@ public class WorldManager {
             }
         } else {
             plugin.getLogger().info("Loaded existing skyblock world: " + worldName);
+        }
+        
+        // Initialize nether world if enabled
+        if (plugin.getConfig().getBoolean("nether.enabled", false)) {
+            String netherWorldName = plugin.getConfig().getString("nether.name", "skyblock_nether");
+            
+            // Check if nether world already exists
+            skyBlockNetherWorld = Bukkit.getWorld(netherWorldName);
+            
+            if (skyBlockNetherWorld == null) {
+                // Create new skyblock nether world
+                WorldCreator netherCreator = new WorldCreator(netherWorldName);
+                netherCreator.type(WorldType.FLAT);
+                netherCreator.environment(World.Environment.NETHER);
+                netherCreator.generateStructures(false);
+                netherCreator.generator(new VoidWorldGenerator());
+                
+                skyBlockNetherWorld = netherCreator.createWorld();
+                
+                if (skyBlockNetherWorld != null) {
+                    // Set nether world properties
+                    skyBlockNetherWorld.setSpawnFlags(false, false);
+                    skyBlockNetherWorld.setTime(6000);
+                    
+                    plugin.getLogger().info("Created skyblock nether world: " + netherWorldName);
+                } else {
+                    plugin.getLogger().severe("Failed to create skyblock nether world!");
+                }
+            } else {
+                plugin.getLogger().info("Loaded existing skyblock nether world: " + netherWorldName);
+            }
         }
     }
 

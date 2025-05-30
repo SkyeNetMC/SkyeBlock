@@ -4,6 +4,13 @@
 world:
   name: "skyblock_world"
   environment: "NORMAL"
+  
+# Nether world settings
+nether:
+  name: "skyblock_nether"
+  environment: "NETHER"
+  biome: "NETHER_WASTES"
+  enabled: true
 
 # Hub world settings
 hub:
@@ -26,6 +33,7 @@ island:
     normal: "island-normal"
     spruce: "island-spruce" 
     cherry: "island-cherry"
+    nether: "island-nether"
   # Default template when creating islands
   default-template: "normal"
   
@@ -47,7 +55,7 @@ messages:
   island-already-exists: "<red>You already have an island!</red>"
   island-not-found: "<red>Island not found!</red>"
   no-permission: "<red>You don't have permission to do that!</red>"
-  invalid-template: "<red>Invalid island template! Available templates: <yellow>normal</yellow>, <yellow>spruce</yellow>, <yellow>cherry</yellow></red>"
+  invalid-template: "<red>Invalid island template! Available templates: <yellow>normal</yellow>, <yellow>spruce</yellow>, <yellow>cherry</yellow>, <yellow>nether</yellow></red>"
   teleported: "<green>You have been teleported to your island!</green>"
   invalid-command: "<red>Invalid command! Use <yellow>/island help</yellow> for available commands.</red>"
   island-deleted: "<green>Your island has been deleted! You have been teleported to the hub.</green>"
