@@ -2,17 +2,39 @@ name: SkyeBlock
 version: '1.0.0'
 main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
 api-version: '1.21'
-authors: [NobleSkye, SkyeNetwork Team]
+authors: [SkyeNetwork]
 description: SkyeBlock plugin for creating and managing skyblock islands
-website: https://skyenet.co.in
+website: https://skyenetwork.com
 depend: [WorldEdit, WorldGuard]
+softdepend: [SlimeWorldManager, AdvancedSlimeWorldManager, luckperms]
 
 commands:
+  sb:
+    description: Main SkyeBlock command
+    usage: /sb <island|visit|delete|hub> [args...]
+    permission: skyeblock.island
+    aliases: [skyblock]
   island:
     description: Main island command
-    usage: /island <create|tp|delete|list> [args...]
+    usage: /island <create|home|visit|lock|unlock|edit|coop|vote|set|settings> [args...]
     permission: skyeblock.island
-    aliases: [sb, skyblock]
+    aliases: [is]
+  visit:
+    description: Visit other players' islands
+    usage: /visit [player]
+    permission: skyeblock.island.visit
+  delete:
+    description: Delete your island or another player's island (admin)
+    usage: /delete [player]
+    permission: skyeblock.island.delete
+  hub:
+    description: Teleport to hub world
+    usage: /hub
+    permission: skyeblock.hub
+  serverbrand:
+    description: Manage server brand settings
+    usage: /serverbrand [reload|update|set|toggle]
+    permission: skyeblock.admin.serverbrand
 
 permissions:
   skyeblock.*:
@@ -20,10 +42,172 @@ permissions:
     default: op
     children:
       skyeblock.island: true
+      skyeblock.island.visit: true
+      skyeblock.island.vote: true
+      skyeblock.island.edit: true
+      skyeblock.island.coop: true
+      skyeblock.island.lock: true
+      skyeblock.island.set: true
+      skyeblock.island.delete: true
+      skyeblock.hub: true
       skyeblock.admin: true
+      skyeblock.admin.serverbrand: true
+      skyeblock.gamerules.adminbypass: true
   skyeblock.island:
-    description: Basic island commands
+    description: Basic island commands (create, home, settings)
+    default: true
+  skyeblock.island.visit:
+    description: Visit other islands
+    default: true
+  skyeblock.island.vote:
+    description: Vote for islands
+    default: true
+  skyeblock.island.edit:
+    description: Edit island title, description, and icon
+    default: true
+  skyeblock.island.coop:
+    description: Manage island coop members
+    default: true
+  skyeblock.island.lock:
+    description: Lock and unlock islands
+    default: true
+  skyeblock.island.set:
+    description: Set custom home and visit locations
+    default: true
+  skyeblock.island.delete:
+    description: Delete your own island
+    default: true
+  skyeblock.hub:
+    description: Hub teleport command
     default: true
   skyeblock.admin:
-    description: Admin commands
+    description: Admin commands (delete, list, status)
     default: op
+  skyeblock.gamerules.adminbypass:
+    description: Bypass all gamerule permissions (see all gamerules)
+    default: op
+  skyeblock.gamerule.*:
+    description: All gamerule permissions
+    default: true
+    children:
+      skyeblock.gamerule.dodaylightcycle: true
+      skyeblock.gamerule.doweathercycle: true
+      skyeblock.gamerule.keepinventory: true
+      skyeblock.gamerule.mobgriefing: true
+      skyeblock.gamerule.domobspawning: true
+      skyeblock.gamerule.dofiretick: true
+      skyeblock.gamerule.falldamage: true
+      skyeblock.gamerule.firedamage: true
+      skyeblock.gamerule.drowningdamage: true
+      skyeblock.gamerule.doinsomnia: true
+      skyeblock.gamerule.doimmediaterespawn: true
+      skyeblock.gamerule.announceadvancements: true
+      skyeblock.gamerule.disableelytraMovementcheck: true
+      skyeblock.gamerule.dolimitedcrafting: true
+      skyeblock.gamerule.naturalregeneration: true
+      skyeblock.gamerule.reduceddebuginfo: true
+      skyeblock.gamerule.sendcommandfeedback: true
+      skyeblock.gamerule.showdeathmessages: true
+      skyeblock.gamerule.doentitydrops: true
+      skyeblock.gamerule.dotiledrops: true
+      skyeblock.gamerule.domobloot: true
+      skyeblock.gamerule.dopatrolspawning: true
+      skyeblock.gamerule.dotraderSpawning: true
+      skyeblock.gamerule.forgivedeadplayers: true
+      skyeblock.gamerule.universalanger: true
+      skyeblock.gamerule.randomtickspeed: true
+      skyeblock.gamerule.spawnradius: true
+      skyeblock.gamerule.maxentitycramming: true
+      skyeblock.gamerule.maxcommandchainlength: true
+      skyeblock.gamerule.playerssleepingpercentage: true
+  # Individual gamerule permissions (default true, set to false to deny)
+  skyeblock.gamerule.dodaylightcycle:
+    description: Allow modifying daylight cycle gamerule
+    default: true
+  skyeblock.gamerule.doweathercycle:
+    description: Allow modifying weather cycle gamerule
+    default: true
+  skyeblock.gamerule.keepinventory:
+    description: Allow modifying keep inventory gamerule
+    default: true
+  skyeblock.gamerule.mobgriefing:
+    description: Allow modifying mob griefing gamerule
+    default: true
+  skyeblock.gamerule.domobspawning:
+    description: Allow modifying mob spawning gamerule
+    default: true
+  skyeblock.gamerule.dofiretick:
+    description: Allow modifying fire tick gamerule
+    default: true
+  skyeblock.gamerule.falldamage:
+    description: Allow modifying fall damage gamerule
+    default: true
+  skyeblock.gamerule.firedamage:
+    description: Allow modifying fire damage gamerule
+    default: true
+  skyeblock.gamerule.drowningdamage:
+    description: Allow modifying drowning damage gamerule
+    default: true
+  skyeblock.gamerule.doinsomnia:
+    description: Allow modifying insomnia gamerule
+    default: true
+  skyeblock.gamerule.doimmediaterespawn:
+    description: Allow modifying immediate respawn gamerule
+    default: true
+  skyeblock.gamerule.announceadvancements:
+    description: Allow modifying announce advancements gamerule
+    default: true
+  skyeblock.gamerule.disableelytraMovementcheck:
+    description: Allow modifying elytra movement check gamerule
+    default: true
+  skyeblock.gamerule.dolimitedcrafting:
+    description: Allow modifying limited crafting gamerule
+    default: true
+  skyeblock.gamerule.naturalregeneration:
+    description: Allow modifying natural regeneration gamerule
+    default: true
+  skyeblock.gamerule.reduceddebuginfo:
+    description: Allow modifying reduced debug info gamerule
+    default: true
+  skyeblock.gamerule.sendcommandfeedback:
+    description: Allow modifying send command feedback gamerule
+    default: true
+  skyeblock.gamerule.showdeathmessages:
+    description: Allow modifying show death messages gamerule
+    default: true
+  skyeblock.gamerule.doentitydrops:
+    description: Allow modifying entity drops gamerule
+    default: true
+  skyeblock.gamerule.dotiledrops:
+    description: Allow modifying tile drops gamerule
+    default: true
+  skyeblock.gamerule.domobloot:
+    description: Allow modifying mob loot gamerule
+    default: true
+  skyeblock.gamerule.dopatrolspawning:
+    description: Allow modifying patrol spawning gamerule
+    default: true
+  skyeblock.gamerule.dotraderSpawning:
+    description: Allow modifying trader spawning gamerule
+    default: true
+  skyeblock.gamerule.forgivedeadplayers:
+    description: Allow modifying forgive dead players gamerule
+    default: true
+  skyeblock.gamerule.universalanger:
+    description: Allow modifying universal anger gamerule
+    default: true
+  skyeblock.gamerule.randomtickspeed:
+    description: Allow modifying random tick speed gamerule
+    default: true
+  skyeblock.gamerule.spawnradius:
+    description: Allow modifying spawn radius gamerule
+    default: true
+  skyeblock.gamerule.maxentitycramming:
+    description: Allow modifying max entity cramming gamerule
+    default: true
+  skyeblock.gamerule.maxcommandchainlength:
+    description: Allow modifying max command chain length gamerule
+    default: true
+  skyeblock.gamerule.playerssleepingpercentage:
+    description: Allow modifying players sleeping percentage gamerule
+    default: true

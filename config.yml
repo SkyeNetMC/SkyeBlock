@@ -1,0 +1,66 @@
+# SkyeBlock Configuration
+
+# World settings
+world:
+  name: "skyblock_world"
+  environment: "NORMAL"
+
+# Hub world settings
+hub:
+  world: "world"
+  spawn:
+    x: 0
+    y: 100
+    z: 0
+  enabled: true
+  
+# Island settings
+island:
+  # Distance between islands
+  distance: 200
+  # Starting coordinates for the first island
+  start-x: 0
+  start-z: 0
+  # Island template types
+  templates:
+    normal: "island-normal"
+    spruce: "island-spruce" 
+    cherry: "island-cherry"
+  # Default template when creating islands
+  default-template: "normal"
+  
+# Server Brand Settings
+server-brand:
+  # Whether to enable custom server brand
+  enabled: true
+  # The custom brand name to show in the F3 debug screen
+  name: "LegitiSkyeSlimePaper"
+  # Whether to send brand updates periodically
+  periodic-updates: true
+  # Update interval in minutes (will send to all players every X minutes)
+  update-interval-minutes: 10
+
+# Messages (using MiniMessage format)
+messages:
+  prefix: "<dark_gray>[<gold>SkyeBlock</gold>]</dark_gray> "
+  island-created: "<green>Island created successfully! Teleporting you there...</green>"
+  island-already-exists: "<red>You already have an island!</red>"
+  island-not-found: "<red>Island not found!</red>"
+  no-permission: "<red>You don't have permission to do that!</red>"
+  invalid-template: "<red>Invalid island template! Available templates: <yellow>normal</yellow>, <yellow>spruce</yellow>, <yellow>cherry</yellow></red>"
+  teleported: "<green>You have been teleported to your island!</green>"
+  invalid-command: "<red>Invalid command! Use <yellow>/island help</yellow> for available commands.</red>"
+  island-deleted: "<green>Your island has been deleted! You have been teleported to the hub.</green>"
+  teleported-to-hub: "<green>You have been teleported to the hub!</green>"
+  hub-not-configured: "<red>Hub world is not properly configured!</red>"
+  help-header: "<gold><bold>===== SkyeBlock Commands =====</bold></gold>"
+  help-create: "<yellow>/island create [type]</yellow> - <gray>Create a new island</gray>"
+  help-teleport: "<yellow>/island tp</yellow> - <gray>Teleport to your island</gray>"
+  help-delete: "<yellow>/island delete</yellow> - <gray>Delete your island</gray>"
+  help-list: "<yellow>/island list</yellow> - <gray>List available island types</gray>"
+  help-hub: "<yellow>/hub</yellow> - <gray>Teleport to the hub world</gray>"
+  
+# Schematic settings
+schematics:
+  # Path where island templates are stored
+  template-path: "plugins/SkyeBlock/schematics/"
