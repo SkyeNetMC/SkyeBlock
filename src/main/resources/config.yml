@@ -63,6 +63,7 @@ messages:
   hub-not-configured: "<red>Hub world is not properly configured!</red>"
   help-header: "<gold><bold>===== SkyeBlock Commands =====</bold></gold>"
   help-create: "<yellow>/island create [type]</yellow> - <gray>Create a new island</gray>"
+  help-create-nether: "<yellow>/island create nether</yellow> - <gray>Create a nether island in the nether wastes</gray>"
   help-teleport: "<yellow>/island tp</yellow> - <gray>Teleport to your island</gray>"
   help-delete: "<yellow>/island delete</yellow> - <gray>Delete your island</gray>"
   help-list: "<yellow>/island list</yellow> - <gray>List available island types</gray>"

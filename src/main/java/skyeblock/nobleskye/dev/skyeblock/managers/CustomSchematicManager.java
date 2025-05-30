@@ -41,7 +41,7 @@ public class CustomSchematicManager {
      * Load all schematic files from resources
      */
     private void loadSchematics() {
-        String[] schematicFiles = {"classic.yml", "desert.yml", "nether.yml"};
+        String[] schematicFiles = {"classic.yml", "desert.yml", "nether.yml", "island-nether.yml"};
         
         for (String fileName : schematicFiles) {
             try {
@@ -73,6 +73,10 @@ public class CustomSchematicManager {
             String name = config.getString("name");
             String description = config.getString("description");
             
+            // Check for world and biome configuration (for nether islands)
+            String worldType = config.getString("world", "skyblock_world");
+            String biome = config.getString("biome", "PLAINS");
+            
             ConfigurationSection sizeSection = config.getConfigurationSection("size");
             int width = sizeSection.getInt("width");
             int height = sizeSection.getInt("height");
@@ -86,8 +90,14 @@ public class CustomSchematicManager {
             List<Map<?, ?>> structure = config.getMapList("structure");
             List<Map<?, ?>> chestContents = config.getMapList("chest_contents");
             
-            return new IslandSchematic(name, description, width, height, length, 
+            IslandSchematic schematic = new IslandSchematic(name, description, width, height, length, 
                                      spawnX, spawnY, spawnZ, structure, chestContents);
+            
+            // Set nether-specific properties
+            schematic.setWorldName(worldType);
+            schematic.setBiome(biome);
+            
+            return schematic;
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING, "Failed to parse schematic", e);
             return null;
@@ -108,6 +118,32 @@ public class CustomSchematicManager {
             int baseX = location.getBlockX();
             int baseY = location.getBlockY();
             int baseZ = location.getBlockZ();
+            
+            // Handle biome settings for nether islands
+            if (schematicName.equalsIgnoreCase("nether")) {
+                try {
+                    // Set the biome in a 32x32 area around the island to match the specified biome
+                    String biomeName = schematic.getBiome();
+                    try {
+                        org.bukkit.block.Biome biome = org.bukkit.block.Biome.valueOf(biomeName);
+                        int radius = Math.max(schematic.getWidth(), schematic.getLength()) / 2 + 8;
+                        
+                        for (int x = -radius; x <= radius; x++) {
+                            for (int z = -radius; z <= radius; z++) {
+                                int blockX = baseX + x;
+                                int blockZ = baseZ + z;
+                                // Use newer API to set biome in a block-by-block range
+                                world.setBiome(blockX, baseY, blockZ, biome);
+                            }
+                        }
+                        plugin.getLogger().info("Set biome to " + biomeName + " for nether island");
+                    } catch (IllegalArgumentException e) {
+                        plugin.getLogger().warning("Invalid biome: " + biomeName);
+                    }
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Failed to set biome: " + e.getMessage());
+                }
+            }
             
             // Paste blocks level by level
             for (Map<?, ?> levelData : schematic.getStructure()) {
@@ -245,6 +281,8 @@ public class CustomSchematicManager {
         private final int spawnX, spawnY, spawnZ;
         private final List<Map<?, ?>> structure;
         private final List<Map<?, ?>> chestContents;
+        private String worldName = "skyblock_world"; // Default world
+        private String biome = "PLAINS"; // Default biome
         
         public IslandSchematic(String name, String description, int width, int height, int length,
                              int spawnX, int spawnY, int spawnZ, List<Map<?, ?>> structure,
@@ -272,5 +310,11 @@ public class CustomSchematicManager {
         public int getSpawnZ() { return spawnZ; }
         public List<Map<?, ?>> getStructure() { return structure; }
         public List<Map<?, ?>> getChestContents() { return chestContents; }
+        public String getWorldName() { return worldName; }
+        public String getBiome() { return biome; }
+        
+        // Setters for nether-specific properties
+        public void setWorldName(String worldName) { this.worldName = worldName; }
+        public void setBiome(String biome) { this.biome = biome; }
     }
 }

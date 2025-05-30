@@ -53,6 +53,12 @@ public class IslandManager {
         // Create island ID
         String islandId = "island-" + islandType + "-" + playerUUID.toString();
         
+        // Determine which world to use based on template type
+        boolean isNetherTemplate = islandType.equals("nether");
+        World targetWorld = isNetherTemplate && plugin.getWorldManager().hasNetherWorld() 
+            ? plugin.getWorldManager().getSkyBlockNetherWorld()
+            : plugin.getWorldManager().getSkyBlockWorld();
+            
         // Create individual world for this island
         World islandWorld = plugin.getWorldManager().createIslandWorld(islandId);
         if (islandWorld == null) {

@@ -784,6 +784,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private void sendHelp(Player player) {
         plugin.sendMessage(player, "help-header");
         plugin.sendMessage(player, "help-create");
+        plugin.sendMessage(player, "help-create-nether");
         player.sendMessage(miniMessage.deserialize("<yellow>/island types</yellow> <gray>-</gray> <gray>Show available island types</gray>"));
         plugin.sendMessage(player, "help-teleport");
         player.sendMessage(miniMessage.deserialize("<yellow>/island visit [player]</yellow> <gray>-</gray> <gray>Visit islands or open island browser</gray>"));

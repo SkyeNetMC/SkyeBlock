@@ -204,6 +204,14 @@ public class WorldManager {
     public World getSkyBlockWorld() {
         return skyBlockWorld;
     }
+    
+    public World getSkyBlockNetherWorld() {
+        return skyBlockNetherWorld;
+    }
+    
+    public boolean hasNetherWorld() {
+        return skyBlockNetherWorld != null;
+    }
 
     public World createIslandWorld(String islandId) {
         // If SlimeWorldManager/ASWM is available, try to use it
@@ -243,8 +251,16 @@ public class WorldManager {
     }
 
     private World createASWMWorld(String islandId, Class<?> slimePluginClass) throws Exception {
-        // ASWM API implementation - create world with islands/ directory structure
-        String worldName = "islands_" + islandId; // Use underscore for ASWM compatibility
+        // ASWM API implementation - determine world type from island ID
+        boolean isNetherIsland = islandId.contains("nether");
+        
+        // Use structured naming for SlimeWorlds to reflect folder organization
+        String worldName;
+        if (isNetherIsland) {
+            worldName = "skyeblock_nether_" + islandId;
+        } else {
+            worldName = "skyeblock_overworld_" + islandId;
+        }
         
         // Create properties using reflection for ASWM
         Class<?> slimePropertyMapClass = Class.forName("com.infernalsuite.aswm.api.world.properties.SlimePropertyMap");
@@ -294,8 +310,16 @@ public class WorldManager {
     }
 
     private World createSWMWorld(String islandId, Class<?> slimePluginClass) throws Exception {
-        // Old SWM API implementation - create world with islands/ directory structure
-        String worldName = "islands_" + islandId; // Use underscore for SWM compatibility
+        // Old SWM API implementation - determine world type from island ID
+        boolean isNetherIsland = islandId.contains("nether");
+        
+        // Use structured naming for SlimeWorlds to reflect folder organization
+        String worldName;
+        if (isNetherIsland) {
+            worldName = "skyeblock_nether_" + islandId;
+        } else {
+            worldName = "skyeblock_overworld_" + islandId;
+        }
         
         // Create properties using reflection for old SWM
         Class<?> slimePropertyMapClass = Class.forName("com.grinderwolf.swm.api.world.properties.SlimePropertyMap");
@@ -346,11 +370,28 @@ public class WorldManager {
 
     private World createStandardWorld(String islandId) {
         try {
-            // Create world in islands/ directory
-            String worldPath = "islands/" + islandId;
+            // Determine if this is a nether island based on id format
+            boolean isNetherIsland = islandId.contains("nether");
+            
+            // Create world in the appropriate directory structure
+            // root/skyeblock/overworld/ for normal islands
+            // root/skyeblock/nether/ for nether islands
+            String worldPath;
+            if (isNetherIsland) {
+                worldPath = "skyeblock/nether/" + islandId;
+            } else {
+                worldPath = "skyeblock/overworld/" + islandId;
+            }
+            
             WorldCreator creator = new WorldCreator(worldPath);
             creator.type(WorldType.FLAT);
             creator.generateStructures(false);
+            
+            // Set nether environment for nether islands
+            if (isNetherIsland) {
+                creator.environment(World.Environment.NETHER);
+            }
+            
             creator.generator(new VoidWorldGenerator());
             
             World world = creator.createWorld();
@@ -380,17 +421,32 @@ public class WorldManager {
             return true;
         }
 
-        // Check for both standard world names and slime world names
-        String standardWorldPath = "islands/" + islandId;
-        String slimeWorldName = "islands_" + islandId;
+        // Determine if this is a nether island
+        boolean isNetherIsland = islandId.contains("nether");
+        
+        // Check for standard world names, new directory structure, and slime world names
+        String oldStandardWorldPath = "islands/" + islandId;
+        String newStandardWorldPath = isNetherIsland ? 
+            "skyeblock/nether/" + islandId : 
+            "skyeblock/overworld/" + islandId;
+        String oldSlimeWorldName = "islands_" + islandId;
+        String newSlimeWorldName = isNetherIsland ?
+            "skyeblock_nether_" + islandId :
+            "skyeblock_overworld_" + islandId;
         
         // Try to find and unload the world (could be either name format)
         World bukkitWorld = Bukkit.getWorld(islandId);
         if (bukkitWorld == null) {
-            bukkitWorld = Bukkit.getWorld(standardWorldPath);
+            bukkitWorld = Bukkit.getWorld(oldStandardWorldPath);
         }
         if (bukkitWorld == null) {
-            bukkitWorld = Bukkit.getWorld(slimeWorldName);
+            bukkitWorld = Bukkit.getWorld(newStandardWorldPath);
+        }
+        if (bukkitWorld == null) {
+            bukkitWorld = Bukkit.getWorld(oldSlimeWorldName);
+        }
+        if (bukkitWorld == null) {
+            bukkitWorld = Bukkit.getWorld(newSlimeWorldName);
         }
         
         if (bukkitWorld != null) {
@@ -411,33 +467,45 @@ public class WorldManager {
                 // Use reflection to check if world exists and delete it
                 Class<?> slimeLoaderClass = slimeLoader.getClass();
                 
-                // Try both naming conventions for slime worlds
-                boolean exists = (Boolean) slimeLoaderClass.getMethod("worldExists", String.class).invoke(slimeLoader, slimeWorldName);
-                if (!exists) {
-                    exists = (Boolean) slimeLoaderClass.getMethod("worldExists", String.class).invoke(slimeLoader, islandId);
-                }
+                // Try both old and new naming conventions for slime worlds
+                boolean existsOld = (Boolean) slimeLoaderClass.getMethod("worldExists", String.class).invoke(slimeLoader, oldSlimeWorldName);
+                boolean existsNew = (Boolean) slimeLoaderClass.getMethod("worldExists", String.class).invoke(slimeLoader, newSlimeWorldName);
+                boolean existsPlain = (Boolean) slimeLoaderClass.getMethod("worldExists", String.class).invoke(slimeLoader, islandId);
                 
-                if (exists) {
-                    String worldToDelete = exists ? slimeWorldName : islandId;
-                    slimeLoaderClass.getMethod("deleteWorld", String.class).invoke(slimeLoader, worldToDelete);
-                    plugin.getLogger().info("Deleted SlimeWorld: " + worldToDelete);
+                if (existsNew) {
+                    slimeLoaderClass.getMethod("deleteWorld", String.class).invoke(slimeLoader, newSlimeWorldName);
+                    plugin.getLogger().info("Deleted SlimeWorld: " + newSlimeWorldName);
+                } else if (existsOld) {
+                    slimeLoaderClass.getMethod("deleteWorld", String.class).invoke(slimeLoader, oldSlimeWorldName);
+                    plugin.getLogger().info("Deleted SlimeWorld: " + oldSlimeWorldName);
+                } else if (existsPlain) {
+                    slimeLoaderClass.getMethod("deleteWorld", String.class).invoke(slimeLoader, islandId);
+                    plugin.getLogger().info("Deleted SlimeWorld: " + islandId);
                 }
             } catch (Exception e) {
                 plugin.getLogger().warning("Failed to delete SlimeWorld " + islandId + ": " + e.getMessage());
             }
         } else {
-            // Delete standard world folder (check islands directory)
+            // Delete standard world folder (check both old and new directory structures)
             try {
-                File worldFolder = new File(Bukkit.getWorldContainer(), standardWorldPath);
+                // Try new directory structure first
+                File worldFolder = new File(Bukkit.getWorldContainer(), newStandardWorldPath);
                 if (worldFolder.exists()) {
                     deleteDirectory(worldFolder);
-                    plugin.getLogger().info("Deleted world folder: " + standardWorldPath);
+                    plugin.getLogger().info("Deleted world folder: " + newStandardWorldPath);
                 } else {
-                    // Fallback to old naming convention
-                    worldFolder = new File(Bukkit.getWorldContainer(), islandId);
+                    // Try old directory structure
+                    worldFolder = new File(Bukkit.getWorldContainer(), oldStandardWorldPath);
                     if (worldFolder.exists()) {
                         deleteDirectory(worldFolder);
-                        plugin.getLogger().info("Deleted world folder: " + islandId);
+                        plugin.getLogger().info("Deleted world folder: " + oldStandardWorldPath);
+                    } else {
+                        // Fallback to original naming convention
+                        worldFolder = new File(Bukkit.getWorldContainer(), islandId);
+                        if (worldFolder.exists()) {
+                            deleteDirectory(worldFolder);
+                            plugin.getLogger().info("Deleted world folder: " + islandId);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -468,11 +536,36 @@ public class WorldManager {
     public World getIslandWorld(String islandId) {
         // Try multiple world name formats
         World world = Bukkit.getWorld(islandId);
+        
+        // Check old path format
         if (world == null) {
             world = Bukkit.getWorld("islands/" + islandId);
         }
+        
+        // Check old SlimeWorld format
         if (world == null) {
             world = Bukkit.getWorld("islands_" + islandId);
+        }
+        
+        // Determine if nether or overworld based on id
+        boolean isNetherIsland = islandId.contains("nether");
+        
+        // Check new standard world structure
+        if (world == null) {
+            if (isNetherIsland) {
+                world = Bukkit.getWorld("skyeblock/nether/" + islandId);
+            } else {
+                world = Bukkit.getWorld("skyeblock/overworld/" + islandId);
+            }
+        }
+        
+        // Check new SlimeWorld structure
+        if (world == null) {
+            if (isNetherIsland) {
+                world = Bukkit.getWorld("skyeblock_nether_" + islandId);
+            } else {
+                world = Bukkit.getWorld("skyeblock_overworld_" + islandId);
+            }
         }
         
         // Apply island settings to the world if found and it's not the main world
