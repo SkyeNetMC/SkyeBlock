@@ -88,8 +88,8 @@ public class IslandManager {
         // Create the island object
         Island island = new Island(playerUUID, islandType, islandLocation);
         
-        // Paste the schematic using custom schematic manager
-        boolean success = plugin.getCustomSchematicManager().pasteSchematic(islandType, islandLocation);
+        // Paste the schematic using WorldEdit schematic manager
+        boolean success = plugin.getSchematicManager().pasteSchematic(islandType, islandLocation);
         if (!success) {
             // Clean up the world if schematic failed
             plugin.getWorldManager().deleteIslandWorld(islandId);
@@ -128,28 +128,31 @@ public class IslandManager {
                 return;
             }
             
-            // Create nether island ID
-            String netherIslandId = "island-nether-" + playerUUID.toString();
-            
-            // Create individual nether world for this island
-            World netherIslandWorld = plugin.getWorldManager().createIslandWorld(netherIslandId);
-            if (netherIslandWorld == null) {
-                plugin.getLogger().warning("Failed to create nether world for island: " + netherIslandId);
+            // Use the same world as the main island to allow portal sync
+            World islandWorld = mainIsland.getLocation().getWorld();
+            if (islandWorld == null) {
+                plugin.getLogger().warning("Main island world is null, cannot create nether island for " + playerUUID);
                 return;
             }
 
-            // Calculate location for new nether island (center of the world)
-            Location netherIslandLocation = new Location(netherIslandWorld, 0, 100, 0);
+            // Calculate nether location in the same world (offset to nether coordinates)
+            // Standard nether coordinate conversion: divide by 8 and offset to avoid overlap
+            Location mainLocation = mainIsland.getLocation();
+            Location netherIslandLocation = new Location(islandWorld, 
+                mainLocation.getX() / 8, // Standard nether coordinate scaling
+                64, // Lower Y level for nether feel
+                mainLocation.getZ() / 8);
+            
+            // Create nether island ID for settings and data management
+            String netherIslandId = "island-nether-" + playerUUID.toString();
             
             // Create the nether island object
             Island netherIsland = new Island(playerUUID, "nether", netherIslandLocation);
             
             // Paste the nether schematic
-            boolean success = plugin.getCustomSchematicManager().pasteSchematic("nether", netherIslandLocation);
+            boolean success = plugin.getSchematicManager().pasteSchematic("nether", netherIslandLocation);
             if (!success) {
                 plugin.getLogger().warning("Failed to paste nether schematic for island: " + netherIslandId);
-                // Clean up the world if schematic failed
-                plugin.getWorldManager().deleteIslandWorld(netherIslandId);
                 return;
             }
 
@@ -160,12 +163,39 @@ public class IslandManager {
             
             // Create default settings for the nether island and apply them
             plugin.getIslandSettingsManager().createDefaultSettings(netherIslandId);
-            plugin.getIslandSettingsManager().applySettingsToWorld(netherIslandId, netherIslandWorld);
+            plugin.getIslandSettingsManager().applySettingsToWorld(netherIslandId, islandWorld);
             
-            plugin.getLogger().info("Created nether island " + netherIslandId + " for player " + playerUUID);
+            // Set the nether area biome to NETHER_WASTES
+            setNetherBiome(netherIslandLocation, 32);
+            
+            plugin.getLogger().info("Created nether area in main island world " + netherIslandId + " for player " + playerUUID);
             
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create nether island for " + playerUUID + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Set a square area around the location to nether biome
+     */
+    private void setNetherBiome(Location center, int radius) {
+        try {
+            World world = center.getWorld();
+            if (world == null) return;
+            
+            org.bukkit.block.Biome netherBiome = org.bukkit.block.Biome.NETHER_WASTES;
+            int centerX = center.getBlockX();
+            int centerZ = center.getBlockZ();
+            
+            for (int x = centerX - radius; x <= centerX + radius; x++) {
+                for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                    world.setBiome(x, 64, z, netherBiome); // Set at nether level
+                }
+            }
+            
+            plugin.getLogger().info("Set nether biome in " + (radius * 2 + 1) + "x" + (radius * 2 + 1) + " area");
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to set nether biome: " + e.getMessage());
         }
     }
 
@@ -212,9 +242,12 @@ public class IslandManager {
                 // For visitors, try home location as fallback
                 safeLocation = findSafeLocation(island.getHomeLocation());
                 if (safeLocation == null) {
-                    // Final fallback to original spawn
-                    safeLocation = findSafeLocation(plugin.getCustomSchematicManager().getSpawnLocation(
-                        island.getIslandType(), island.getLocation()));
+                    // Final fallback to a safe location near the island center
+                    Location islandCenter = island.getLocation();
+                    // Try a few blocks above the island center
+                    Location fallbackLocation = new Location(islandCenter.getWorld(), 
+                        islandCenter.getX(), islandCenter.getY() + 5, islandCenter.getZ());
+                    safeLocation = findSafeLocation(fallbackLocation);
                 }
                 
                 if (safeLocation == null) {
@@ -390,8 +423,8 @@ public class IslandManager {
     }
 
     private boolean isValidIslandType(String type) {
-        // Check if the type exists in our custom schematic manager
-        String[] availableTypes = plugin.getCustomSchematicManager().getAvailableSchematics();
+        // Check if the type exists in our schematic manager
+        String[] availableTypes = plugin.getSchematicManager().getAvailableSchematics();
         for (String availableType : availableTypes) {
             if (availableType.equalsIgnoreCase(type)) {
                 return true;

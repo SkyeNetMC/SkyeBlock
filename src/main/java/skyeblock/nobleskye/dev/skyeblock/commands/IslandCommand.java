@@ -135,8 +135,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             islandType = "classic"; // Default to classic type
         }
 
-        // Validate island type using custom schematic manager
-        String[] availableTypes = plugin.getCustomSchematicManager().getAvailableSchematics();
+        // Validate island type using schematic manager
+        String[] availableTypes = plugin.getSchematicManager().getAvailableSchematics();
         boolean validType = false;
         for (String type : availableTypes) {
             if (type.equalsIgnoreCase(islandType)) {
@@ -226,15 +226,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleTypesCommand(Player player) {
-        String[] availableTypes = plugin.getCustomSchematicManager().getAvailableSchematics();
+        String[] availableTypes = plugin.getSchematicManager().getAvailableSchematics();
         
         player.sendMessage(miniMessage.deserialize("<gold>=== Available Island Types ===</gold>"));
         for (String type : availableTypes) {
-            var schematic = plugin.getCustomSchematicManager().getSchematic(type);
-            if (schematic != null) {
-                player.sendMessage(miniMessage.deserialize("<aqua>" + type + "</aqua> <white>-</white> " + 
-                                 "<gray>" + schematic.getDescription() + "</gray>"));
-            }
+            // Since .schem files don't have built-in descriptions, show the type name
+            player.sendMessage(miniMessage.deserialize("<aqua>" + type + "</aqua> <white>-</white> " + 
+                             "<gray>WorldEdit schematic file</gray>"));
         }
         player.sendMessage(miniMessage.deserialize("<yellow>Usage: /island create <type></yellow>"));
     }
@@ -259,7 +257,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(miniMessage.deserialize("<aqua>Total Islands:</aqua> <yellow>" + islands.size() + "</yellow>"));
         
         // Available Schematics
-        String[] schematics = plugin.getCustomSchematicManager().getAvailableSchematics();
+        String[] schematics = plugin.getSchematicManager().getAvailableSchematics();
         player.sendMessage(miniMessage.deserialize("<aqua>Available Schematics:</aqua> <yellow>" + schematics.length + "</yellow>"));
         
         player.sendMessage(miniMessage.deserialize("<gray>Use /island types to see all available island types</gray>"));
@@ -836,7 +834,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             switch (subCommand) {
                 case "create":
                     // Arguments for create command - island types (including multi-word types)
-                    String[] availableTypes = plugin.getCustomSchematicManager().getAvailableSchematics();
+                    String[] availableTypes = plugin.getSchematicManager().getAvailableSchematics();
                     
                     // Join current arguments to build partial type name
                     StringBuilder currentType = new StringBuilder();

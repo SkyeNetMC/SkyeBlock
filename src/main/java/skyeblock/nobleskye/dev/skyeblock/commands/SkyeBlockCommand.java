@@ -51,6 +51,10 @@ public class SkyeBlockCommand implements CommandExecutor, TabCompleter {
                 return deleteCommand.onCommand(sender, command, label, subArgs);
             case "hub":
                 return hubCommand.onCommand(sender, command, label, subArgs);
+            case "status":
+                // Route status command to island command handler
+                String[] statusArgs = new String[]{"status"};
+                return islandCommand.onCommand(sender, command, label, statusArgs);
             default:
                 sender.sendMessage(Component.text("Unknown subcommand: " + subCommand, NamedTextColor.RED));
                 showHelp(sender);

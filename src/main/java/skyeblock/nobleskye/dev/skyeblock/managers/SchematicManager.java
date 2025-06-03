@@ -36,19 +36,13 @@ public class SchematicManager {
         createDefaultSchematics();
     }
 
-    public boolean pasteIslandTemplate(String islandType, Location location) {
-        String templateName = plugin.getConfig().getString("island.templates." + islandType);
-        if (templateName == null) {
-            plugin.getLogger().warning("No template found for island type: " + islandType);
-            return false;
-        }
-
-        File schematicFile = new File(schematicFolder, templateName + ".schem");
+    public boolean pasteSchematic(String schematicName, Location location) {
+        File schematicFile = new File(schematicFolder, schematicName + ".schem");
         if (!schematicFile.exists()) {
             // Try .schematic extension as fallback
-            schematicFile = new File(schematicFolder, templateName + ".schematic");
+            schematicFile = new File(schematicFolder, schematicName + ".schematic");
             if (!schematicFile.exists()) {
-                plugin.getLogger().warning("Schematic file not found: " + templateName);
+                plugin.getLogger().warning("Schematic file not found: " + schematicName);
                 return false;
             }
         }
@@ -75,12 +69,11 @@ public class SchematicManager {
                         .build();
                 
                 Operations.complete(operation);
-                editSession.flushSession();
             }
 
             return true;
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to paste schematic: " + templateName, e);
+            plugin.getLogger().log(Level.SEVERE, "Failed to paste schematic: " + schematicName, e);
             return false;
         }
     }
@@ -108,6 +101,41 @@ public class SchematicManager {
                 plugin.getLogger().log(Level.WARNING, "Could not create schematic info file", e);
             }
         }
+    }
+
+    public boolean pasteIslandTemplate(String islandType, Location location) {
+        String templateName = plugin.getConfig().getString("island.templates." + islandType);
+        if (templateName == null) {
+            // Use islandType directly if no template mapping exists
+            templateName = islandType;
+        }
+        return pasteSchematic(templateName, location);
+    }
+
+    /**
+     * Get list of available schematic files (without extensions)
+     */
+    public String[] getAvailableSchematics() {
+        if (!schematicFolder.exists()) {
+            return new String[0];
+        }
+        
+        File[] files = schematicFolder.listFiles((dir, name) -> 
+            name.toLowerCase().endsWith(".schem") || name.toLowerCase().endsWith(".schematic"));
+        
+        if (files == null) {
+            return new String[0];
+        }
+        
+        String[] names = new String[files.length];
+        for (int i = 0; i < files.length; i++) {
+            String fileName = files[i].getName();
+            // Remove file extension
+            int dotIndex = fileName.lastIndexOf('.');
+            names[i] = dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+        }
+        
+        return names;
     }
 
     public File getSchematicFolder() {
