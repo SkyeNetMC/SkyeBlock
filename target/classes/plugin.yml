@@ -35,6 +35,10 @@ commands:
     description: Manage server brand settings
     usage: /serverbrand [reload|update|set|toggle]
     permission: skyeblock.admin.serverbrand
+  convertislands:
+    description: Convert old island format to new UUID-based format
+    usage: /convertislands <scan|convert> [username]
+    permission: skyeblock.admin.convert
 
 permissions:
   skyeblock.*:
@@ -52,6 +56,7 @@ permissions:
       skyeblock.hub: true
       skyeblock.admin: true
       skyeblock.admin.serverbrand: true
+      skyeblock.admin.convert: true
       skyeblock.gamerules.adminbypass: true
   skyeblock.island:
     description: Basic island commands (create, home, settings)
