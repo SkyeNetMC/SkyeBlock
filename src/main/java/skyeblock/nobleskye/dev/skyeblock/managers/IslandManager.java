@@ -14,11 +14,38 @@ public class IslandManager {
     private final SkyeBlockPlugin plugin;
     private final Map<UUID, Island> playerIslands;
     private final MiniMessage miniMessage;
+    private IslandDataManager dataManager;
 
     public IslandManager(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
         this.playerIslands = new HashMap<>();
         this.miniMessage = MiniMessage.miniMessage();
+    }
+    
+    /**
+     * Initialize the data manager and load existing islands
+     */
+    public void initialize() {
+        this.dataManager = new IslandDataManager(plugin);
+        loadAllIslands();
+    }
+    
+    /**
+     * Load all islands from persistent storage
+     */
+    private void loadAllIslands() {
+        Map<UUID, Island> loadedIslands = dataManager.loadAllIslands();
+        playerIslands.putAll(loadedIslands);
+        plugin.getLogger().info("Loaded " + loadedIslands.size() + " islands");
+    }
+    
+    /**
+     * Save all islands to persistent storage
+     */
+    public void saveAllIslands() {
+        if (dataManager != null) {
+            dataManager.saveAllIslands(playerIslands);
+        }
     }
 
     public boolean hasIsland(UUID playerUUID) {
@@ -72,12 +99,74 @@ public class IslandManager {
         // Store the island
         playerIslands.put(playerUUID, island);
         
+        // Save island to persistent storage
+        if (dataManager != null) {
+            dataManager.saveIsland(island);
+        }
+        
         // Create default settings for the island and apply them to the world
         plugin.getIslandSettingsManager().createDefaultSettings(islandId);
         plugin.getIslandSettingsManager().applySettingsToWorld(islandId, islandWorld);
         
+        // Create a corresponding nether island if this isn't already a nether island
+        if (!islandType.equals("nether")) {
+            createNetherIsland(playerUUID, island);
+        }
+        
         plugin.getLogger().info("Created island " + islandId + " for player " + player.getName());
         return true;
+    }
+
+    /**
+     * Create a nether island for a player who already has a main island
+     */
+    private void createNetherIsland(UUID playerUUID, Island mainIsland) {
+        try {
+            // Only create nether island if nether worlds are enabled
+            if (!plugin.getWorldManager().hasNetherWorld()) {
+                plugin.getLogger().info("Nether worlds not enabled, skipping nether island creation for " + playerUUID);
+                return;
+            }
+            
+            // Create nether island ID
+            String netherIslandId = "island-nether-" + playerUUID.toString();
+            
+            // Create individual nether world for this island
+            World netherIslandWorld = plugin.getWorldManager().createIslandWorld(netherIslandId);
+            if (netherIslandWorld == null) {
+                plugin.getLogger().warning("Failed to create nether world for island: " + netherIslandId);
+                return;
+            }
+
+            // Calculate location for new nether island (center of the world)
+            Location netherIslandLocation = new Location(netherIslandWorld, 0, 100, 0);
+            
+            // Create the nether island object
+            Island netherIsland = new Island(playerUUID, "nether", netherIslandLocation);
+            
+            // Paste the nether schematic
+            boolean success = plugin.getCustomSchematicManager().pasteSchematic("nether", netherIslandLocation);
+            if (!success) {
+                plugin.getLogger().warning("Failed to paste nether schematic for island: " + netherIslandId);
+                // Clean up the world if schematic failed
+                plugin.getWorldManager().deleteIslandWorld(netherIslandId);
+                return;
+            }
+
+            // Save nether island to persistent storage
+            if (dataManager != null) {
+                dataManager.saveIsland(netherIsland);
+            }
+            
+            // Create default settings for the nether island and apply them
+            plugin.getIslandSettingsManager().createDefaultSettings(netherIslandId);
+            plugin.getIslandSettingsManager().applySettingsToWorld(netherIslandId, netherIslandWorld);
+            
+            plugin.getLogger().info("Created nether island " + netherIslandId + " for player " + playerUUID);
+            
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to create nether island for " + playerUUID + ": " + e.getMessage());
+        }
     }
 
     public boolean teleportToIsland(Player player) {
@@ -222,16 +311,24 @@ public class IslandManager {
     }
     
     public void saveIsland(Island island) {
-        // Islands are automatically saved in memory
-        // In a real implementation, you might want to save to database or file
-        // For now, we just update the reference in our map
+        // Update the reference in our map
         playerIslands.put(island.getOwnerUUID(), island);
+        
+        // Save to persistent storage
+        if (dataManager != null) {
+            dataManager.saveIsland(island);
+        }
     }
 
     public boolean deleteIsland(UUID playerUUID) {
         Island island = playerIslands.remove(playerUUID);
         if (island == null) {
             return false;
+        }
+
+        // Delete from persistent storage
+        if (dataManager != null) {
+            dataManager.deleteIsland(playerUUID);
         }
 
         // Delete the island's world

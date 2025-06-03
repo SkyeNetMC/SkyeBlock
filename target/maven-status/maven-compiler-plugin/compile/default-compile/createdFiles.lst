@@ -7,6 +7,7 @@ skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager.class
 skyeblock/nobleskye/dev/skyeblock/listeners/VisitorProtectionListener.class
 skyeblock/nobleskye/dev/skyeblock/commands/HubCommand.class
 skyeblock/nobleskye/dev/skyeblock/gui/DeleteConfirmationGUI.class
+skyeblock/nobleskye/dev/skyeblock/managers/IslandDataManager.class
 skyeblock/nobleskye/dev/skyeblock/ServerBrandChanger.class
 skyeblock/nobleskye/dev/skyeblock/managers/WorldManager.class
 skyeblock/nobleskye/dev/skyeblock/gui/MainSettingsGUI.class
@@ -26,4 +27,5 @@ skyeblock/nobleskye/dev/skyeblock/managers/IslandSettingsManager.class
 skyeblock/nobleskye/dev/skyeblock/commands/VisitCommand.class
 skyeblock/nobleskye/dev/skyeblock/gui/IslandSettingsGUI.class
 skyeblock/nobleskye/dev/skyeblock/util/ServerBrandUtil.class
+skyeblock/nobleskye/dev/skyeblock/commands/ConvertIslandsCommand.class
 skyeblock/nobleskye/dev/skyeblock/listeners/VisitorProtectionListener$1.class

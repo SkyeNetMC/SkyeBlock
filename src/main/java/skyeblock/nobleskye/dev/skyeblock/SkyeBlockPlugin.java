@@ -67,6 +67,9 @@ public class SkyeBlockPlugin extends JavaPlugin {
         // Initialize world
         worldManager.initializeWorld();
         
+        // Initialize island manager (load existing islands)
+        islandManager.initialize();
+        
         // Register commands
         registerCommands();
         
@@ -79,6 +82,11 @@ public class SkyeBlockPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Save all island data before shutdown
+        if (islandManager != null) {
+            islandManager.saveAllIslands();
+        }
+        
         getComponentLogger().info(Component.text("SkyeBlock plugin disabled!", NamedTextColor.RED));
     }
 
@@ -108,6 +116,12 @@ public class SkyeBlockPlugin extends JavaPlugin {
             new skyeblock.nobleskye.dev.skyeblock.commands.ServerBrandCommand(this);
         getCommand("serverbrand").setExecutor(serverBrandCommand);
         getCommand("serverbrand").setTabCompleter(serverBrandCommand);
+        
+        // Register convert islands command
+        skyeblock.nobleskye.dev.skyeblock.commands.ConvertIslandsCommand convertCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.ConvertIslandsCommand(this);
+        getCommand("convertislands").setExecutor(convertCommand);
+        getCommand("convertislands").setTabCompleter(convertCommand);
     }
     
     private void registerListeners() {
