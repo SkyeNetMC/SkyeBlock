@@ -17,6 +17,7 @@ import skyeblock.nobleskye.dev.skyeblock.gui.MainSettingsGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.VisitingSettingsGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.IslandVisitGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.DeleteConfirmationGUI;
+import skyeblock.nobleskye.dev.skyeblock.gui.IslandCreationGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -35,6 +36,7 @@ public class SkyeBlockPlugin extends JavaPlugin {
     private VisitingSettingsGUI visitingSettingsGUI;
     private IslandVisitGUI islandVisitGUI;
     private DeleteConfirmationGUI deleteConfirmationGUI;
+    private IslandCreationGUI islandCreationGUI;
     private VisitorProtectionListener visitorProtectionListener;
     private ServerBrandListener serverBrandListener;
     private ServerBrandChanger serverBrandChanger;
@@ -63,6 +65,7 @@ public class SkyeBlockPlugin extends JavaPlugin {
         this.visitingSettingsGUI = new VisitingSettingsGUI(this);
         this.islandVisitGUI = new IslandVisitGUI(this);
         this.deleteConfirmationGUI = new DeleteConfirmationGUI(this);
+        this.islandCreationGUI = new IslandCreationGUI(this);
         
         // Initialize world
         worldManager.initializeWorld();
@@ -100,6 +103,12 @@ public class SkyeBlockPlugin extends JavaPlugin {
         // Register individual commands (so they work both as /command and /sb command)
         getCommand("island").setExecutor(new IslandCommand(this));
         getCommand("hub").setExecutor(new HubCommand(this));
+        
+        // Register create island command
+        skyeblock.nobleskye.dev.skyeblock.commands.CreateIslandCommand createIslandCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.CreateIslandCommand(this);
+        getCommand("createisland").setExecutor(createIslandCommand);
+        getCommand("createisland").setTabCompleter(createIslandCommand);
         
         skyeblock.nobleskye.dev.skyeblock.commands.VisitCommand visitCommand = 
             new skyeblock.nobleskye.dev.skyeblock.commands.VisitCommand(this);
@@ -210,6 +219,10 @@ public class SkyeBlockPlugin extends JavaPlugin {
 
     public DeleteConfirmationGUI getDeleteConfirmationGUI() {
         return deleteConfirmationGUI;
+    }
+    
+    public IslandCreationGUI getIslandCreationGUI() {
+        return islandCreationGUI;
     }
     
     public ServerBrandListener getServerBrandListener() {

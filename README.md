@@ -520,46 +520,57 @@ Both command styles work identically - choose what feels natural!
 
 ## 🚀 Recent Updates
 
-### ✨ Version 1.1.0 - Latest Release (May 2025)
+### ✨ Version 2.0.0 - Major Release (January 2025)
 
-#### 🗂️ NEW: Directory Structure Reorganization
-- **Updated World Organization**: Normal islands now use `skyeblock/islands/` directory structure
-- **Maintained Nether Structure**: Nether islands continue using `skyeblock/nether/` for proper separation
-- **SlimeWorld Naming Updates**: Updated naming conventions to `skyeblock_islands_` for normal islands
-- **Backward Compatibility**: Seamless migration from old directory structure
-- **Enhanced World Lookup**: Improved world finding logic for both old and new structures
+#### 🎮 Island Creation GUI System
+- **NEW: Interactive Island Creation**: Beautiful GUI interface for creating new islands
+- **Visual Island Type Selection**: Choose from Classic, Desert, or Nether islands with visual previews
+- **Template Preview System**: See island layouts before creation with detailed descriptions
+- **Enhanced User Experience**: Intuitive click-to-create interface with confirmation dialogs
+- **Smart Template Loading**: Automatic template validation and loading system
 
-#### 🎯 Dual Command System
+#### 🏝️ Advanced Island Management
+- **Comprehensive Island Control**: Full lifecycle management from creation to deletion
+- **Multi-Environment Support**: Seamless handling of overworld and nether islands
+- **Island Type Validation**: Robust validation system for all island operations
+- **Enhanced Safety Features**: Multiple confirmation layers for destructive operations
+- **Improved World Handling**: Better world creation, loading, and cleanup processes
+
+#### 🌋 Nether Integration & Biome Management
+- **Complete Nether System**: Full support for nether islands with proper environment handling
+- **Advanced Biome Control**: Automatic biome setting and management for all island types
+- **Nether Void Worlds**: Dedicated nether void environments with proper spawning
+- **Multi-Biome Support**: Support for various biomes including desert, plains, and nether wastes
+- **Environment-Specific Templates**: Tailored templates for different biome types
+
+#### 💬 MiniMessage Support & Modern UI
+- **Adventure API Integration**: Full MiniMessage support for modern text formatting
+- **Rich Text Messaging**: Colored text, hover effects, and interactive elements
+- **Enhanced GUI Elements**: Beautiful, modern interface elements with proper styling
+- **Improved User Feedback**: Clear, formatted messages for all user interactions
+- **Consistent Design Language**: Unified visual design across all plugin interfaces
+
+#### 🔒 Enhanced Security & Stability
+- **Robust Error Handling**: Comprehensive error catching and graceful failure recovery
+- **Input Validation**: Strong validation for all user inputs and commands
+- **Resource Management**: Improved memory and resource cleanup
+- **Thread Safety**: Better concurrency handling for multi-player environments
+- **Stability Improvements**: Reduced crashes and improved overall plugin stability
+
+#### 🎯 Dual Command System (Continued)
 - **Direct Commands**: `/island`, `/visit`, `/delete`, `/hub` (preserves existing usage)
-- **Sub-Commands**: `/sb island`, `/sb visit`, `/sb delete`, `/sb hub` (new unified interface)
-- **Full Backward Compatibility**: Existing users can continue using familiar commands
+- **Sub-Commands**: `/sb island`, `/sb visit`, `/sb delete`, `/sb hub` (unified interface)
+- **Full Backward Compatibility**: All existing commands continue to work seamlessly
 - **Smart Help System**: `/sb` shows all available sub-commands with descriptions
 - **Complete Tab Completion**: Both command styles support intelligent tab completion
-
-#### 🏝️ Enhanced Island Management
-- **Single-Word Island Types**: Clean identifiers (`classic`, `desert`, `nether`)
-- **🌋 NEW: Nether Island Support**: Complete nether island system with dedicated void worlds
-- **Advanced Biome Management**: Automatic biome setting for nether islands
-- **Multi-Environment Templates**: Support for both overworld and nether environments  
-- **Fixed Island Type Storage**: Islands now store single-word types instead of display names
-- **Improved Tab Completion**: Smart completion for island types and commands
-- **Two-Step Deletion**: Enhanced confirmation system for island deletion
 
 #### 🔧 Core System Improvements
 - **SlimeWorldManager Integration**: Individual island worlds with automatic fallback
 - **🌍 Advanced World Management**: Structured organization with overworld/nether directories
-- **🔥 Nether Environment Support**: Proper nether world creation with biome management
 - **LuckPerms Permission System**: Granular control over 31 island gamerules
 - **Interactive Settings GUI**: Real-time gamerule management with visual indicators
-- **MiniMessage Support**: Modern text formatting with Adventure API
 - **Optimized Performance**: Better world management and resource cleanup
-
-#### 🎮 Quality of Life Features
-- **Admin Bypass System**: Staff can access all gamerules regardless of restrictions
-- **Dynamic Permission Filtering**: GUI shows only accessible gamerules per player
-- **Comprehensive Admin Tools**: Enhanced monitoring and management capabilities
-- **Safe World Operations**: Proper cleanup and resource management
-- **Hub System Integration**: Configurable hub world with seamless teleportation
+- **Directory Structure**: Organized world storage with `skyeblock/islands/` and `skyeblock/nether/`
 
 ## 💡 Support & Contributing
 
@@ -592,4 +603,4 @@ Both command styles work identically - choose what feels natural!
 
 This plugin is developed for SkyeNetwork. All rights reserved.
 
-**SkyeBlock Plugin v1.1.0** - A comprehensive island management solution with dual command system, advanced permissions, modern Minecraft server integration, and full nether island support with dedicated void worlds and optimized directory structure.
+**SkyeBlock Plugin v2.0.0** - A comprehensive island management solution with interactive GUI system, advanced island management, nether integration, modern MiniMessage support, and enhanced security features for modern Minecraft servers.

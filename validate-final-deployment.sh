@@ -64,8 +64,8 @@ echo "------------------------------------"
 # Check core files
 check "IslandDataManager exists" "[ -f 'src/main/java/skyeblock/nobleskye/dev/skyeblock/managers/IslandDataManager.java' ]"
 check "ConvertIslandsCommand exists" "[ -f 'src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/ConvertIslandsCommand.java' ]"
-check "Plugin JAR exists" "[ -f 'target/skyeblock-1.1.0.jar' ]"
-check "Plugin is recent" "[ $(find target/skyeblock-1.1.0.jar -mmin -60 2>/dev/null | wc -l) -eq 1 ]"
+check "Plugin JAR exists" "[ -f 'target/skyeblock-2.0.0.jar' ]"
+check "Plugin is recent" "[ $(find target/skyeblock-2.0.0.jar -mmin -60 2>/dev/null | wc -l) -eq 1 ]"
 
 echo ""
 echo -e "${BLUE}Phase 2: Integration Validation${NC}"

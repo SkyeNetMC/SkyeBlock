@@ -1,8 +1,8 @@
 # SkyeBlock Plugin - External Server Deployment Guide
 
 ## Current Status
-✅ **Plugin Built Successfully**: `skyeblock-1.1.0.jar` (147KB)  
-✅ **All Features Implemented**: Island persistence, conversion command, automatic nether islands  
+✅ **Plugin Built Successfully**: `skyeblock-2.0.0.jar` (156KB)  
+✅ **All Features Implemented**: Island Creation GUI, Advanced Management, Nether Integration  
 ✅ **Local Build Successful**: No compilation errors  
 
 ## Transfer to External Server
@@ -10,14 +10,14 @@
 ### Method 1: SCP/SFTP Transfer
 ```bash
 # Replace with your server details
-scp /mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-1.1.0.jar username@your-server-ip:/path/to/minecraft/server/plugins/
+scp /mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-2.0.0.jar username@your-server-ip:/path/to/minecraft/server/plugins/
 
 # Example:
-scp /mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-1.1.0.jar user@example.com:/home/minecraft/server/plugins/
+scp /mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-2.0.0.jar user@example.com:/home/minecraft/server/plugins/
 ```
 
 ### Method 2: Manual Upload
-1. Download `skyeblock-1.1.0.jar` from this local machine
+1. Download `skyeblock-2.0.0.jar` from this local machine
 2. Upload to your external server's `plugins/` folder
 3. Remove any old SkyeBlock plugin versions
 

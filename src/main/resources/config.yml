@@ -1,3 +1,6 @@
+#do not change
+version: 2.0.0
+
 # SkyeBlock Configuration
 
 # World settings
@@ -72,4 +75,5 @@ messages:
 # Schematic settings
 schematics:
   # Path where island templates are stored
+  # World edit schematics are saved in plugins/worldedit/schematics/ if you do not save any other they wont show
   template-path: "plugins/SkyeBlock/schematics/"

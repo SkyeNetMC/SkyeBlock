@@ -14,11 +14,13 @@
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/IslandCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/listeners/PlayerJoinListener.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/listeners/VisitorProtectionListener.java
+/mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/CreateIslandCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/VisitingSettingsGUI.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/managers/WorldManager.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/util/ServerBrandUtil.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/ServerBrandChanger.java
+/mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/IslandCreationGUI.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/IslandVisitGUI.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/SkyeBlockPlugin.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/IslandSettingsGUI.java

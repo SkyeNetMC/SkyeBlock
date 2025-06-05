@@ -5,7 +5,7 @@ echo "🚀 SkyeBlock Plugin - Ready for External Server Deployment"
 echo "=========================================================="
 echo
 
-JAR_FILE="/mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-1.1.0.jar"
+JAR_FILE="/mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-2.0.0.jar"
 
 if [ -f "$JAR_FILE" ]; then
     echo "✅ Plugin JAR: Found"
@@ -76,4 +76,4 @@ else
 fi
 
 echo
-echo "🎉 SkyeBlock Plugin v1.1.0 is ready for external server deployment!"
+echo "🎉 SkyeBlock Plugin v2.0.0 is ready for external server deployment!"

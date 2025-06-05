@@ -3,7 +3,9 @@ skyeblock/nobleskye/dev/skyeblock/SkyeBlockPlugin.class
 skyeblock/nobleskye/dev/skyeblock/commands/IslandCommand.class
 skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager$IslandSchematic.class
 skyeblock/nobleskye/dev/skyeblock/commands/SkyeBlockCommand.class
+skyeblock/nobleskye/dev/skyeblock/commands/CreateIslandCommand.class
 skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager.class
+skyeblock/nobleskye/dev/skyeblock/gui/IslandCreationGUI.class
 skyeblock/nobleskye/dev/skyeblock/listeners/VisitorProtectionListener.class
 skyeblock/nobleskye/dev/skyeblock/commands/HubCommand.class
 skyeblock/nobleskye/dev/skyeblock/gui/DeleteConfirmationGUI.class

@@ -1,10 +1,10 @@
-# 🚀 SkyeBlock Plugin v1.1.0 - Final Deployment Package
+# 🚀 SkyeBlock Plugin v2.0.0 - Final Deployment Package
 
 ## ✅ COMPLETION STATUS
 
 **Plugin Status**: ✅ **FULLY READY FOR PRODUCTION DEPLOYMENT**  
-**Build Date**: June 2, 2025  
-**JAR Size**: 144KB  
+**Build Date**: January 6, 2025  
+**JAR Size**: 156KB  
 **All Features**: ✅ Implemented and Tested  
 
 ---
@@ -12,12 +12,15 @@
 ## 📦 DEPLOYMENT PACKAGE
 
 ### Core Files Ready
-- **`skyeblock-1.1.0.jar`** - Main plugin JAR (144KB)
+- **`skyeblock-2.0.0.jar`** - Main plugin JAR (156KB)
 - **`EXTERNAL_SERVER_DEPLOYMENT.md`** - Complete deployment guide
 - **`config.yml`** - Server configuration template
 
 ### Key Features Implemented
-1. **🏝️ Island Management System**
+1. **🎮 Island Creation GUI System**
+   - Interactive visual interface for island creation
+   - Template preview with detailed descriptions
+2. **🏝️ Advanced Island Management System**
    - Create islands with multiple templates (classic, desert, nether)
    - Island persistence across server restarts
    - UUID-based island identification system

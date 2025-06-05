@@ -1,5 +1,49 @@
 # SkyeBlock Plugin Changelog
 
+## Version 2.0.0 (January 6, 2025)
+
+### 🎮 Major New Features
+- **Island Creation GUI System**: Complete interactive interface for creating new islands
+- **Advanced Island Management**: Enhanced lifecycle management with comprehensive controls
+- **Nether Integration**: Full nether island support with proper biome management
+- **MiniMessage Support**: Modern text formatting with Adventure API integration
+- **Enhanced Security & Stability**: Robust error handling and improved performance
+
+### 🏝️ Island Creation GUI
+- Interactive visual interface for island creation
+- Template preview system with detailed descriptions
+- Smart validation and loading system
+- Intuitive click-to-create workflow
+- Multi-environment support (overworld/nether)
+
+### 💬 Modern UI & Messaging
+- Complete Adventure API integration
+- Rich text formatting with MiniMessage support
+- Enhanced GUI elements with modern styling
+- Improved user feedback systems
+- Consistent design language throughout
+
+### 🔒 Security & Performance
+- Comprehensive error handling and recovery
+- Strong input validation for all operations
+- Improved resource management and cleanup
+- Enhanced thread safety for multiplayer environments
+- Reduced memory footprint and better performance
+
+### 🌋 Nether System Enhancements
+- Advanced biome control and management
+- Proper nether void world creation
+- Environment-specific template system
+- Improved spawning and world handling
+- Multi-biome support (desert, plains, nether wastes)
+
+### 🔧 Technical Improvements
+- Updated core plugin architecture
+- Enhanced world management systems
+- Improved SlimeWorldManager integration
+- Better configuration handling
+- Modernized codebase for Minecraft 1.21+
+
 ## Version 1.1.0 (May 30, 2025)
 
 ### 🗂️ Directory Structure Reorganization

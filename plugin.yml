@@ -1,5 +1,5 @@
 name: SkyeBlock
-version: '1.1.0'
+version: '2.0.0'
 main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
 api-version: '1.21'
 authors: [SkyeNetwork]
@@ -39,6 +39,10 @@ commands:
     description: Convert old island format to new UUID-based format
     usage: /convertislands <scan|convert> [username]
     permission: skyeblock.admin.convert
+  createisland:
+    description: Create a new island with GUI or direct command
+    usage: /createisland [type]
+    permission: skyeblock.island.create
 
 permissions:
   skyeblock.*:
@@ -46,6 +50,7 @@ permissions:
     default: op
     children:
       skyeblock.island: true
+      skyeblock.island.create: true
       skyeblock.island.visit: true
       skyeblock.island.vote: true
       skyeblock.island.edit: true
@@ -60,6 +65,9 @@ permissions:
       skyeblock.gamerules.adminbypass: true
   skyeblock.island:
     description: Basic island commands (create, home, settings)
+    default: true
+  skyeblock.island.create:
+    description: Create new islands
     default: true
   skyeblock.island.visit:
     description: Visit other islands
