@@ -56,6 +56,15 @@ public class IslandManager {
         return playerIslands.get(playerUUID);
     }
     
+    public Island getIslandById(String islandId) {
+        for (Island island : playerIslands.values()) {
+            if (island.getIslandId().equals(islandId)) {
+                return island;
+            }
+        }
+        return null;
+    }
+    
     public List<Island> getAllIslands() {
         return new ArrayList<>(playerIslands.values());
     }
@@ -88,8 +97,8 @@ public class IslandManager {
         // Create the island object
         Island island = new Island(playerUUID, islandType, islandLocation);
         
-        // Paste the schematic using WorldEdit schematic manager
-        boolean success = plugin.getSchematicManager().pasteSchematic(islandType, islandLocation);
+        // Paste the schematic using WorldEdit schematic manager with template mapping
+        boolean success = plugin.getSchematicManager().pasteIslandTemplate(islandType, islandLocation);
         if (!success) {
             // Clean up the world if schematic failed
             plugin.getWorldManager().deleteIslandWorld(islandId);
@@ -122,37 +131,38 @@ public class IslandManager {
      */
     private void createNetherIsland(UUID playerUUID, Island mainIsland) {
         try {
-            // Only create nether island if nether worlds are enabled
-            if (!plugin.getWorldManager().hasNetherWorld()) {
-                plugin.getLogger().info("Nether worlds not enabled, skipping nether island creation for " + playerUUID);
+            // Check if auto-create-nether is enabled
+            if (!plugin.getConfig().getBoolean("world.auto-create-nether", true)) {
+                plugin.getLogger().info("Auto-create-nether disabled, skipping nether island creation for " + playerUUID);
                 return;
             }
             
-            // Use the same world as the main island to allow portal sync
-            World islandWorld = mainIsland.getLocation().getWorld();
-            if (islandWorld == null) {
-                plugin.getLogger().warning("Main island world is null, cannot create nether island for " + playerUUID);
+            // Create nether island ID with _nether suffix pattern
+            String mainIslandId = mainIsland.getIslandId();
+            String netherIslandId = mainIslandId + "_nether";
+            
+            // Create individual nether world for this island
+            World netherIslandWorld = plugin.getWorldManager().createIslandWorld(netherIslandId);
+            if (netherIslandWorld == null) {
+                plugin.getLogger().warning("Failed to create nether world for island: " + netherIslandId);
                 return;
             }
-
-            // Calculate nether location in the same world (offset to nether coordinates)
-            // Standard nether coordinate conversion: divide by 8 and offset to avoid overlap
-            Location mainLocation = mainIsland.getLocation();
-            Location netherIslandLocation = new Location(islandWorld, 
-                mainLocation.getX() / 8, // Standard nether coordinate scaling
-                64, // Lower Y level for nether feel
-                mainLocation.getZ() / 8);
             
-            // Create nether island ID for settings and data management
-            String netherIslandId = "island-nether-" + playerUUID.toString();
+            // Set nether location in the center of the new nether world
+            Location netherIslandLocation = new Location(netherIslandWorld, 0, 100, 0);
             
             // Create the nether island object
-            Island netherIsland = new Island(playerUUID, "nether", netherIslandLocation);
+            Island netherIsland = new Island(playerUUID, "nether_portal_island", netherIslandLocation);
             
-            // Paste the nether schematic
-            boolean success = plugin.getSchematicManager().pasteSchematic("nether", netherIslandLocation);
+            // Get the nether template from config (should be "nether_portal_island")
+            String netherTemplate = plugin.getConfig().getString("nether.default-template", "nether_portal_island");
+            
+            // Paste the nether portal island schematic using template mapping
+            boolean success = plugin.getSchematicManager().pasteIslandTemplate(netherTemplate, netherIslandLocation);
             if (!success) {
-                plugin.getLogger().warning("Failed to paste nether schematic for island: " + netherIslandId);
+                plugin.getLogger().warning("Failed to paste nether portal island schematic for island: " + netherIslandId);
+                // Clean up the world if schematic failed
+                plugin.getWorldManager().deleteIslandWorld(netherIslandId);
                 return;
             }
 
@@ -163,12 +173,12 @@ public class IslandManager {
             
             // Create default settings for the nether island and apply them
             plugin.getIslandSettingsManager().createDefaultSettings(netherIslandId);
-            plugin.getIslandSettingsManager().applySettingsToWorld(netherIslandId, islandWorld);
+            plugin.getIslandSettingsManager().applySettingsToWorld(netherIslandId, netherIslandWorld);
             
             // Set the nether area biome to NETHER_WASTES
             setNetherBiome(netherIslandLocation, 32);
             
-            plugin.getLogger().info("Created nether area in main island world " + netherIslandId + " for player " + playerUUID);
+            plugin.getLogger().info("Created nether world " + netherIslandId + " with nether_portal_island template for player " + playerUUID);
             
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create nether island for " + playerUUID + ": " + e.getMessage());

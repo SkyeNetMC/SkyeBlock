@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
+import skyeblock.nobleskye.dev.skyeblock.permissions.IslandPermission;
 
 import java.util.*;
 
@@ -29,6 +30,9 @@ public class Island {
     // Voting system
     private final Map<UUID, Long> votes; // Player UUID -> vote timestamp
     private long lastOnlineTime;
+    
+    // Permission system
+    private final Map<UUID, Set<IslandPermission>> customPlayerPermissions; // Player UUID -> Set of permissions
 
     public Island(UUID ownerUUID, String islandType, Location location) {
         this.ownerUUID = ownerUUID;
@@ -48,6 +52,7 @@ public class Island {
         this.coopMembers = new HashMap<>();
         this.pendingInvites = new HashSet<>();
         this.votes = new HashMap<>();
+        this.customPlayerPermissions = new HashMap<>();
         this.lastOnlineTime = System.currentTimeMillis();
     }
 
@@ -270,6 +275,33 @@ public class Island {
             default:
                 return new ItemStack(Material.GRASS_BLOCK);
         }
+    }
+    
+    // Permission system methods
+    public Map<UUID, Set<IslandPermission>> getCustomPlayerPermissions() {
+        return customPlayerPermissions;
+    }
+    
+    public Set<IslandPermission> getCustomPermissions(UUID playerUUID) {
+        return customPlayerPermissions.getOrDefault(playerUUID, new HashSet<>());
+    }
+    
+    public void addCustomPermission(UUID playerUUID, IslandPermission permission) {
+        customPlayerPermissions.computeIfAbsent(playerUUID, k -> new HashSet<>()).add(permission);
+    }
+    
+    public void removeCustomPermission(UUID playerUUID, IslandPermission permission) {
+        Set<IslandPermission> permissions = customPlayerPermissions.get(playerUUID);
+        if (permissions != null) {
+            permissions.remove(permission);
+            if (permissions.isEmpty()) {
+                customPlayerPermissions.remove(playerUUID);
+            }
+        }
+    }
+    
+    public void clearCustomPermissions(UUID playerUUID) {
+        customPlayerPermissions.remove(playerUUID);
     }
     
     public enum CoopRole {

@@ -4,7 +4,7 @@ echo "=== SkyeBlock Plugin Validation ==="
 echo
 
 # Check if JAR exists
-JAR_FILE="/mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-1.0.0.jar"
+JAR_FILE="/mnt/sda4/SkyeNetwork/SkyeBlock/target/skyeblock-2.0.0.jar"
 if [ -f "$JAR_FILE" ]; then
     echo "✅ JAR file exists: $JAR_FILE"
     echo "   Size: $(du -h "$JAR_FILE" | cut -f1)"

@@ -12,17 +12,27 @@ import skyeblock.nobleskye.dev.skyeblock.managers.IslandManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.SchematicManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.WorldManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.IslandSettingsManager;
+import skyeblock.nobleskye.dev.skyeblock.managers.ResourceWorldManager;
+import skyeblock.nobleskye.dev.skyeblock.managers.WarpManager;
+import skyeblock.nobleskye.dev.skyeblock.permissions.IslandPermissionManager;
 import skyeblock.nobleskye.dev.skyeblock.gui.IslandSettingsGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.MainSettingsGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.VisitingSettingsGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.IslandVisitGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.DeleteConfirmationGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.IslandCreationGUI;
+import skyeblock.nobleskye.dev.skyeblock.gui.PermissionManagementGUI;
+import skyeblock.nobleskye.dev.skyeblock.gui.WarpGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.InputStream;
 
 public class SkyeBlockPlugin extends JavaPlugin {
 
@@ -31,23 +41,32 @@ public class SkyeBlockPlugin extends JavaPlugin {
     private CustomSchematicManager customSchematicManager;
     private WorldManager worldManager;
     private IslandSettingsManager islandSettingsManager;
+    private IslandPermissionManager permissionManager;
+    private ResourceWorldManager resourceWorldManager;
+    private WarpManager warpManager;
     private IslandSettingsGUI islandSettingsGUI;
     private MainSettingsGUI mainSettingsGUI;
     private VisitingSettingsGUI visitingSettingsGUI;
     private IslandVisitGUI islandVisitGUI;
     private DeleteConfirmationGUI deleteConfirmationGUI;
     private IslandCreationGUI islandCreationGUI;
+    private PermissionManagementGUI permissionManagementGUI;
+    private WarpGUI warpGUI;
     private VisitorProtectionListener visitorProtectionListener;
     private ServerBrandListener serverBrandListener;
     private ServerBrandChanger serverBrandChanger;
     private PlayerJoinListener playerJoinListener;
     private SpigotBrandModifier spigotBrandModifier;
     private MiniMessage miniMessage;
+    private FileConfiguration warpConfig;
 
     @Override
     public void onEnable() {
         // Save default config
         saveDefaultConfig();
+        
+        // Initialize warp configuration
+        loadWarpConfig();
         
         // Initialize MiniMessage
         miniMessage = MiniMessage.miniMessage();
@@ -58,6 +77,9 @@ public class SkyeBlockPlugin extends JavaPlugin {
         this.customSchematicManager = new CustomSchematicManager(this);
         this.islandManager = new IslandManager(this);
         this.islandSettingsManager = new IslandSettingsManager(this);
+        this.permissionManager = new IslandPermissionManager(this);
+        this.resourceWorldManager = new ResourceWorldManager(this);
+        this.warpManager = new WarpManager(this);
         
         // Initialize GUIs
         this.islandSettingsGUI = new IslandSettingsGUI(this);
@@ -66,12 +88,18 @@ public class SkyeBlockPlugin extends JavaPlugin {
         this.islandVisitGUI = new IslandVisitGUI(this);
         this.deleteConfirmationGUI = new DeleteConfirmationGUI(this);
         this.islandCreationGUI = new IslandCreationGUI(this);
+        this.permissionManagementGUI = new PermissionManagementGUI(this);
+        this.warpGUI = new WarpGUI(this);
         
         // Initialize world
         worldManager.initializeWorld();
         
         // Initialize island manager (load existing islands)
         islandManager.initialize();
+        
+        // Initialize resource worlds and warps
+        resourceWorldManager.initializeResourceWorlds();
+        warpManager.initializeWarps();
         
         // Register commands
         registerCommands();
@@ -97,40 +125,109 @@ public class SkyeBlockPlugin extends JavaPlugin {
         // Register main /sb command with subcommands
         skyeblock.nobleskye.dev.skyeblock.commands.SkyeBlockCommand sbCommand = 
             new skyeblock.nobleskye.dev.skyeblock.commands.SkyeBlockCommand(this);
-        getCommand("sb").setExecutor(sbCommand);
-        getCommand("sb").setTabCompleter(sbCommand);
+        if (getCommand("sb") != null) {
+            getCommand("sb").setExecutor(sbCommand);
+            getCommand("sb").setTabCompleter(sbCommand);
+        } else {
+            getLogger().severe("Failed to register 'sb' command - command not found in plugin.yml!");
+        }
         
         // Register individual commands (so they work both as /command and /sb command)
-        getCommand("island").setExecutor(new IslandCommand(this));
-        getCommand("hub").setExecutor(new HubCommand(this));
+        IslandCommand islandCommandExecutor = new IslandCommand(this);
+        if (getCommand("island") != null) {
+            getCommand("island").setExecutor(islandCommandExecutor);
+        } else {
+            getLogger().severe("Failed to register 'island' command - command not found in plugin.yml!");
+        }
+        
+        // Also register the /is alias explicitly (in case Bukkit doesn't handle it automatically)
+        if (getCommand("is") != null) {
+            getCommand("is").setExecutor(islandCommandExecutor);
+        } else {
+            getLogger().info("'/is' alias not found as separate command - using automatic alias from 'island' command");
+        }
+        
+        if (getCommand("hub") != null) {
+            getCommand("hub").setExecutor(new HubCommand(this));
+        } else {
+            getLogger().severe("Failed to register 'hub' command - command not found in plugin.yml!");
+        }
         
         // Register create island command
         skyeblock.nobleskye.dev.skyeblock.commands.CreateIslandCommand createIslandCommand = 
             new skyeblock.nobleskye.dev.skyeblock.commands.CreateIslandCommand(this);
-        getCommand("createisland").setExecutor(createIslandCommand);
-        getCommand("createisland").setTabCompleter(createIslandCommand);
+        if (getCommand("createisland") != null) {
+            getCommand("createisland").setExecutor(createIslandCommand);
+            getCommand("createisland").setTabCompleter(createIslandCommand);
+        } else {
+            getLogger().severe("Failed to register 'createisland' command - command not found in plugin.yml!");
+        }
         
         skyeblock.nobleskye.dev.skyeblock.commands.VisitCommand visitCommand = 
             new skyeblock.nobleskye.dev.skyeblock.commands.VisitCommand(this);
-        getCommand("visit").setExecutor(visitCommand);
-        getCommand("visit").setTabCompleter(visitCommand);
+        if (getCommand("visit") != null) {
+            getCommand("visit").setExecutor(visitCommand);
+            getCommand("visit").setTabCompleter(visitCommand);
+        } else {
+            getLogger().severe("Failed to register 'visit' command - command not found in plugin.yml!");
+        }
         
         skyeblock.nobleskye.dev.skyeblock.commands.DeleteCommand deleteCommand = 
             new skyeblock.nobleskye.dev.skyeblock.commands.DeleteCommand(this);
-        getCommand("delete").setExecutor(deleteCommand);
-        getCommand("delete").setTabCompleter(deleteCommand);
+        if (getCommand("delete") != null) {
+            getCommand("delete").setExecutor(deleteCommand);
+            getCommand("delete").setTabCompleter(deleteCommand);
+        } else {
+            getLogger().severe("Failed to register 'delete' command - command not found in plugin.yml!");
+        }
         
         // Register server brand command
         skyeblock.nobleskye.dev.skyeblock.commands.ServerBrandCommand serverBrandCommand = 
             new skyeblock.nobleskye.dev.skyeblock.commands.ServerBrandCommand(this);
-        getCommand("serverbrand").setExecutor(serverBrandCommand);
-        getCommand("serverbrand").setTabCompleter(serverBrandCommand);
+        if (getCommand("serverbrand") != null) {
+            getCommand("serverbrand").setExecutor(serverBrandCommand);
+            getCommand("serverbrand").setTabCompleter(serverBrandCommand);
+        } else {
+            getLogger().severe("Failed to register 'serverbrand' command - command not found in plugin.yml!");
+        }
         
         // Register convert islands command
         skyeblock.nobleskye.dev.skyeblock.commands.ConvertIslandsCommand convertCommand = 
             new skyeblock.nobleskye.dev.skyeblock.commands.ConvertIslandsCommand(this);
-        getCommand("convertislands").setExecutor(convertCommand);
-        getCommand("convertislands").setTabCompleter(convertCommand);
+        if (getCommand("convertislands") != null) {
+            getCommand("convertislands").setExecutor(convertCommand);
+            getCommand("convertislands").setTabCompleter(convertCommand);
+        } else {
+            getLogger().severe("Failed to register 'convertislands' command - command not found in plugin.yml!");
+        }
+
+        // Register permission command
+        skyeblock.nobleskye.dev.skyeblock.commands.PermissionCommand permissionCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.PermissionCommand(this);
+        if (getCommand("islandpermissions") != null) {
+            getCommand("islandpermissions").setExecutor(permissionCommand);
+        } else {
+            getLogger().severe("Failed to register 'islandpermissions' command - command not found in plugin.yml!");
+        }
+        
+        // Register warp commands
+        skyeblock.nobleskye.dev.skyeblock.commands.WarpCommand warpCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.WarpCommand(this);
+        if (getCommand("warp") != null) {
+            getCommand("warp").setExecutor(warpCommand);
+            getCommand("warp").setTabCompleter(warpCommand);
+        } else {
+            getLogger().severe("Failed to register 'warp' command - command not found in plugin.yml!");
+        }
+        
+        skyeblock.nobleskye.dev.skyeblock.commands.WarpAdminCommand warpAdminCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.WarpAdminCommand(this);
+        if (getCommand("warpadmin") != null) {
+            getCommand("warpadmin").setExecutor(warpAdminCommand);
+            getCommand("warpadmin").setTabCompleter(warpAdminCommand);
+        } else {
+            getLogger().severe("Failed to register 'warpadmin' command - command not found in plugin.yml!");
+        }
     }
     
     private void registerListeners() {
@@ -201,6 +298,18 @@ public class SkyeBlockPlugin extends JavaPlugin {
         return islandSettingsManager;
     }
 
+    public IslandPermissionManager getPermissionManager() {
+        return permissionManager;
+    }
+
+    public ResourceWorldManager getResourceWorldManager() {
+        return resourceWorldManager;
+    }
+
+    public WarpManager getWarpManager() {
+        return warpManager;
+    }
+
     public IslandSettingsGUI getIslandSettingsGUI() {
         return islandSettingsGUI;
     }
@@ -223,6 +332,14 @@ public class SkyeBlockPlugin extends JavaPlugin {
     
     public IslandCreationGUI getIslandCreationGUI() {
         return islandCreationGUI;
+    }
+    
+    public PermissionManagementGUI getPermissionManagementGUI() {
+        return permissionManagementGUI;
+    }
+    
+    public WarpGUI getWarpGUI() {
+        return warpGUI;
     }
     
     public ServerBrandListener getServerBrandListener() {
@@ -254,5 +371,50 @@ public class SkyeBlockPlugin extends JavaPlugin {
     
     public void sendMessage(Player player, String key) {
         player.sendMessage(getMessageComponent(key));
+    }
+    
+    /**
+     * Load warp configuration from warps.yml
+     */
+    private void loadWarpConfig() {
+        File warpFile = new File(getDataFolder(), "warps.yml");
+        
+        // Save default warps.yml if it doesn't exist
+        if (!warpFile.exists()) {
+            saveResource("warps.yml", false);
+        }
+        
+        warpConfig = YamlConfiguration.loadConfiguration(warpFile);
+        
+        // Load defaults from jar file
+        InputStream defConfigStream = getResource("warps.yml");
+        if (defConfigStream != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(defConfigStream));
+            warpConfig.setDefaults(defConfig);
+        }
+    }
+    
+    /**
+     * Get the warp configuration
+     */
+    public FileConfiguration getWarpConfig() {
+        if (warpConfig == null) {
+            loadWarpConfig();
+        }
+        return warpConfig;
+    }
+    
+    /**
+     * Reload warp configuration
+     */
+    public void reloadWarpConfig() {
+        File warpFile = new File(getDataFolder(), "warps.yml");
+        warpConfig = YamlConfiguration.loadConfiguration(warpFile);
+        
+        InputStream defConfigStream = getResource("warps.yml");
+        if (defConfigStream != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(defConfigStream));
+            warpConfig.setDefaults(defConfig);
+        }
     }
 }

@@ -2,6 +2,7 @@ package skyeblock.nobleskye.dev.skyeblock.managers;
 
 import skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin;
 import skyeblock.nobleskye.dev.skyeblock.models.Island;
+import skyeblock.nobleskye.dev.skyeblock.permissions.IslandPermission;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -123,6 +124,19 @@ public class IslandDataManager {
                 if (voteEntry.getValue() > sevenDaysAgo) {
                     String votePath = basePath + ".votes." + voteEntry.getKey().toString();
                     dataConfig.set(votePath, voteEntry.getValue());
+                }
+            }
+            
+            // Save custom permissions
+            Map<UUID, Set<IslandPermission>> customPermissions = island.getCustomPlayerPermissions();
+            if (!customPermissions.isEmpty()) {
+                for (Map.Entry<UUID, Set<IslandPermission>> permEntry : customPermissions.entrySet()) {
+                    String permPath = basePath + ".custom-permissions." + permEntry.getKey().toString();
+                    List<String> permissionNodes = new ArrayList<>();
+                    for (IslandPermission perm : permEntry.getValue()) {
+                        permissionNodes.add(perm.getNode());
+                    }
+                    dataConfig.set(permPath, permissionNodes);
                 }
             }
         }
@@ -281,6 +295,27 @@ public class IslandDataManager {
                             island.getVotes().put(voteUuid, voteTime);
                         } catch (Exception e) {
                             plugin.getLogger().warning("Failed to load vote " + voteUuidString + " for island " + islandId);
+                        }
+                    }
+                }
+                
+                // Load custom permissions
+                if (dataConfig.contains(basePath + ".custom-permissions")) {
+                    for (String permUuidString : dataConfig.getConfigurationSection(basePath + ".custom-permissions").getKeys(false)) {
+                        try {
+                            UUID playerUuid = UUID.fromString(permUuidString);
+                            List<String> permissionNodes = dataConfig.getStringList(basePath + ".custom-permissions." + permUuidString);
+                            
+                            for (String node : permissionNodes) {
+                                for (IslandPermission perm : IslandPermission.values()) {
+                                    if (perm.getNode().equals(node)) {
+                                        island.addCustomPermission(playerUuid, perm);
+                                        break;
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            plugin.getLogger().warning("Failed to load custom permissions for player " + permUuidString + " on island " + islandId);
                         }
                     }
                 }

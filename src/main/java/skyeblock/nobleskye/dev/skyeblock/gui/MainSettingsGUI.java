@@ -103,6 +103,32 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         gameruleSettings.setItemMeta(gameruleMeta);
         inventory.setItem(15, gameruleSettings);
         
+        // Delete Island button
+        ItemStack deleteIsland = new ItemStack(Material.TNT);
+        ItemMeta deleteMeta = deleteIsland.getItemMeta();
+        deleteMeta.displayName(Component.text("Delete Island")
+            .color(NamedTextColor.DARK_RED)
+            .decoration(TextDecoration.BOLD, true)
+            .decoration(TextDecoration.ITALIC, false));
+        
+        List<Component> deleteLore = new ArrayList<>();
+        deleteLore.add(Component.empty());
+        deleteLore.add(Component.text("⚠ DANGER ZONE ⚠")
+            .color(NamedTextColor.RED)
+            .decoration(TextDecoration.BOLD, true));
+        deleteLore.add(Component.empty());
+        deleteLore.add(Component.text("Permanently delete your island")
+            .color(NamedTextColor.GRAY));
+        deleteLore.add(Component.text("This cannot be undone!")
+            .color(NamedTextColor.RED));
+        deleteLore.add(Component.empty());
+        deleteLore.add(Component.text("Click to delete island")
+            .color(NamedTextColor.DARK_RED));
+        
+        deleteMeta.lore(deleteLore);
+        deleteIsland.setItemMeta(deleteMeta);
+        inventory.setItem(17, deleteIsland);
+        
         // Close button
         ItemStack close = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = close.getItemMeta();
@@ -166,6 +192,14 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
                     player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0f, 1.2f);
                     player.closeInventory();
                     plugin.getIslandSettingsGUI().openSettingsGUI(player, islandId);
+                }
+                break;
+                
+            case 17: // Delete Island
+                if (clickedItem.getType() == Material.TNT) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                    player.closeInventory();
+                    plugin.getDeleteConfirmationGUI().openDeleteConfirmation(player, player.getUniqueId());
                 }
                 break;
                 

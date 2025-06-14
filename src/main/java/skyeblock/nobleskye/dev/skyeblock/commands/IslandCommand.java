@@ -44,7 +44,18 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            sendHelp(player);
+            // Check if player has an island first
+            if (plugin.getIslandManager().hasIsland(player.getUniqueId())) {
+                // If they have an island, open settings instead of teleporting
+                handleSettingsCommand(player);
+            } else {
+                // If they don't have an island, open the creation GUI
+                if (player.hasPermission("skyeblock.island")) {
+                    plugin.getIslandCreationGUI().openCreationGUI(player);
+                } else {
+                    plugin.sendMessage(player, "no-permission");
+                }
+            }
             return true;
         }
 
@@ -121,19 +132,21 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // Determine island type
-        String islandType;
-        if (args.length > 1) {
-            // Join all arguments after "create" to handle island types with spaces
-            StringBuilder typeBuilder = new StringBuilder();
-            for (int i = 1; i < args.length; i++) {
-                if (i > 1) typeBuilder.append(" ");
-                typeBuilder.append(args[i]);
-            }
-            islandType = typeBuilder.toString();
-        } else {
-            islandType = "classic"; // Default to classic type
+        // If no arguments provided, open the island creation GUI
+        if (args.length == 1) {
+            plugin.getIslandCreationGUI().openCreationGUI(player);
+            return;
         }
+
+        // Determine island type from arguments
+        String islandType;
+        // Join all arguments after "create" to handle island types with spaces
+        StringBuilder typeBuilder = new StringBuilder();
+        for (int i = 1; i < args.length; i++) {
+            if (i > 1) typeBuilder.append(" ");
+            typeBuilder.append(args[i]);
+        }
+        islandType = typeBuilder.toString();
 
         // Validate island type using schematic manager
         String[] availableTypes = plugin.getSchematicManager().getAvailableSchematics();
@@ -792,6 +805,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(miniMessage.deserialize("<yellow>/island vote <player></yellow> <gray>-</gray> <gray>Vote for an island</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island set <home|visit></yellow> <gray>-</gray> <gray>Set custom teleport locations</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island settings</yellow> <gray>-</gray> <gray>Configure island settings</gray>"));
+        player.sendMessage(miniMessage.deserialize("<yellow>/islandpermissions [player]</yellow> <gray>-</gray> <gray>Manage player permissions on your island</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island help</yellow> <gray>-</gray> <gray>Show this help message</gray>"));
         
         if (player.hasPermission("skyeblock.admin")) {

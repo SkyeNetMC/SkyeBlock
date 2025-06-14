@@ -2,6 +2,8 @@ package skyeblock.nobleskye.dev.skyeblock.listeners;
 
 import skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin;
 import skyeblock.nobleskye.dev.skyeblock.models.Island;
+import skyeblock.nobleskye.dev.skyeblock.permissions.IslandPermission;
+import skyeblock.nobleskye.dev.skyeblock.permissions.IslandPermissionManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -32,64 +34,91 @@ import java.util.UUID;
 public class VisitorProtectionListener implements Listener {
     private final SkyeBlockPlugin plugin;
     private final MiniMessage miniMessage;
+    private final IslandPermissionManager permissionManager;
     
     public VisitorProtectionListener(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
         this.miniMessage = MiniMessage.miniMessage();
+        this.permissionManager = plugin.getPermissionManager();
     }
     
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         
-        if (!isVisitorOnIsland(player)) {
+        String islandId = getPlayerIslandId(player);
+        if (islandId == null) {
             return;
         }
         
-        event.setCancelled(true);
-        player.sendMessage(miniMessage.deserialize("<red>You cannot break blocks while visiting this island!</red>"));
+        // Check permission using new system
+        if (!permissionManager.hasPermission(player, islandId, IslandPermission.BLOCK_BREAK)) {
+            event.setCancelled(true);
+            player.sendMessage(miniMessage.deserialize("<red>You don't have permission to break blocks on this island!</red>"));
+        }
     }
     
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         
-        if (!isVisitorOnIsland(player)) {
+        String islandId = getPlayerIslandId(player);
+        if (islandId == null) {
             return;
         }
         
-        event.setCancelled(true);
-        player.sendMessage(miniMessage.deserialize("<red>You cannot place blocks while visiting this island!</red>"));
+        // Check permission using new system
+        if (!permissionManager.hasPermission(player, islandId, IslandPermission.BLOCK_PLACE)) {
+            event.setCancelled(true);
+            player.sendMessage(miniMessage.deserialize("<red>You don't have permission to place blocks on this island!</red>"));
+        }
     }
-    
-    @EventHandler(priority = EventPriority.HIGH)
+     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
         
-        if (block == null || !isVisitorOnIsland(player)) {
+        if (block == null) {
             return;
         }
         
-        // Check if it's a container (chest, furnace, etc.)
+        String islandId = getPlayerIslandId(player);
+        if (islandId == null) {
+            return;
+        }
+        
+        // Check if it's a container using the new permission system
         if (block.getState() instanceof Container) {
-            event.setCancelled(true);
-            player.sendMessage(miniMessage.deserialize("<red>You cannot access containers while visiting this island!</red>"));
-            return;
+            IslandPermission containerPerm = IslandPermission.getContainerPermission(block.getType());
+            if (!permissionManager.hasPermission(player, islandId, containerPerm) && 
+                !permissionManager.hasPermission(player, islandId, IslandPermission.CONTAINER_ACCESS)) {
+                event.setCancelled(true);
+                player.sendMessage(miniMessage.deserialize("<red>You don't have permission to access " + 
+                    containerPerm.getDescription().toLowerCase() + " on this island!</red>"));
+                return;
+            }
         }
         
-        // Block interaction with specific blocks - comprehensive protection like WorldGuard
+        // Check specific block interactions with granular permissions
         switch (block.getType()) {
-            // Anvils - block all interactions
+            // Anvils - require anvil permission
             case ANVIL:
             case CHIPPED_ANVIL:
             case DAMAGED_ANVIL:
-                event.setCancelled(true);
-                player.sendMessage(miniMessage.deserialize("<red>You cannot use anvils while visiting this island!</red>"));
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.ANVIL_USE)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to use anvils on this island!</red>"));
+                }
                 break;
                 
-            // Interactive blocks that should be blocked
+            // Redstone devices - require redstone permissions
             case LEVER:
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.LEVER_USE)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to use levers on this island!</red>"));
+                }
+                break;
+                
             case TRIPWIRE_HOOK:
             case REDSTONE_TORCH:
             case REDSTONE_WALL_TORCH:
@@ -104,11 +133,13 @@ public class VisitorProtectionListener implements Listener {
             case HOPPER:
             case NOTE_BLOCK:
             case JUKEBOX:
-                event.setCancelled(true);
-                player.sendMessage(miniMessage.deserialize("<red>You cannot interact with redstone devices while visiting!</red>"));
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.REDSTONE_INTERACT)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to interact with redstone devices on this island!</red>"));
+                }
                 break;
-                
-            // Buttons and pressure plates - allow these (they're usually safe for visitors)
+            
+            // Buttons and pressure plates - require button permission
             case STONE_BUTTON:
             case OAK_BUTTON:
             case BIRCH_BUTTON:
@@ -131,22 +162,41 @@ public class VisitorProtectionListener implements Listener {
             case LIGHT_WEIGHTED_PRESSURE_PLATE:
             case HEAVY_WEIGHTED_PRESSURE_PLATE:
             case POLISHED_BLACKSTONE_PRESSURE_PLATE:
-                // Allow these for visitors (buttons, pressure plates, etc.) - they're usually safe
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.BUTTON_USE)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to use buttons and pressure plates on this island!</red>"));
+                }
                 break;
                 
-            // Crafting stations - allow these
+            // Crafting stations - require crafting permission
             case CRAFTING_TABLE:
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.CRAFTING_TABLE_USE)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to use crafting tables on this island!</red>"));
+                }
+                break;
+                
             case ENCHANTING_TABLE:
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.ENCHANTING_TABLE_USE)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to use enchanting tables on this island!</red>"));
+                }
+                break;
+                
             case GRINDSTONE:
             case CARTOGRAPHY_TABLE:
             case FLETCHING_TABLE:
             case SMITHING_TABLE:
             case STONECUTTER:
             case LOOM:
-                // Allow these crafting stations for visitors
+                // Allow these crafting stations for visitors by default, but check permission
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.CRAFTING_TABLE_USE)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to use crafting stations on this island!</red>"));
+                }
                 break;
                 
-            // Beds - block interaction
+            // Beds - require bed permission
             case WHITE_BED:
             case ORANGE_BED:
             case MAGENTA_BED:
@@ -163,12 +213,14 @@ public class VisitorProtectionListener implements Listener {
             case GREEN_BED:
             case RED_BED:
             case BLACK_BED:
-                event.setCancelled(true);
-                player.sendMessage(miniMessage.deserialize("<red>You cannot use beds while visiting this island!</red>"));
+                if (!permissionManager.hasPermission(player, islandId, IslandPermission.BED_USE)) {
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to use beds on this island!</red>"));
+                }
                 break;
                 
             default:
-                // For other interactive blocks, allow them unless they're problematic
+                // For other blocks, allow them unless specifically restricted
                 break;
         }
     }
@@ -179,31 +231,40 @@ public class VisitorProtectionListener implements Listener {
             return;
         }
         
-        if (!isVisitorOnIsland(player)) {
+        String islandId = getPlayerIslandId(player);
+        if (islandId == null) {
             return;
         }
         
-        // Block access to containers and storage inventories
+        // Check container access using the new permission system
         InventoryType type = event.getInventory().getType();
-        switch (type) {
-            case CHEST:
-            case ENDER_CHEST:
-            case SHULKER_BOX:
-            case BARREL:
-            case HOPPER:
-            case DROPPER:
-            case DISPENSER:
-            case FURNACE:
-            case BLAST_FURNACE:
-            case SMOKER:
-            case BREWING:
-            case BEACON:
-                event.setCancelled(true);
-                player.sendMessage(miniMessage.deserialize("<red>You cannot access containers while visiting this island!</red>"));
-                break;
-            default:
-                // Allow other inventory types (crafting table, enchanting table, etc.)
-                break;
+        IslandPermission containerPerm = IslandPermission.getInventoryPermission(type);
+        
+        // Check if player has permission for this specific container type or general container access
+        if (!permissionManager.hasPermission(player, islandId, containerPerm) && 
+            !permissionManager.hasPermission(player, islandId, IslandPermission.CONTAINER_ACCESS)) {
+            
+            switch (type) {
+                case CHEST:
+                case ENDER_CHEST:
+                case SHULKER_BOX:
+                case BARREL:
+                case HOPPER:
+                case DROPPER:
+                case DISPENSER:
+                case FURNACE:
+                case BLAST_FURNACE:
+                case SMOKER:
+                case BREWING:
+                case BEACON:
+                    event.setCancelled(true);
+                    player.sendMessage(miniMessage.deserialize("<red>You don't have permission to access " + 
+                        containerPerm.getDescription().toLowerCase() + " on this island!</red>"));
+                    break;
+                default:
+                    // Allow other inventory types (crafting table, enchanting table, etc.)
+                    break;
+            }
         }
     }
     
@@ -372,5 +433,20 @@ public class VisitorProtectionListener implements Listener {
         }
         
         return false;
+    }
+    
+    /**
+     * Helper method to get the island ID that a player is currently on
+     */
+    private String getPlayerIslandId(Player player) {
+        String worldName = player.getWorld().getName();
+        
+        // Check if player is in an island world (starts with "island-")
+        if (!worldName.startsWith("island-")) {
+            return null;
+        }
+        
+        // Return the world name as the island ID
+        return worldName;
     }
 }

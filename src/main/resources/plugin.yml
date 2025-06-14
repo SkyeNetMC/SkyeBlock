@@ -3,7 +3,7 @@ version: '${project.version}'
 main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
 api-version: '1.21'
 authors: [SkyeNetwork]
-description: SkyeBlock plugin for creating and managing skyblock islands
+description: SkyeBlock plugin for creating and managing skyeblock islands
 website: https://skyenetwork.com
 depend: [WorldEdit, WorldGuard]
 softdepend: [SlimeWorldManager, AdvancedSlimeWorldManager, luckperms]
@@ -13,7 +13,7 @@ commands:
     description: Main SkyeBlock command
     usage: /sb <island|visit|delete|hub> [args...]
     permission: skyeblock.island
-    aliases: [skyblock]
+    aliases: [skyeblock]
   island:
     description: Main island command
     usage: /island <create|home|visit|lock|unlock|edit|coop|vote|set|settings> [args...]
@@ -39,6 +39,24 @@ commands:
     description: Convert old island format to new UUID-based format
     usage: /convertislands <scan|convert> [username]
     permission: skyeblock.admin.convert
+  createisland:
+    description: Create a new island with GUI or direct command
+    usage: /createisland [type]
+    permission: skyeblock.island.create
+  islandpermissions:
+    description: Manage island permissions for players
+    usage: /islandpermissions [player]
+    permission: skyeblock.island.permissions
+  warp:
+    description: Open warp GUI or teleport to specific warp
+    usage: /warp [warp_name]
+    permission: skyeblock.warp
+    aliases: [warps]
+  warpadmin:
+    description: Admin commands for managing warps and resource worlds
+    usage: /warpadmin <create|delete|reset|reload> [args...]
+    permission: skyeblock.admin.warp
+    aliases: [wa]
 
 permissions:
   skyeblock.*:
@@ -53,10 +71,18 @@ permissions:
       skyeblock.island.lock: true
       skyeblock.island.set: true
       skyeblock.island.delete: true
+      skyeblock.island.permissions: true
       skyeblock.hub: true
       skyeblock.admin: true
       skyeblock.admin.serverbrand: true
       skyeblock.admin.convert: true
+      skyeblock.admin.warp: true
+      skyeblock.warp: true
+      skyeblock.warp.spawn: true
+      skyeblock.warp.nether: true
+      skyeblock.warp.end: true
+      skyeblock.warp.pvp: true
+      skyeblock.warp.shop: true
       skyeblock.gamerules.adminbypass: true
   skyeblock.island:
     description: Basic island commands (create, home, settings)
@@ -81,6 +107,9 @@ permissions:
     default: true
   skyeblock.island.delete:
     description: Delete your own island
+    default: true
+  skyeblock.island.permissions:
+    description: Manage island permissions for players
     default: true
   skyeblock.hub:
     description: Hub teleport command
@@ -216,3 +245,25 @@ permissions:
   skyeblock.gamerule.playerssleepingpercentage:
     description: Allow modifying players sleeping percentage gamerule
     default: true
+  # Warp System Permissions
+  skyeblock.warp:
+    description: Access to warp GUI and teleportation
+    default: true
+  skyeblock.warp.spawn:
+    description: Access to spawn warp
+    default: true
+  skyeblock.warp.nether:
+    description: Access to nether resource world
+    default: true
+  skyeblock.warp.end:
+    description: Access to end resource world
+    default: true
+  skyeblock.warp.pvp:
+    description: Access to PvP arena warp
+    default: true
+  skyeblock.warp.shop:
+    description: Access to shop/market warp
+    default: true
+  skyeblock.admin.warp:
+    description: Admin warp management commands
+    default: op

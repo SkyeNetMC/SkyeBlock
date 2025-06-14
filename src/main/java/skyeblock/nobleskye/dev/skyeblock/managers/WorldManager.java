@@ -94,69 +94,14 @@ public class WorldManager {
 
     private void checkForASWM() {
         try {
-            // First check for built-in ASWM (ASP servers)
+            // Check for built-in ASWM (ASP servers)
             if (checkForBuiltInASWM()) {
                 return;
             }
             
-            // Check for Advanced Slime World Manager plugin
-            slimePlugin = Bukkit.getPluginManager().getPlugin("AdvancedSlimeWorldManager");
-            
-            if (slimePlugin != null) {
-                plugin.getLogger().info("Found AdvancedSlimeWorldManager plugin, attempting to initialize...");
-                try {
-                    Class<?> slimePluginClass = slimePlugin.getClass();
-                    plugin.getLogger().info("Plugin class: " + slimePluginClass.getName());
-                    
-                    // Try ASWM API
-                    Object loader = slimePluginClass.getMethod("getLoader", String.class).invoke(slimePlugin, "file");
-                    if (loader != null) {
-                        slimeLoader = loader;
-                        slimeWorldEnabled = true;
-                        plugin.getLogger().info("Advanced Slime World Manager integration initialized successfully!");
-                        plugin.getLogger().info("Using ASWM plugin with file loader for island worlds");
-                        return;
-                    } else {
-                        plugin.getLogger().warning("ASWM getLoader returned null");
-                    }
-                } catch (Exception e) {
-                    plugin.getLogger().warning("Failed to initialize ASWM plugin integration: " + e.getMessage());
-                    plugin.getLogger().warning("Exception type: " + e.getClass().getSimpleName());
-                    e.printStackTrace();
-                }
-            } else {
-                plugin.getLogger().info("AdvancedSlimeWorldManager plugin not found, checking for legacy SlimeWorldManager...");
-            }
-            
-            // Fallback to old SlimeWorldManager
-            slimePlugin = Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
-            if (slimePlugin != null) {
-                plugin.getLogger().info("Found legacy SlimeWorldManager plugin, attempting to initialize...");
-                try {
-                    Class<?> slimePluginClass = slimePlugin.getClass();
-                    plugin.getLogger().info("Plugin class: " + slimePluginClass.getName());
-                    
-                    // Try legacy SWM API
-                    Object loader = slimePluginClass.getMethod("getLoader", String.class).invoke(slimePlugin, "file");
-                    if (loader != null) {
-                        slimeLoader = loader;
-                        slimeWorldEnabled = true;
-                        plugin.getLogger().info("SlimeWorldManager integration initialized successfully!");
-                        plugin.getLogger().info("Using legacy SWM with file loader for island worlds");
-                        return;
-                    } else {
-                        plugin.getLogger().warning("SWM getLoader returned null");
-                    }
-                } catch (Exception e) {
-                    plugin.getLogger().warning("Failed to initialize SWM integration: " + e.getMessage());
-                    plugin.getLogger().warning("Exception type: " + e.getClass().getSimpleName());
-                    e.printStackTrace();
-                }
-            } else {
-                plugin.getLogger().info("No SlimeWorldManager (legacy) found either.");
-            }
-            
-            plugin.getLogger().info("No compatible SlimeWorldManager found. Using standard world creation.");
+            plugin.getLogger().info("⚠ No built-in ASWM found. This plugin is designed for ASP servers with built-in ASWM.");
+            plugin.getLogger().info("⚠ Islands will use standard Bukkit worlds.");
+            plugin.getLogger().info("⚠ For better performance, use this plugin on an ASP server with built-in ASWM.");
             
         } catch (Exception e) {
             plugin.getLogger().warning("Unexpected error during SlimeWorldManager detection: " + e.getMessage());
@@ -169,7 +114,7 @@ public class WorldManager {
         try {
             plugin.getLogger().info("Checking for built-in ASWM (ASP server)...");
             
-            // Try to access ASWM API directly (built-in to ASP servers)
+            // Try to access ASWM API directly using the new package structure
             Class<?> slimePluginClass = Class.forName("com.infernalsuite.aswm.SlimePlugin");
             plugin.getLogger().info("Found built-in ASWM API class: " + slimePluginClass.getName());
             
@@ -178,24 +123,31 @@ public class WorldManager {
             if (aswmInstance != null) {
                 plugin.getLogger().info("Successfully got built-in ASWM instance");
                 
-                // Try to get the file loader
-                Object loader = slimePluginClass.getMethod("getLoader", String.class).invoke(aswmInstance, "file");
-                if (loader != null) {
-                    slimePlugin = (Plugin) aswmInstance;
-                    slimeLoader = loader;
-                    slimeWorldEnabled = true;
-                    plugin.getLogger().info("Built-in Advanced Slime World Manager integration initialized successfully!");
-                    plugin.getLogger().info("Using built-in ASWM (ASP server) with file loader for island worlds");
-                    return true;
+                // Try to get the file loader using the new API
+                Class<?> loaderManagerClass = Class.forName("com.infernalsuite.aswm.api.AdvancedSlimeWorldManagerAPI");
+                Object apiInstance = loaderManagerClass.getMethod("instance").invoke(null);
+                
+                if (apiInstance != null) {
+                    Object loader = loaderManagerClass.getMethod("getLoader", String.class).invoke(apiInstance, "file");
+                    if (loader != null) {
+                        slimePlugin = (Plugin) aswmInstance;
+                        slimeLoader = loader;
+                        slimeWorldEnabled = true;
+                        plugin.getLogger().info("✓ Built-in Advanced Slime World Manager API integration initialized successfully!");
+                        plugin.getLogger().info("✓ Built-in ASWM (ASP server) detected and configured - islands will use slime worlds");
+                        return true;
+                    } else {
+                        plugin.getLogger().warning("Built-in ASWM API getLoader returned null");
+                    }
                 } else {
-                    plugin.getLogger().warning("Built-in ASWM getLoader returned null");
+                    plugin.getLogger().warning("Built-in ASWM API instance returned null");
                 }
             }
         } catch (ClassNotFoundException e) {
-            plugin.getLogger().info("Built-in ASWM API not found (not an ASP server)");
+            plugin.getLogger().info("Built-in ASWM API not found (not an ASP server or old version)");
         } catch (Exception e) {
-            plugin.getLogger().info("Failed to initialize built-in ASWM: " + e.getMessage());
-            plugin.getLogger().info("This is normal if you're not using an ASP server");
+            plugin.getLogger().info("Failed to initialize built-in ASWM API: " + e.getMessage());
+            plugin.getLogger().info("This is normal if you're not using an ASP server with built-in ASWM");
         }
         
         return false;
@@ -214,17 +166,45 @@ public class WorldManager {
     }
 
     public World createIslandWorld(String islandId) {
-        // If SlimeWorldManager/ASWM is available, try to use it
+        // Priority 1: Use ASWM/SlimeWorldManager if available and enabled
         if (slimeWorldEnabled && slimePlugin != null && slimeLoader != null) {
+            plugin.getLogger().info("ASWM is available - attempting to create slime world for island: " + islandId);
             try {
-                return createSlimeWorld(islandId);
+                World slimeWorld = createSlimeWorld(islandId);
+                if (slimeWorld != null) {
+                    plugin.getLogger().info("✓ Successfully created ASWM world for island: " + islandId + " (World: " + slimeWorld.getName() + ")");
+                    return slimeWorld;
+                } else {
+                    plugin.getLogger().warning("✗ ASWM world creation returned null for island: " + islandId + " - falling back to standard world");
+                }
             } catch (Exception e) {
-                plugin.getLogger().warning("Failed to create SlimeWorld for " + islandId + ", falling back to standard world: " + e.getMessage());
+                plugin.getLogger().warning("✗ Failed to create ASWM world for island " + islandId + ": " + e.getMessage());
+                plugin.getLogger().warning("Exception details: " + e.getClass().getSimpleName());
+                if (plugin.getConfig().getBoolean("debug", false)) {
+                    e.printStackTrace();
+                }
+                plugin.getLogger().info("Falling back to standard Bukkit world creation...");
+            }
+        } else {
+            // Log why ASWM isn't being used
+            if (!slimeWorldEnabled) {
+                plugin.getLogger().info("ASWM not enabled - creating standard world for island: " + islandId);
+            } else if (slimePlugin == null) {
+                plugin.getLogger().info("ASWM plugin not found - creating standard world for island: " + islandId);
+            } else if (slimeLoader == null) {
+                plugin.getLogger().info("ASWM loader not available - creating standard world for island: " + islandId);
             }
         }
 
-        // Fallback to creating individual standard worlds
-        return createStandardWorld(islandId);
+        // Fallback: Create standard Bukkit world
+        plugin.getLogger().info("Creating standard Bukkit world for island: " + islandId);
+        World standardWorld = createStandardWorld(islandId);
+        if (standardWorld != null) {
+            plugin.getLogger().info("✓ Successfully created standard world for island: " + islandId + " (World: " + standardWorld.getName() + ")");
+        } else {
+            plugin.getLogger().severe("✗ Failed to create any world for island: " + islandId);
+        }
+        return standardWorld;
     }
 
     private World createSlimeWorld(String islandId) {
@@ -236,15 +216,30 @@ public class WorldManager {
                             slimePluginClass.getName().contains("com.infernalsuite.aswm");
             
             if (isASWM) {
-                plugin.getLogger().info("Creating island using ASWM API for: " + islandId);
-                return createASWMWorld(islandId, slimePluginClass);
+                plugin.getLogger().info("Using ASWM API to create world for island: " + islandId);
+                World world = createASWMWorld(islandId, slimePluginClass);
+                if (world != null) {
+                    plugin.getLogger().info("✓ ASWM world creation successful for: " + islandId);
+                    return world;
+                } else {
+                    plugin.getLogger().warning("✗ ASWM world creation returned null for: " + islandId);
+                }
             } else {
-                plugin.getLogger().info("Creating island using legacy SWM API for: " + islandId);
-                return createSWMWorld(islandId, slimePluginClass);
+                plugin.getLogger().info("Using legacy SWM API to create world for island: " + islandId);
+                World world = createSWMWorld(islandId, slimePluginClass);
+                if (world != null) {
+                    plugin.getLogger().info("✓ Legacy SWM world creation successful for: " + islandId);
+                    return world;
+                } else {
+                    plugin.getLogger().warning("✗ Legacy SWM world creation returned null for: " + islandId);
+                }
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to create SlimeWorld " + islandId + ": " + e.getMessage());
-            e.printStackTrace();
+            plugin.getLogger().warning("Exception in createSlimeWorld for " + islandId + ": " + e.getMessage());
+            plugin.getLogger().warning("Exception type: " + e.getClass().getSimpleName());
+            if (plugin.getConfig().getBoolean("debug", false)) {
+                e.printStackTrace();
+            }
         }
         
         return null;
@@ -302,8 +297,10 @@ public class WorldManager {
             bukkitWorld.setThundering(false);
             bukkitWorld.setWeatherDuration(Integer.MAX_VALUE);
             
-            plugin.getLogger().info("Created ASWM island: " + islandId);
+            plugin.getLogger().info("✓ ASWM world created successfully: " + worldName + " for island " + islandId);
             return bukkitWorld;
+        } else {
+            plugin.getLogger().warning("✗ ASWM world generation failed - Bukkit world is null for: " + worldName);
         }
         
         return null;
@@ -361,8 +358,10 @@ public class WorldManager {
             bukkitWorld.setThundering(false);
             bukkitWorld.setWeatherDuration(Integer.MAX_VALUE);
             
-            plugin.getLogger().info("Created SWM island: " + worldName + " for island " + islandId);
+            plugin.getLogger().info("✓ Legacy SWM world created successfully: " + worldName + " for island " + islandId);
             return bukkitWorld;
+        } else {
+            plugin.getLogger().warning("✗ Legacy SWM world generation failed - Bukkit world is null for: " + worldName);
         }
         
         return null;
@@ -402,8 +401,10 @@ public class WorldManager {
                 world.setThundering(false);
                 world.setWeatherDuration(Integer.MAX_VALUE);
                 
-                plugin.getLogger().info("Created standard island world: " + worldPath);
+                plugin.getLogger().info("✓ Standard Bukkit world created successfully: " + worldPath);
                 return world;
+            } else {
+                plugin.getLogger().warning("✗ Standard Bukkit world creation failed for: " + worldPath);
             }
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to create standard world " + islandId + ": " + e.getMessage());
@@ -610,6 +611,22 @@ public class WorldManager {
         }
         
         return "Unknown";
+    }
+
+    /**
+     * Get detailed status information about the world manager for debugging
+     */
+    public String getDetailedStatus() {
+        StringBuilder status = new StringBuilder();
+        status.append("§6=== WorldManager Status ===\n");
+        status.append("§7ASWM Enabled: §").append(slimeWorldEnabled ? "a✓ Yes" : "c✗ No").append("\n");
+        status.append("§7Plugin Found: §").append(slimePlugin != null ? "a✓ " + slimePlugin.getName() : "c✗ None").append("\n");
+        status.append("§7Loader Available: §").append(slimeLoader != null ? "a✓ Yes" : "c✗ No").append("\n");
+        status.append("§7Manager Type: §b").append(getSlimeWorldManagerType()).append("\n");
+        status.append("§7Main World: §e").append(skyBlockWorld != null ? skyBlockWorld.getName() : "null").append("\n");
+        status.append("§7Nether World: §c").append(skyBlockNetherWorld != null ? skyBlockNetherWorld.getName() : "disabled").append("\n");
+        status.append("§7Tracked Islands: §d").append(islandWorlds.size()).append(" worlds");
+        return status.toString();
     }
 
     public void teleportToHub(org.bukkit.entity.Player player) {

@@ -2,11 +2,11 @@ name: SkyeBlock
 version: '2.0.0'
 main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
 api-version: '1.21'
-authors: [SkyeNetwork]
+authors: [NobleSkye, SkyeNetwork Team]
 description: SkyeBlock plugin for creating and managing skyblock islands
 website: https://skyenetwork.com
-depend: [WorldEdit, WorldGuard]
-softdepend: [SlimeWorldManager, AdvancedSlimeWorldManager, luckperms]
+depend: [WorldEdit, WorldGuard, luckperms]
+softdepend: [AdvancedSlimeWorldManager, luckperms]
 
 commands:
   sb:

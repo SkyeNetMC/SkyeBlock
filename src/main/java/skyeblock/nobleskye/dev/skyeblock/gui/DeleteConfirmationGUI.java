@@ -26,7 +26,7 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
     private final MiniMessage miniMessage;
     private final Map<UUID, DeleteSession> playerSessions;
     
-    private static final int INVENTORY_SIZE = 54; // 6 rows
+    private static final int INVENTORY_SIZE = 27; // 3 rows
     private static final int REQUIRED_CLICKS = 3;
     
     public DeleteConfirmationGUI(SkyeBlockPlugin plugin) {
@@ -143,7 +143,7 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
         
         cancelMeta.lore(cancelLore);
         cancelButton.setItemMeta(cancelMeta);
-        inventory.setItem(49, cancelButton); // Bottom right area
+        inventory.setItem(22, cancelButton); // Bottom right area (3 rows)
         
         player.openInventory(inventory);
         
@@ -206,15 +206,15 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
         currentInventory.setItem(session.confirmationSlot, confirmButton);
         
         // Fill the old slot with gray glass if it's not the cancel button slot
-        if (session.confirmationSlot != 49) {
+        if (session.confirmationSlot != 22) {
             ItemStack grayGlass = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
             ItemMeta grayMeta = grayGlass.getItemMeta();
             grayMeta.displayName(Component.empty());
             grayGlass.setItemMeta(grayMeta);
             
-            // Clear all slots except cancel button (slot 49) and fill with gray glass
+            // Clear all slots except cancel button (slot 22) and fill with gray glass
             for (int i = 0; i < INVENTORY_SIZE; i++) {
-                if (i != 49 && i != session.confirmationSlot) {
+                if (i != 22 && i != session.confirmationSlot) {
                     currentInventory.setItem(i, grayGlass);
                 }
             }
@@ -239,7 +239,7 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
         
-        if (slot == 49 && clickedItem.getType() == Material.BARRIER) {
+        if (slot == 22 && clickedItem.getType() == Material.BARRIER) {
             // Cancel button clicked
             player.closeInventory();
             player.sendMessage(miniMessage.deserialize("<green>Island deletion cancelled.</green>"));
@@ -315,10 +315,10 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
         }
         
         public void generateNewConfirmationSlot() {
-            // Generate random slot, avoiding the cancel button slot (49) and edges
+            // Generate random slot, avoiding the cancel button slot (22) and edges
             List<Integer> availableSlots = new ArrayList<>();
-            for (int i = 10; i < 44; i++) {
-                if (i % 9 != 0 && i % 9 != 8 && i != 49) { // Avoid edges and cancel button
+            for (int i = 10; i < 17; i++) { // Middle row slots excluding edges and cancel button
+                if (i != 22) { // Avoid cancel button
                     availableSlots.add(i);
                 }
             }
@@ -326,7 +326,7 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
             if (!availableSlots.isEmpty()) {
                 this.confirmationSlot = availableSlots.get(random.nextInt(availableSlots.size()));
             } else {
-                this.confirmationSlot = 22; // Fallback to center
+                this.confirmationSlot = 13; // Fallback to center
             }
         }
     }

@@ -1,0 +1,279 @@
+# SkyeBlock Warp System Configuration
+# Version 2.5.7
+
+# Resource Worlds Configuration
+resource-worlds:
+  # Global settings
+  enabled: true
+  
+  # Nether Resource World
+  nether:
+    enabled: true
+    world-name: "resource_nether"
+    environment: "NETHER"
+    generator: "void"  # Options: void, default, custom
+    
+    # World Settings
+    settings:
+      size: 2000  # World border size (blocks from center)
+      seed: 12345  # Custom seed (leave empty for random)
+      difficulty: "normal"  # peaceful, easy, normal, hard
+      pvp: false
+      monsters: true
+      animals: true
+      structures: true
+      
+    # Reset Configuration
+    reset:
+      enabled: true
+      interval-hours: 168  # Reset every 7 days (168 hours)
+      warning-hours: [24, 12, 1]  # Warn players X hours before reset
+      broadcast-reset: true
+      
+    # Spawn Location
+    spawn:
+      x: 0
+      y: 100
+      z: 0
+      yaw: 0
+      pitch: 0
+      
+  # End Resource World
+  end:
+    enabled: true
+    world-name: "resource_end"
+    environment: "THE_END"
+    generator: "default"
+    
+    # World Settings
+    settings:
+      size: 3000  # Larger for end exploration
+      seed: 54321
+      difficulty: "normal"
+      pvp: false
+      monsters: true
+      animals: false
+      structures: true
+      
+    # Reset Configuration
+    reset:
+      enabled: true
+      interval-hours: 336  # Reset every 14 days (336 hours)
+      warning-hours: [48, 24, 12, 1]
+      broadcast-reset: true
+      
+    # Spawn Location (End main island)
+    spawn:
+      x: 100
+      y: 50
+      z: 0
+      yaw: 0
+      pitch: 0
+
+# Warp System Configuration
+warps:
+  # Global warp settings
+  enabled: true
+  max-warps: 50  # Maximum number of warps
+  
+  # GUI Configuration
+  gui:
+    title: "<gold><bold>Server Warps</bold></gold>"
+    size: 54  # Must be multiple of 9 (9, 18, 27, 36, 45, 54)
+    
+    # Navigation items
+    navigation:
+      # Previous page button
+      previous-page:
+        slot: 45
+        material: "ARROW"
+        name: "<yellow>◀ Previous Page"
+        lore:
+          - "<gray>Click to go to the previous page"
+          - "<gray>Page: <white>{current_page}<gray>/<white>{total_pages}"
+        
+      # Next page button  
+      next-page:
+        slot: 53
+        material: "ARROW"
+        name: "<yellow>Next Page ▶"
+        lore:
+          - "<gray>Click to go to the next page"
+          - "<gray>Page: <white>{current_page}<gray>/<white>{total_pages}"
+          
+      # Close button
+      close:
+        slot: 49
+        material: "BARRIER"
+        name: "<red>Close"
+        lore:
+          - "<gray>Close this menu"
+          
+      # Info item
+      info:
+        slot: 4
+        material: "COMPASS"
+        name: "<gold><bold>Server Warps</bold></gold>"
+        lore:
+          - "<gray>Click on any warp to teleport"
+          - "<gray>Total warps: <white>{total_warps}"
+          - ""
+          - "<yellow>Resource worlds reset periodically!"
+          
+    # Fill empty slots with glass
+    fill-empty-slots: true
+    fill-material: "GRAY_STAINED_GLASS_PANE"
+    fill-name: " "
+    
+  # Predefined Warps
+  warp-list:
+    # Hub/Spawn
+    spawn:
+      enabled: true
+      name: "<green><bold>Spawn</bold></green>"
+      description: "Server spawn area"
+      material: "GRASS_BLOCK"
+      slot: 10  # Auto-positioned if not specified
+      location:
+        world: "world"
+        x: 0
+        y: 100
+        z: 0
+        yaw: 0
+        pitch: 0
+      lore:
+        - "<gray>The main server spawn area"
+        - "<gray>Start your adventure here!"
+        - ""
+        - "<green>Click to teleport"
+      permission: "skyeblock.warp.spawn"
+      cost: 0  # Economy cost (if economy plugin present)
+      
+    # Resource Nether
+    nether:
+      enabled: true
+      name: "<red><bold>Resource Nether</bold></red>"
+      description: "Nether resource world for mining"
+      material: "NETHERRACK"
+      slot: 11
+      location:
+        world: "resource_nether"
+        x: 0
+        y: 100
+        z: 0
+        yaw: 0
+        pitch: 0
+      lore:
+        - "<gray>Mine nether resources here"
+        - "<yellow>⚠ This world resets every 7 days"
+        - "<gray>Next reset: <white>{nether_reset_time}"
+        - ""
+        - "<red>Click to teleport"
+      permission: "skyeblock.warp.nether"
+      cost: 0
+      
+    # Resource End
+    end:
+      enabled: true
+      name: "<dark_purple><bold>Resource End</bold></dark_purple>"
+      description: "End resource world for exploration"
+      material: "END_STONE"
+      slot: 12
+      location:
+        world: "resource_end"
+        x: 100
+        y: 50
+        z: 0
+        yaw: 0
+        pitch: 0
+      lore:
+        - "<gray>Explore the End dimension"
+        - "<gray>Fight the Ender Dragon!"
+        - "<yellow>⚠ This world resets every 14 days"
+        - "<gray>Next reset: <white>{end_reset_time}"
+        - ""
+        - "<dark_purple>Click to teleport"
+      permission: "skyeblock.warp.end"
+      cost: 0
+      
+    # PvP Arena (example)
+    pvp:
+      enabled: true
+      name: "<red><bold>PvP Arena</bold></red>"
+      description: "Player vs Player combat zone"
+      material: "DIAMOND_SWORD"
+      slot: 13
+      location:
+        world: "world"
+        x: 1000
+        y: 100
+        z: 1000
+        yaw: 0
+        pitch: 0
+      lore:
+        - "<gray>Battle other players here"
+        - "<red>⚠ PvP is enabled in this area"
+        - "<gray>Items may be lost on death"
+        - ""
+        - "<red>Click to teleport"
+      permission: "skyeblock.warp.pvp"
+      cost: 100
+      
+    # Shop/Market (example)
+    shop:
+      enabled: true
+      name: "<gold><bold>Market</bold></gold>"
+      description: "Buy and sell items"
+      material: "EMERALD"
+      slot: 14
+      location:
+        world: "world"
+        x: -500
+        y: 100
+        z: 500
+        yaw: 90
+        pitch: 0
+      lore:
+        - "<gray>Trade with other players"
+        - "<gray>Buy rare items and materials"
+        - "<gold>Economy hub of the server"
+        - ""
+        - "<green>Click to teleport"
+      permission: "skyeblock.warp.shop"
+      cost: 0
+
+# Messages Configuration
+messages:
+  prefix: "<dark_gray>[<gold>SkyeBlock</gold>]</dark_gray> "
+  
+  # Warp Messages
+  warp-teleported: "<green>Teleported to warp: <yellow>{warp_name}</yellow></green>"
+  warp-not-found: "<red>Warp '<yellow>{warp_name}</yellow>' not found!</red>"
+  warp-no-permission: "<red>You don't have permission to use this warp!</red>"
+  warp-insufficient-funds: "<red>You need <yellow>${cost}</yellow> to use this warp!</red>"
+  warp-cooldown: "<red>You must wait <yellow>{time}</yellow> before using warps again!</red>"
+  
+  # Resource World Messages
+  resource-world-reset-warning: "<yellow>⚠ Resource world '<red>{world}</red>' will reset in <white>{time}</white>!"
+  resource-world-reset-broadcast: "<red>🔄 Resource world '<yellow>{world}</yellow>' has been reset!"
+  resource-world-creating: "<yellow>Creating resource world '<white>{world}</white>'..."
+  resource-world-created: "<green>✓ Resource world '<white>{world}</white>' created successfully!"
+  resource-world-reset-failed: "<red>✗ Failed to reset resource world '<yellow>{world}</yellow>'!"
+  
+  # GUI Messages
+  gui-warp-teleporting: "<gray>Teleporting to <white>{warp_name}</white>..."
+  gui-loading: "<gray>Loading warps..."
+  gui-no-warps: "<yellow>No warps available on this page"
+  
+  # Admin Messages
+  warp-created: "<green>✓ Warp '<yellow>{warp_name}</yellow>' created at your location!"
+  warp-deleted: "<green>✓ Warp '<yellow>{warp_name}</yellow>' deleted!"
+  warp-already-exists: "<red>Warp '<yellow>{warp_name}</yellow>' already exists!"
+  resource-world-force-reset: "<green>✓ Resource world '<yellow>{world}</yellow>' reset manually!"
+
+# Time Formatting
+time-format:
+  days: "{days}d {hours}h {minutes}m"
+  hours: "{hours}h {minutes}m"
+  minutes: "{minutes}m"
+  seconds: "{seconds}s"
