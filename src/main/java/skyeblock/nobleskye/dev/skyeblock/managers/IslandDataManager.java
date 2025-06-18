@@ -59,6 +59,16 @@ public class IslandDataManager {
             dataConfig.set(basePath + ".adventure-mode-for-visitors", island.isAdventureModeForVisitors());
             dataConfig.set(basePath + ".last-online-time", island.getLastOnlineTime());
             
+            // Save granular visitor permissions
+            dataConfig.set(basePath + ".visitor-permissions.can-break-blocks", island.canVisitorBreakBlocks());
+            dataConfig.set(basePath + ".visitor-permissions.can-place-blocks", island.canVisitorPlaceBlocks());
+            dataConfig.set(basePath + ".visitor-permissions.can-open-containers", island.canVisitorOpenContainers());
+            dataConfig.set(basePath + ".visitor-permissions.can-pickup-items", island.canVisitorPickupItems());
+            dataConfig.set(basePath + ".visitor-permissions.can-drop-items", island.canVisitorDropItems());
+            dataConfig.set(basePath + ".visitor-permissions.can-interact-entities", island.canVisitorInteractWithEntities());
+            dataConfig.set(basePath + ".visitor-permissions.can-use-pvp", island.canVisitorUsePvp());
+            dataConfig.set(basePath + ".visitor-permissions.can-use-redstone", island.canVisitorUseRedstone());
+            
             // Save location
             Location loc = island.getLocation();
             if (loc != null) {
@@ -179,9 +189,9 @@ public class IslandDataManager {
                 org.bukkit.World world = plugin.getServer().getWorld(worldName);
                 if (world == null) {
                     // Try to load the world through WorldManager
-                    world = plugin.getWorldManager().getIslandWorld(islandId);
-                    if (world == null) {
-                        plugin.getLogger().warning("Skipping island " + islandId + " - world " + worldName + " not found");
+                    world = plugin.getWorldManager().getOrLoadIslandWorld(islandId);
+                    if (world == null || world.getName().equals(plugin.getWorldManager().getSkyBlockWorld().getName())) {
+                        plugin.getLogger().warning("Skipping island " + islandId + " - world " + worldName + " could not be loaded");
                         continue;
                     }
                 }
@@ -210,6 +220,32 @@ public class IslandDataManager {
                 if (dataConfig.contains(basePath + ".adventure-mode-for-visitors")) {
                     island.setAdventureModeForVisitors(dataConfig.getBoolean(basePath + ".adventure-mode-for-visitors"));
                 }
+                
+                // Load granular visitor permissions
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-break-blocks")) {
+                    island.setVisitorCanBreakBlocks(dataConfig.getBoolean(basePath + ".visitor-permissions.can-break-blocks"));
+                }
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-place-blocks")) {
+                    island.setVisitorCanPlaceBlocks(dataConfig.getBoolean(basePath + ".visitor-permissions.can-place-blocks"));
+                }
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-open-containers")) {
+                    island.setVisitorCanOpenContainers(dataConfig.getBoolean(basePath + ".visitor-permissions.can-open-containers"));
+                }
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-pickup-items")) {
+                    island.setVisitorCanPickupItems(dataConfig.getBoolean(basePath + ".visitor-permissions.can-pickup-items"));
+                }
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-drop-items")) {
+                    island.setVisitorCanDropItems(dataConfig.getBoolean(basePath + ".visitor-permissions.can-drop-items"));
+                }
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-interact-entities")) {
+                    island.setVisitorCanInteractWithEntities(dataConfig.getBoolean(basePath + ".visitor-permissions.can-interact-entities"));
+                }
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-use-pvp")) {
+                    island.setVisitorCanUsePvp(dataConfig.getBoolean(basePath + ".visitor-permissions.can-use-pvp"));
+                }
+                if (dataConfig.contains(basePath + ".visitor-permissions.can-use-redstone")) {
+                    island.setVisitorCanUseRedstone(dataConfig.getBoolean(basePath + ".visitor-permissions.can-use-redstone"));
+                }
                 if (dataConfig.contains(basePath + ".last-online-time")) {
                     // Use reflection to set the last online time (as there's no setter)
                     try {
@@ -226,6 +262,12 @@ public class IslandDataManager {
                 if (dataConfig.contains(basePath + ".home-location.world")) {
                     String homeWorldName = dataConfig.getString(basePath + ".home-location.world");
                     org.bukkit.World homeWorld = plugin.getServer().getWorld(homeWorldName);
+                    
+                    // If world not found, try to load it through WorldManager
+                    if (homeWorld == null) {
+                        homeWorld = plugin.getWorldManager().getIslandWorld(islandId);
+                    }
+                    
                     if (homeWorld != null) {
                         double hx = dataConfig.getDouble(basePath + ".home-location.x");
                         double hy = dataConfig.getDouble(basePath + ".home-location.y");
@@ -234,6 +276,8 @@ public class IslandDataManager {
                         float hpitch = (float) dataConfig.getDouble(basePath + ".home-location.pitch");
                         
                         island.setHomeLocation(new Location(homeWorld, hx, hy, hz, hyaw, hpitch));
+                    } else {
+                        plugin.getLogger().warning("Could not load home location for island " + islandId + " - world " + homeWorldName + " not found");
                     }
                 }
                 
@@ -241,6 +285,12 @@ public class IslandDataManager {
                 if (dataConfig.contains(basePath + ".visit-location.world")) {
                     String visitWorldName = dataConfig.getString(basePath + ".visit-location.world");
                     org.bukkit.World visitWorld = plugin.getServer().getWorld(visitWorldName);
+                    
+                    // If world not found, try to load it through WorldManager
+                    if (visitWorld == null) {
+                        visitWorld = plugin.getWorldManager().getIslandWorld(islandId);
+                    }
+                    
                     if (visitWorld != null) {
                         double vx = dataConfig.getDouble(basePath + ".visit-location.x");
                         double vy = dataConfig.getDouble(basePath + ".visit-location.y");
@@ -249,6 +299,8 @@ public class IslandDataManager {
                         float vpitch = (float) dataConfig.getDouble(basePath + ".visit-location.pitch");
                         
                         island.setVisitLocation(new Location(visitWorld, vx, vy, vz, vyaw, vpitch));
+                    } else {
+                        plugin.getLogger().warning("Could not load visit location for island " + islandId + " - world " + visitWorldName + " not found");
                     }
                 }
                 
@@ -358,6 +410,115 @@ public class IslandDataManager {
             } catch (IOException e) {
                 plugin.getLogger().severe("Failed to delete island data: " + e.getMessage());
             }
+        }
+    }
+    
+    /**
+     * Load a specific island for a player
+     */
+    public Island loadIsland(UUID playerUUID) {
+        if (!dataConfig.contains("islands." + playerUUID.toString())) {
+            return null;
+        }
+        
+        try {
+            String basePath = "islands." + playerUUID.toString();
+            
+            // Load basic data
+            String islandId = dataConfig.getString(basePath + ".island-id");
+            String islandType = dataConfig.getString(basePath + ".island-type");
+            
+            if (islandId == null) {
+                plugin.getLogger().warning("Island data for " + playerUUID + " has no island-id");
+                return null;
+            }
+            
+            // Load location
+            String worldName = dataConfig.getString(basePath + ".location.world");
+            if (worldName == null) {
+                plugin.getLogger().warning("Island " + islandId + " has no world specified");
+                return null;
+            }
+            
+            // Try to get or load the world
+            org.bukkit.World world = plugin.getServer().getWorld(worldName);
+            if (world == null) {
+                // Try to load the world through WorldManager
+                world = plugin.getWorldManager().getIslandWorld(islandId);
+                if (world == null) {
+                    plugin.getLogger().warning("Could not load world " + worldName + " for island " + islandId);
+                    // Continue anyway - the world might be loaded later
+                    world = plugin.getWorldManager().getSkyBlockWorld(); // Use main world as fallback
+                }
+            }
+            
+            double x = dataConfig.getDouble(basePath + ".location.x");
+            double y = dataConfig.getDouble(basePath + ".location.y");
+            double z = dataConfig.getDouble(basePath + ".location.z");
+            float yaw = (float) dataConfig.getDouble(basePath + ".location.yaw");
+            float pitch = (float) dataConfig.getDouble(basePath + ".location.pitch");
+            
+            Location location = new Location(world, x, y, z, yaw, pitch);
+            
+            // Create island object
+            Island island = new Island(playerUUID, islandType != null ? islandType : "vanilla", location);
+            
+            // Load additional properties
+            if (dataConfig.contains(basePath + ".locked")) {
+                island.setLocked(dataConfig.getBoolean(basePath + ".locked"));
+            }
+            
+            // Load home location if it exists
+            if (dataConfig.contains(basePath + ".home-location")) {
+                String homeWorldName = dataConfig.getString(basePath + ".home-location.world");
+                org.bukkit.World homeWorld = plugin.getServer().getWorld(homeWorldName != null ? homeWorldName : worldName);
+                if (homeWorld != null) {
+                    double homeX = dataConfig.getDouble(basePath + ".home-location.x");
+                    double homeY = dataConfig.getDouble(basePath + ".home-location.y");
+                    double homeZ = dataConfig.getDouble(basePath + ".home-location.z");
+                    float homeYaw = (float) dataConfig.getDouble(basePath + ".home-location.yaw");
+                    float homePitch = (float) dataConfig.getDouble(basePath + ".home-location.pitch");
+                    
+                    island.setHomeLocation(new Location(homeWorld, homeX, homeY, homeZ, homeYaw, homePitch));
+                }
+            }
+            
+            // Load visit location if it exists
+            if (dataConfig.contains(basePath + ".visit-location")) {
+                String visitWorldName = dataConfig.getString(basePath + ".visit-location.world");
+                org.bukkit.World visitWorld = plugin.getServer().getWorld(visitWorldName != null ? visitWorldName : worldName);
+                if (visitWorld != null) {
+                    double visitX = dataConfig.getDouble(basePath + ".visit-location.x");
+                    double visitY = dataConfig.getDouble(basePath + ".visit-location.y");
+                    double visitZ = dataConfig.getDouble(basePath + ".visit-location.z");
+                    float visitYaw = (float) dataConfig.getDouble(basePath + ".visit-location.yaw");
+                    float visitPitch = (float) dataConfig.getDouble(basePath + ".visit-location.pitch");
+                    
+                    island.setVisitLocation(new Location(visitWorld, visitX, visitY, visitZ, visitYaw, visitPitch));
+                }
+            }
+            
+            // Load coop players (using the correct method name)
+            if (dataConfig.contains(basePath + ".coop-players")) {
+                List<String> coopPlayerStrings = dataConfig.getStringList(basePath + ".coop-players");
+                for (String coopPlayerString : coopPlayerStrings) {
+                    try {
+                        UUID coopUUID = UUID.fromString(coopPlayerString);
+                        // Add as coop member with default role
+                        island.addCoopMember(coopUUID, Island.CoopRole.MEMBER);
+                    } catch (IllegalArgumentException e) {
+                        plugin.getLogger().warning("Invalid coop player UUID: " + coopPlayerString);
+                    }
+                }
+            }
+            
+            plugin.getLogger().info("Successfully loaded island " + islandId + " for player " + playerUUID);
+            return island;
+            
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error loading island for player " + playerUUID + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 }

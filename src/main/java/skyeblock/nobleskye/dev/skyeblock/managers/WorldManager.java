@@ -29,67 +29,11 @@ public class WorldManager {
         // Check for Advanced Slime World Manager (ASWM)
         checkForASWM();
         
-        // Initialize main world
-        String worldName = plugin.getConfig().getString("world.name", "skyblock_world");
+        // Initialize hub world instead of skyblock world
+        createHubWorld();
         
-        // Check if world already exists
-        skyBlockWorld = Bukkit.getWorld(worldName);
-        
-        if (skyBlockWorld == null) {
-            // Create new skyblock world
-            WorldCreator creator = new WorldCreator(worldName);
-            creator.type(WorldType.FLAT);
-            creator.generateStructures(false);
-            creator.generator(new VoidWorldGenerator());
-            
-            skyBlockWorld = creator.createWorld();
-            
-            if (skyBlockWorld != null) {
-                // Set world properties
-                skyBlockWorld.setSpawnFlags(false, false);
-                skyBlockWorld.setTime(6000);
-                skyBlockWorld.setStorm(false);
-                skyBlockWorld.setThundering(false);
-                skyBlockWorld.setWeatherDuration(Integer.MAX_VALUE);
-                
-                plugin.getLogger().info("Created skyblock world: " + worldName);
-            } else {
-                plugin.getLogger().severe("Failed to create skyblock world!");
-            }
-        } else {
-            plugin.getLogger().info("Loaded existing skyblock world: " + worldName);
-        }
-        
-        // Initialize nether world if enabled
-        if (plugin.getConfig().getBoolean("nether.enabled", false)) {
-            String netherWorldName = plugin.getConfig().getString("nether.name", "skyblock_nether");
-            
-            // Check if nether world already exists
-            skyBlockNetherWorld = Bukkit.getWorld(netherWorldName);
-            
-            if (skyBlockNetherWorld == null) {
-                // Create new skyblock nether world
-                WorldCreator netherCreator = new WorldCreator(netherWorldName);
-                netherCreator.type(WorldType.FLAT);
-                netherCreator.environment(World.Environment.NETHER);
-                netherCreator.generateStructures(false);
-                netherCreator.generator(new VoidWorldGenerator());
-                
-                skyBlockNetherWorld = netherCreator.createWorld();
-                
-                if (skyBlockNetherWorld != null) {
-                    // Set nether world properties
-                    skyBlockNetherWorld.setSpawnFlags(false, false);
-                    skyBlockNetherWorld.setTime(6000);
-                    
-                    plugin.getLogger().info("Created skyblock nether world: " + netherWorldName);
-                } else {
-                    plugin.getLogger().severe("Failed to create skyblock nether world!");
-                }
-            } else {
-                plugin.getLogger().info("Loaded existing skyblock nether world: " + netherWorldName);
-            }
-        }
+        // Note: No longer auto-creating nether/end worlds here
+        // Resource worlds are managed by ResourceWorldManager
     }
 
     private void checkForASWM() {
@@ -99,9 +43,18 @@ public class WorldManager {
                 return;
             }
             
-            plugin.getLogger().info("⚠ No built-in ASWM found. This plugin is designed for ASP servers with built-in ASWM.");
-            plugin.getLogger().info("⚠ Islands will use standard Bukkit worlds.");
-            plugin.getLogger().info("⚠ For better performance, use this plugin on an ASP server with built-in ASWM.");
+            // Check for ASWM plugin
+            if (checkForASWMPlugin()) {
+                return;
+            }
+            
+            // Check for legacy SWM plugin
+            if (checkForLegacySWM()) {
+                return;
+            }
+            
+            plugin.getLogger().info("⚠ No SlimeWorldManager found. Islands will use standard Bukkit worlds.");
+            plugin.getLogger().info("⚠ For better performance, install ASWM plugin or use an ASP server with built-in ASWM.");
             
         } catch (Exception e) {
             plugin.getLogger().warning("Unexpected error during SlimeWorldManager detection: " + e.getMessage());
@@ -151,6 +104,49 @@ public class WorldManager {
         }
         
         return false;
+    }
+
+    private void createHubWorld() {
+        // Get hub world name from config, default to "hub"
+        String hubWorldName = plugin.getConfig().getString("hub.world", "hub");
+        
+        // Check if hub world already exists
+        skyBlockWorld = Bukkit.getWorld(hubWorldName);
+        
+        if (skyBlockWorld == null) {
+            plugin.getLogger().info("Creating void hub world: " + hubWorldName);
+            
+            // Create new hub world as void
+            WorldCreator creator = new WorldCreator(hubWorldName);
+            creator.type(WorldType.FLAT);
+            creator.generateStructures(false);
+            creator.generator(new VoidWorldGenerator());
+            
+            skyBlockWorld = creator.createWorld();
+            
+            if (skyBlockWorld != null) {
+                // Set world properties
+                skyBlockWorld.setSpawnFlags(false, false);
+                skyBlockWorld.setTime(6000);
+                skyBlockWorld.setStorm(false);
+                skyBlockWorld.setThundering(false);
+                skyBlockWorld.setWeatherDuration(Integer.MAX_VALUE);
+                
+                // Set spawn location from config
+                double spawnX = plugin.getConfig().getDouble("hub.spawn.x", 0);
+                double spawnY = plugin.getConfig().getDouble("hub.spawn.y", 100);
+                double spawnZ = plugin.getConfig().getDouble("hub.spawn.z", 0);
+                
+                skyBlockWorld.setSpawnLocation((int) spawnX, (int) spawnY, (int) spawnZ);
+                
+                plugin.getLogger().info("✓ Created void hub world: " + hubWorldName);
+                plugin.getLogger().info("✓ Hub spawn set to: " + spawnX + ", " + spawnY + ", " + spawnZ);
+            } else {
+                plugin.getLogger().severe("✗ Failed to create hub world!");
+            }
+        } else {
+            plugin.getLogger().info("✓ Loaded existing hub world: " + hubWorldName);
+        }
     }
 
     public World getSkyBlockWorld() {
@@ -297,6 +293,9 @@ public class WorldManager {
             bukkitWorld.setThundering(false);
             bukkitWorld.setWeatherDuration(Integer.MAX_VALUE);
             
+            // Set world border from config
+            setupWorldBorder(bukkitWorld);
+            
             plugin.getLogger().info("✓ ASWM world created successfully: " + worldName + " for island " + islandId);
             return bukkitWorld;
         } else {
@@ -358,6 +357,9 @@ public class WorldManager {
             bukkitWorld.setThundering(false);
             bukkitWorld.setWeatherDuration(Integer.MAX_VALUE);
             
+            // Set world border from config
+            setupWorldBorder(bukkitWorld);
+            
             plugin.getLogger().info("✓ Legacy SWM world created successfully: " + worldName + " for island " + islandId);
             return bukkitWorld;
         } else {
@@ -400,6 +402,9 @@ public class WorldManager {
                 world.setStorm(false);
                 world.setThundering(false);
                 world.setWeatherDuration(Integer.MAX_VALUE);
+                
+                // Set world border from config
+                setupWorldBorder(world);
                 
                 plugin.getLogger().info("✓ Standard Bukkit world created successfully: " + worldPath);
                 return world;
@@ -453,7 +458,7 @@ public class WorldManager {
         if (bukkitWorld != null) {
             // Teleport any players out of the world first
             bukkitWorld.getPlayers().forEach(player -> {
-                teleportToHub(player);
+                teleportToSpawn(player);
             });
 
             // Unload the world
@@ -577,6 +582,31 @@ public class WorldManager {
         return world != null ? world : skyBlockWorld;
     }
 
+    /**
+     * Gets an island world, loading it if necessary
+     * This method ensures that island worlds are available even after server restart
+     */
+    public World getOrLoadIslandWorld(String islandId) {
+        // First try to get the world if it's already loaded
+        World world = getIslandWorld(islandId);
+        
+        // If we got the default skyblock world back, it means the island world wasn't found
+        if (world == skyBlockWorld) {
+            plugin.getLogger().info("Island world not loaded for " + islandId + " - attempting to load/create it");
+            
+            // Try to load/create the island world
+            World loadedWorld = createIslandWorld(islandId);
+            if (loadedWorld != null && !loadedWorld.equals(skyBlockWorld)) {
+                plugin.getLogger().info("Successfully loaded island world for " + islandId + ": " + loadedWorld.getName());
+                return loadedWorld;
+            } else {
+                plugin.getLogger().warning("Failed to load island world for " + islandId + " - using default world");
+            }
+        }
+        
+        return world;
+    }
+
     public boolean isSlimeWorldEnabled() {
         return slimeWorldEnabled;
     }
@@ -629,7 +659,7 @@ public class WorldManager {
         return status.toString();
     }
 
-    public void teleportToHub(org.bukkit.entity.Player player) {
+    public void teleportToSpawn(org.bukkit.entity.Player player) {
         if (!plugin.getConfig().getBoolean("hub.enabled", true)) {
             player.teleport(skyBlockWorld.getSpawnLocation());
             return;
@@ -646,9 +676,122 @@ public class WorldManager {
         double x = plugin.getConfig().getDouble("hub.spawn.x", 0);
         double y = plugin.getConfig().getDouble("hub.spawn.y", 100);
         double z = plugin.getConfig().getDouble("hub.spawn.z", 0);
+        float yaw = (float) plugin.getConfig().getDouble("hub.spawn.yaw", 0.0);
+        float pitch = (float) plugin.getConfig().getDouble("hub.spawn.pitch", 0.0);
 
-        org.bukkit.Location hubLocation = new org.bukkit.Location(hubWorld, x, y, z);
+        org.bukkit.Location hubLocation = new org.bukkit.Location(hubWorld, x, y, z, yaw, pitch);
         player.teleport(hubLocation);
         plugin.sendMessage(player, "teleported-to-hub");
+    }
+    
+    /**
+     * Set up world border for an island world based on config settings
+     */
+    private void setupWorldBorder(World world) {
+        try {
+            boolean borderEnabled = plugin.getConfig().getBoolean("world.border.enabled", true);
+            if (!borderEnabled) {
+                plugin.getLogger().info("World border disabled in config for world: " + world.getName());
+                return;
+            }
+            
+            double borderSize = plugin.getConfig().getDouble("world.border.size", 10000);
+            
+            // Get world border
+            org.bukkit.WorldBorder worldBorder = world.getWorldBorder();
+            
+            // Set border center to world spawn (0,0)
+            worldBorder.setCenter(0, 0);
+            
+            // Set border size
+            worldBorder.setSize(borderSize);
+            
+            // Optional: Set damage and warning settings
+            worldBorder.setDamageAmount(0.2); // Damage per second when outside border
+            worldBorder.setDamageBuffer(5.0); // Distance past border before damage starts
+            worldBorder.setWarningDistance(5); // Distance from border to start warning
+            worldBorder.setWarningTime(15); // Seconds of warning when border is moving
+            
+            plugin.getLogger().info("World border set for " + world.getName() + " - Size: " + borderSize + " blocks");
+            
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to set world border for " + world.getName() + ": " + e.getMessage());
+        }
+    }
+    
+    private boolean checkForASWMPlugin() {
+        try {
+            plugin.getLogger().info("Checking for ASWM plugin...");
+            
+            // Check if ASWM plugin is loaded
+            Plugin aswmPlugin = plugin.getServer().getPluginManager().getPlugin("AdvancedSlimeWorldManager");
+            if (aswmPlugin != null && aswmPlugin.isEnabled()) {
+                plugin.getLogger().info("Found AdvancedSlimeWorldManager plugin, attempting to initialize...");
+                
+                // Try to get the API
+                Class<?> apiClass = Class.forName("com.infernalsuite.aswm.api.AdvancedSlimeWorldManagerAPI");
+                Object api = apiClass.getMethod("instance").invoke(null);
+                
+                if (api != null) {
+                    Object loader = apiClass.getMethod("getLoader", String.class).invoke(api, "file");
+                    if (loader != null) {
+                        slimePlugin = aswmPlugin;
+                        slimeLoader = loader;
+                        slimeWorldEnabled = true;
+                        plugin.getLogger().info("✓ Advanced Slime World Manager integration initialized successfully!");
+                        plugin.getLogger().info("✓ ASWM plugin detected and configured - islands will use slime worlds");
+                        return true;
+                    } else {
+                        plugin.getLogger().warning("ASWM plugin getLoader returned null");
+                    }
+                } else {
+                    plugin.getLogger().warning("ASWM plugin API instance returned null");
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            plugin.getLogger().info("ASWM plugin API classes not found");
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to initialize ASWM plugin integration: " + e.getMessage());
+        }
+        
+        return false;
+    }
+    
+    private boolean checkForLegacySWM() {
+        try {
+            plugin.getLogger().info("Checking for legacy SlimeWorldManager plugin...");
+            
+            // Check if legacy SWM plugin is loaded
+            Plugin swmPlugin = plugin.getServer().getPluginManager().getPlugin("SlimeWorldManager");
+            if (swmPlugin != null && swmPlugin.isEnabled()) {
+                plugin.getLogger().info("Found SlimeWorldManager plugin, attempting to initialize...");
+                
+                // Try to get the API
+                Class<?> apiClass = Class.forName("com.grinderwolf.swm.api.SlimePlugin");
+                Object api = apiClass.getMethod("getInstance").invoke(null);
+                
+                if (api != null) {
+                    Object loader = apiClass.getMethod("getLoader", String.class).invoke(api, "file");
+                    if (loader != null) {
+                        slimePlugin = swmPlugin;
+                        slimeLoader = loader;
+                        slimeWorldEnabled = true;
+                        plugin.getLogger().info("✓ SlimeWorldManager integration initialized successfully!");
+                        plugin.getLogger().info("✓ Legacy SWM plugin detected and configured - islands will use slime worlds");
+                        return true;
+                    } else {
+                        plugin.getLogger().warning("Legacy SWM plugin getLoader returned null");
+                    }
+                } else {
+                    plugin.getLogger().warning("Legacy SWM plugin API instance returned null");
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            plugin.getLogger().info("Legacy SWM plugin API classes not found");
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to initialize legacy SWM plugin integration: " + e.getMessage());
+        }
+        
+        return false;
     }
 }

@@ -1,5 +1,5 @@
 name: SkyeBlock
-version: '2.0.0'
+version: '3.1.0'
 main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
 api-version: '1.21'
 authors: [NobleSkye, SkyeNetwork Team]
@@ -31,10 +31,10 @@ commands:
     description: Teleport to hub world
     usage: /hub
     permission: skyeblock.hub
-  serverbrand:
-    description: Manage server brand settings
-    usage: /serverbrand [reload|update|set|toggle]
-    permission: skyeblock.admin.serverbrand
+  spawn:
+    description: Teleport to spawn world
+    usage: /spawn
+    permission: skyeblock.spawn
   convertislands:
     description: Convert old island format to new UUID-based format
     usage: /convertislands <scan|convert> [username]
@@ -43,6 +43,11 @@ commands:
     description: Create a new island with GUI or direct command
     usage: /createisland [type]
     permission: skyeblock.island.create
+  sba:
+    description: SkyeBlock Admin command (bypasses all restrictions)
+    usage: /sba <island|create|delete|visit|hub|reload|debug|bypass> [args...]
+    permission: skyeblock.admin
+    aliases: [skyeblockadmin]
 
 permissions:
   skyeblock.*:
@@ -59,10 +64,13 @@ permissions:
       skyeblock.island.set: true
       skyeblock.island.delete: true
       skyeblock.hub: true
+      skyeblock.spawn: true
       skyeblock.admin: true
-      skyeblock.admin.serverbrand: true
+      skyeblock.admin.bypass: true
       skyeblock.admin.convert: true
+      skyeblock.admin.reload: true
       skyeblock.gamerules.adminbypass: true
+      skyeblock.admin.bypass: true
   skyeblock.island:
     description: Basic island commands (create, home, settings)
     default: true
@@ -93,14 +101,23 @@ permissions:
   skyeblock.hub:
     description: Hub teleport command
     default: true
+  skyeblock.spawn:
+    description: Spawn teleport command
+    default: true
   skyeblock.admin:
     description: Admin commands (delete, list, status)
     default: op
   skyeblock.admin.convert:
     description: Convert old island format to new UUID format
     default: op
+  skyeblock.admin.reload:
+    description: Reload plugin configuration
+    default: op
   skyeblock.gamerules.adminbypass:
     description: Bypass all gamerule permissions (see all gamerules)
+    default: op
+  skyeblock.admin.bypass:
+    description: Bypass all visitor restrictions and limitations
     default: op
   skyeblock.gamerule.*:
     description: All gamerule permissions

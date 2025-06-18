@@ -59,6 +59,12 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
             return;
         }
         
+        // Check if deletion is allowed (unless admin override)
+        if (!isAdmin && !plugin.getIslandManager().canDeleteIsland(player)) {
+            // Error message already sent by canDeleteIsland method
+            return;
+        }
+        
         // Create new session
         DeleteSession session = new DeleteSession(targetPlayerUUID, isAdmin);
         playerSessions.put(player.getUniqueId(), session);
@@ -269,7 +275,7 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
                                     "<red>Your island has been deleted by an administrator: " + player.getName() + "</red>"));
                                 // Teleport them to hub if they're on their island
                                 if (targetPlayer.getWorld().getName().equals(island.getIslandId())) {
-                                    plugin.getWorldManager().teleportToHub(targetPlayer);
+                                    plugin.getWorldManager().teleportToSpawn(targetPlayer);
                                 }
                             }
                         }

@@ -35,7 +35,7 @@ public class HubCommand implements CommandExecutor {
             return true;
         }
 
-        String hubWorldName = plugin.getConfig().getString("hub.world", "world");
+        String hubWorldName = plugin.getConfig().getString("hub.world", "hub");
         World hubWorld = Bukkit.getWorld(hubWorldName);
 
         if (hubWorld == null) {
@@ -43,11 +43,13 @@ public class HubCommand implements CommandExecutor {
             return true;
         }
 
-        double x = plugin.getConfig().getDouble("hub.spawn.x", 0);
-        double y = plugin.getConfig().getDouble("hub.spawn.y", 100);
-        double z = plugin.getConfig().getDouble("hub.spawn.z", 0);
+        double x = plugin.getConfig().getDouble("hub.spawn.x", 0.5);
+        double y = plugin.getConfig().getDouble("hub.spawn.y", 62);
+        double z = plugin.getConfig().getDouble("hub.spawn.z", 0.5);
+        float yaw = (float) plugin.getConfig().getDouble("hub.spawn.yaw", 0.0);
+        float pitch = (float) plugin.getConfig().getDouble("hub.spawn.pitch", 0.0);
 
-        Location hubLocation = new Location(hubWorld, x, y, z);
+        Location hubLocation = new Location(hubWorld, x, y, z, yaw, pitch);
         player.teleport(hubLocation);
         plugin.sendMessage(player, "teleported-to-hub");
 

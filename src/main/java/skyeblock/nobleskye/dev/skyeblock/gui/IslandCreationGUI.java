@@ -436,6 +436,13 @@ public class IslandCreationGUI implements InventoryHolder, Listener {
             return;
         }
         
+        // Check if player can create island (cooldown/tries check)
+        if (!plugin.getIslandManager().canCreateIsland(player)) {
+            // Error message already sent by canCreateIsland method
+            player.closeInventory();
+            return;
+        }
+        
         // Close GUI
         player.closeInventory();
         
@@ -455,9 +462,8 @@ public class IslandCreationGUI implements InventoryHolder, Listener {
                 plugin.getIslandManager().teleportToIsland(player);
                 player.sendMessage(miniMessage.deserialize("<aqua>Welcome to your new island!</aqua>"));
             }, 20L); // 1 second delay
-        } else {
-            player.sendMessage(miniMessage.deserialize("<red>✗ Failed to create island. Please contact an administrator.</red>"));
         }
+        // Note: Error messages are now handled by IslandManager.canCreateIsland() and createIsland() methods
     }
     
     @EventHandler

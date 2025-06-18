@@ -23,6 +23,16 @@ public class Island {
     private Location homeLocation;
     private Location visitLocation;
     
+    // Adventure mode visitor permissions (granular control)
+    private boolean visitorCanBreakBlocks;
+    private boolean visitorCanPlaceBlocks;
+    private boolean visitorCanOpenContainers;
+    private boolean visitorCanPickupItems;
+    private boolean visitorCanDropItems;
+    private boolean visitorCanInteractWithEntities;
+    private boolean visitorCanUsePvp;
+    private boolean visitorCanUseRedstone;
+    
     // Coop system
     private final Map<UUID, CoopRole> coopMembers;
     private final Set<UUID> pendingInvites;
@@ -48,6 +58,16 @@ public class Island {
         this.adventureModeForVisitors = true; // Default to adventure mode for visitors
         this.homeLocation = null; // Will use spawn location if null
         this.visitLocation = null; // Will use home location if null
+        
+        // Initialize visitor permissions (default to restrictive for security)
+        this.visitorCanBreakBlocks = false;
+        this.visitorCanPlaceBlocks = false;
+        this.visitorCanOpenContainers = false;
+        this.visitorCanPickupItems = false;
+        this.visitorCanDropItems = false;
+        this.visitorCanInteractWithEntities = false;
+        this.visitorCanUsePvp = false;
+        this.visitorCanUseRedstone = false;
         
         this.coopMembers = new HashMap<>();
         this.pendingInvites = new HashSet<>();
@@ -75,7 +95,12 @@ public class Island {
 
     public Location getSpawnLocation() {
         // Return a safe spawn location on the island (slightly above the location)
-        return location.clone().add(0, 1, 0);
+        if (location != null && location.getWorld() != null) {
+            return location.clone().add(0, 1, 0);
+        } else {
+            // If location is null or world is not loaded, return null to indicate an issue
+            return null;
+        }
     }
 
     public World getWorld() {
@@ -124,7 +149,13 @@ public class Island {
     }
     
     public Location getHomeLocation() {
-        return homeLocation != null ? homeLocation : getSpawnLocation();
+        if (homeLocation != null) {
+            return homeLocation;
+        }
+        
+        // Fallback to spawn location
+        Location spawnLoc = getSpawnLocation();
+        return spawnLoc; // This may be null if world is not loaded
     }
     
     public void setHomeLocation(Location homeLocation) {
@@ -137,6 +168,71 @@ public class Island {
     
     public void setVisitLocation(Location visitLocation) {
         this.visitLocation = visitLocation;
+    }
+    
+    // Visitor permission getters and setters
+    public boolean canVisitorBreakBlocks() {
+        return visitorCanBreakBlocks;
+    }
+    
+    public void setVisitorCanBreakBlocks(boolean visitorCanBreakBlocks) {
+        this.visitorCanBreakBlocks = visitorCanBreakBlocks;
+    }
+    
+    public boolean canVisitorPlaceBlocks() {
+        return visitorCanPlaceBlocks;
+    }
+    
+    public void setVisitorCanPlaceBlocks(boolean visitorCanPlaceBlocks) {
+        this.visitorCanPlaceBlocks = visitorCanPlaceBlocks;
+    }
+    
+    public boolean canVisitorOpenContainers() {
+        return visitorCanOpenContainers;
+    }
+    
+    public void setVisitorCanOpenContainers(boolean visitorCanOpenContainers) {
+        this.visitorCanOpenContainers = visitorCanOpenContainers;
+    }
+    
+    public boolean canVisitorPickupItems() {
+        return visitorCanPickupItems;
+    }
+    
+    public void setVisitorCanPickupItems(boolean visitorCanPickupItems) {
+        this.visitorCanPickupItems = visitorCanPickupItems;
+    }
+    
+    public boolean canVisitorDropItems() {
+        return visitorCanDropItems;
+    }
+    
+    public void setVisitorCanDropItems(boolean visitorCanDropItems) {
+        this.visitorCanDropItems = visitorCanDropItems;
+    }
+    
+    public boolean canVisitorInteractWithEntities() {
+        return visitorCanInteractWithEntities;
+    }
+    
+    public void setVisitorCanInteractWithEntities(boolean visitorCanInteractWithEntities) {
+        this.visitorCanInteractWithEntities = visitorCanInteractWithEntities;
+    }
+    
+    public boolean canVisitorUsePvp() {
+        return visitorCanUsePvp;
+    }
+    
+    public void setVisitorCanUsePvp(boolean visitorCanUsePvp) {
+        this.visitorCanUsePvp = visitorCanUsePvp;
+    }
+    
+    public boolean canVisitorUseRedstone() {
+        return visitorCanUseRedstone;
+    }
+    
+    public void setVisitorCanUseRedstone(boolean visitorCanUseRedstone) {
+        this.visitorCanUseRedstone = visitorCanUseRedstone;
     }
     
     // Coop system methods

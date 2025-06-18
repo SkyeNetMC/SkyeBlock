@@ -35,7 +35,7 @@ public class IslandSettingsManager {
         // Boolean gamerules
         defaultGameRules.put(GameRule.DO_DAYLIGHT_CYCLE, true);
         defaultGameRules.put(GameRule.DO_WEATHER_CYCLE, true);
-        defaultGameRules.put(GameRule.KEEP_INVENTORY, false);
+        defaultGameRules.put(GameRule.KEEP_INVENTORY, true);
         defaultGameRules.put(GameRule.MOB_GRIEFING, true);
         defaultGameRules.put(GameRule.DO_MOB_SPAWNING, true);
         defaultGameRules.put(GameRule.DO_FIRE_TICK, true);
@@ -185,21 +185,14 @@ public class IslandSettingsManager {
             return new ArrayList<>(defaultGameRules.keySet());
         }
         
-        // Check individual permissions (LuckPerms style)
-        // Show gamerule unless explicitly denied with false permission
+        // Only show gamerules if player explicitly has permission
         for (GameRule<?> gameRule : defaultGameRules.keySet()) {
             String permissionNode = "skyeblock.gamerule." + gameRule.getName().toLowerCase();
             
-            // Check if permission is explicitly set to false
-            if (player.isPermissionSet(permissionNode) && !player.hasPermission(permissionNode)) {
-                // Permission is explicitly set to false, don't show this gamerule
-                continue;
+            // Only show the gamerule if the player explicitly has the permission
+            if (player.hasPermission(permissionNode)) {
+                available.add(gameRule);
             }
-            
-            // Show the gamerule if:
-            // 1. Permission is not set (default behavior)
-            // 2. Permission is explicitly set to true
-            available.add(gameRule);
         }
         
         return available;
@@ -217,14 +210,7 @@ public class IslandSettingsManager {
         
         String permissionNode = "skyeblock.gamerule." + gameRule.getName().toLowerCase();
         
-        // Check if permission is explicitly set to false
-        if (player.isPermissionSet(permissionNode) && !player.hasPermission(permissionNode)) {
-            return false;
-        }
-        
-        // Allow access if:
-        // 1. Permission is not set (default behavior)
-        // 2. Permission is explicitly set to true
-        return true;
+        // Only allow access if player explicitly has the permission
+        return player.hasPermission(permissionNode);
     }
 }

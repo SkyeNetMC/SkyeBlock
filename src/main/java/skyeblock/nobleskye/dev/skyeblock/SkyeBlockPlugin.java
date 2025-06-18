@@ -2,11 +2,10 @@ package skyeblock.nobleskye.dev.skyeblock;
 
 import skyeblock.nobleskye.dev.skyeblock.commands.IslandCommand;
 import skyeblock.nobleskye.dev.skyeblock.commands.HubCommand;
+import skyeblock.nobleskye.dev.skyeblock.commands.SpawnCommand;
 import skyeblock.nobleskye.dev.skyeblock.listeners.VisitorProtectionListener;
-import skyeblock.nobleskye.dev.skyeblock.listeners.ServerBrandListener;
 import skyeblock.nobleskye.dev.skyeblock.listeners.PlayerJoinListener;
-import skyeblock.nobleskye.dev.skyeblock.util.ServerBrandUtil;
-import skyeblock.nobleskye.dev.skyeblock.util.SpigotBrandModifier;
+import skyeblock.nobleskye.dev.skyeblock.listeners.PlayerLocationListener;
 import skyeblock.nobleskye.dev.skyeblock.managers.CustomSchematicManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.IslandManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.SchematicManager;
@@ -14,6 +13,7 @@ import skyeblock.nobleskye.dev.skyeblock.managers.WorldManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.IslandSettingsManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.ResourceWorldManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.WarpManager;
+import skyeblock.nobleskye.dev.skyeblock.managers.PlayerDataManager;
 import skyeblock.nobleskye.dev.skyeblock.permissions.IslandPermissionManager;
 import skyeblock.nobleskye.dev.skyeblock.gui.IslandSettingsGUI;
 import skyeblock.nobleskye.dev.skyeblock.gui.MainSettingsGUI;
@@ -44,6 +44,7 @@ public class SkyeBlockPlugin extends JavaPlugin {
     private IslandPermissionManager permissionManager;
     private ResourceWorldManager resourceWorldManager;
     private WarpManager warpManager;
+    private PlayerDataManager playerDataManager;
     private IslandSettingsGUI islandSettingsGUI;
     private MainSettingsGUI mainSettingsGUI;
     private VisitingSettingsGUI visitingSettingsGUI;
@@ -53,10 +54,8 @@ public class SkyeBlockPlugin extends JavaPlugin {
     private PermissionManagementGUI permissionManagementGUI;
     private WarpGUI warpGUI;
     private VisitorProtectionListener visitorProtectionListener;
-    private ServerBrandListener serverBrandListener;
-    private ServerBrandChanger serverBrandChanger;
     private PlayerJoinListener playerJoinListener;
-    private SpigotBrandModifier spigotBrandModifier;
+    private PlayerLocationListener playerLocationListener;
     private MiniMessage miniMessage;
     private FileConfiguration warpConfig;
 
@@ -80,6 +79,7 @@ public class SkyeBlockPlugin extends JavaPlugin {
         this.permissionManager = new IslandPermissionManager(this);
         this.resourceWorldManager = new ResourceWorldManager(this);
         this.warpManager = new WarpManager(this);
+        this.playerDataManager = new PlayerDataManager(this);
         
         // Initialize GUIs
         this.islandSettingsGUI = new IslandSettingsGUI(this);
@@ -118,6 +118,11 @@ public class SkyeBlockPlugin extends JavaPlugin {
             islandManager.saveAllIslands();
         }
         
+        // Save player data before shutdown
+        if (playerDataManager != null) {
+            playerDataManager.savePlayerData();
+        }
+        
         getComponentLogger().info(Component.text("SkyeBlock plugin disabled!", NamedTextColor.RED));
     }
 
@@ -149,6 +154,7 @@ public class SkyeBlockPlugin extends JavaPlugin {
         
         if (getCommand("hub") != null) {
             getCommand("hub").setExecutor(new HubCommand(this));
+            getCommand("spawn").setExecutor(new SpawnCommand(this));
         } else {
             getLogger().severe("Failed to register 'hub' command - command not found in plugin.yml!");
         }
@@ -179,16 +185,6 @@ public class SkyeBlockPlugin extends JavaPlugin {
             getCommand("delete").setTabCompleter(deleteCommand);
         } else {
             getLogger().severe("Failed to register 'delete' command - command not found in plugin.yml!");
-        }
-        
-        // Register server brand command
-        skyeblock.nobleskye.dev.skyeblock.commands.ServerBrandCommand serverBrandCommand = 
-            new skyeblock.nobleskye.dev.skyeblock.commands.ServerBrandCommand(this);
-        if (getCommand("serverbrand") != null) {
-            getCommand("serverbrand").setExecutor(serverBrandCommand);
-            getCommand("serverbrand").setTabCompleter(serverBrandCommand);
-        } else {
-            getLogger().severe("Failed to register 'serverbrand' command - command not found in plugin.yml!");
         }
         
         // Register convert islands command
@@ -228,54 +224,29 @@ public class SkyeBlockPlugin extends JavaPlugin {
         } else {
             getLogger().severe("Failed to register 'warpadmin' command - command not found in plugin.yml!");
         }
+        
+        // Register admin command (/sba)
+        skyeblock.nobleskye.dev.skyeblock.commands.SkyeBlockAdminCommand sbaCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.SkyeBlockAdminCommand(this);
+        if (getCommand("sba") != null) {
+            getCommand("sba").setExecutor(sbaCommand);
+            getCommand("sba").setTabCompleter(sbaCommand);
+        } else {
+            getLogger().severe("Failed to register 'sba' command - command not found in plugin.yml!");
+        }
     }
     
     private void registerListeners() {
         this.visitorProtectionListener = new VisitorProtectionListener(this);
         getServer().getPluginManager().registerEvents(visitorProtectionListener, this);
         
-        // Server brand configuration from config.yml
-        boolean brandEnabled = getConfig().getBoolean("server-brand.enabled", true);
-        if (!brandEnabled) {
-            getLogger().info("Custom server brand feature is disabled in config.yml");
-            return;
-        }
-        
-        // Get the custom brand name from config
-        String customBrand = getConfig().getString("server-brand.name", "LegitiSkyeSlimePaper");
-        
-        // Try all methods to modify the server brand for maximum compatibility
-        
-        // Method 1: Use our utility class with multiple approaches
-        ServerBrandUtil.modifyServerBrand(this, customBrand);
-        
-        // Method 2: Try to set the server brand using reflection-based listener
-        try {
-            this.serverBrandListener = new ServerBrandListener(this, customBrand);
-            getServer().getPluginManager().registerEvents(serverBrandListener, this);
-        } catch (Exception e) {
-            getLogger().warning("Failed to initialize reflection-based brand changer: " + e.getMessage());
-        }
-        
-        // Method 3: Try the plugin messaging approach
-        try {
-            this.serverBrandChanger = new ServerBrandChanger(this, customBrand);
-        } catch (Exception e) {
-            getLogger().warning("Failed to initialize plugin messaging brand changer: " + e.getMessage());
-        }
-        
-        // Method 4: Try the Spigot-specific brand modifier
-        try {
-            this.spigotBrandModifier = new SpigotBrandModifier(this, customBrand);
-        } catch (Exception e) {
-            getLogger().warning("Failed to initialize Spigot brand modifier: " + e.getMessage());
-        }
-        
-        // Register player join listener to update brand for joining players
+        // Register player join listener
         this.playerJoinListener = new PlayerJoinListener(this);
         getServer().getPluginManager().registerEvents(playerJoinListener, this);
         
-        getLogger().info("Server brand set to: " + customBrand);
+        // Register player location listener to track player locations
+        this.playerLocationListener = new PlayerLocationListener(this);
+        getServer().getPluginManager().registerEvents(playerLocationListener, this);
     }
 
     public IslandManager getIslandManager() {
@@ -310,6 +281,10 @@ public class SkyeBlockPlugin extends JavaPlugin {
         return warpManager;
     }
 
+    public PlayerDataManager getPlayerDataManager() {
+        return playerDataManager;
+    }
+
     public IslandSettingsGUI getIslandSettingsGUI() {
         return islandSettingsGUI;
     }
@@ -342,20 +317,8 @@ public class SkyeBlockPlugin extends JavaPlugin {
         return warpGUI;
     }
     
-    public ServerBrandListener getServerBrandListener() {
-        return serverBrandListener;
-    }
-    
-    public ServerBrandChanger getServerBrandChanger() {
-        return serverBrandChanger;
-    }
-    
     public PlayerJoinListener getPlayerJoinListener() {
         return playerJoinListener;
-    }
-    
-    public SpigotBrandModifier getSpigotBrandModifier() {
-        return spigotBrandModifier;
     }
 
     public String getMessage(String key) {
@@ -416,5 +379,45 @@ public class SkyeBlockPlugin extends JavaPlugin {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(defConfigStream));
             warpConfig.setDefaults(defConfig);
         }
+    }
+    
+    /**
+     * Override reloadConfig to ensure config exists but not overwrite existing config
+     */
+    @Override
+    public void reloadConfig() {
+        // Ensure config exists, but don't overwrite if it already exists
+        saveDefaultConfig();
+        
+        // Call parent reloadConfig to load the file
+        super.reloadConfig();
+        
+        getLogger().info("Config reloaded successfully");
+    }
+    
+    /**
+     * Force regenerate config file (for admin use when updating config structure)
+     */
+    public void forceRegenerateConfig() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (configFile.exists()) {
+            // Create backup
+            File backupFile = new File(getDataFolder(), "config_backup_" + System.currentTimeMillis() + ".yml");
+            try {
+                java.nio.file.Files.copy(configFile.toPath(), backupFile.toPath());
+                getLogger().info("Backed up existing config to: " + backupFile.getName());
+            } catch (Exception e) {
+                getLogger().warning("Failed to backup config file: " + e.getMessage());
+            }
+            
+            // Delete old config
+            configFile.delete();
+        }
+        
+        // Generate new config
+        saveDefaultConfig();
+        super.reloadConfig();
+        
+        getLogger().info("Config regenerated with latest structure");
     }
 }

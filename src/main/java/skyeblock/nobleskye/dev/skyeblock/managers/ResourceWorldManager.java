@@ -113,7 +113,17 @@ public class ResourceWorldManager {
      */
     private World createWorld(String worldName, World.Environment environment, ConfigurationSection config) {
         try {
-            WorldCreator creator = new WorldCreator(worldName);
+            // Create structured path for resource worlds: root/skyeblock/resource/type
+            String resourcePath;
+            if (environment == World.Environment.NETHER) {
+                resourcePath = "skyeblock/resource/nether";
+            } else if (environment == World.Environment.THE_END) {
+                resourcePath = "skyeblock/resource/end";
+            } else {
+                resourcePath = "skyeblock/resource/" + worldName;
+            }
+            
+            WorldCreator creator = new WorldCreator(resourcePath);
             creator.environment(environment);
             
             // Set generator
@@ -136,7 +146,12 @@ public class ResourceWorldManager {
             // Set world type and generation settings
             creator.generateStructures(config.getBoolean("settings.structures", true));
             
-            return creator.createWorld();
+            World world = creator.createWorld();
+            if (world != null) {
+                plugin.getLogger().info("✓ Created resource world at: " + resourcePath);
+            }
+            
+            return world;
             
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to create world: " + e.getMessage());

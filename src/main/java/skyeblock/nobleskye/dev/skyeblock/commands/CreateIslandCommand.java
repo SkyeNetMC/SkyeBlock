@@ -78,9 +78,8 @@ public class CreateIslandCommand implements CommandExecutor, TabCompleter {
                 // Teleport player to their new island
                 plugin.getIslandManager().teleportToIsland(player);
                 player.sendMessage(miniMessage.deserialize("<aqua>Welcome to your new island!</aqua>"));
-            } else {
-                player.sendMessage(miniMessage.deserialize("<red>✗ Failed to create island. Please contact an administrator.</red>"));
             }
+            // Note: Error messages are now handled by IslandManager.canCreateIsland() and createIsland() methods
         } else {
             // Too many arguments
             sendUsage(player);

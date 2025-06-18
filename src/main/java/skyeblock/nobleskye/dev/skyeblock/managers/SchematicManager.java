@@ -25,7 +25,18 @@ public class SchematicManager {
 
     public SchematicManager(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
-        this.schematicFolder = new File(plugin.getDataFolder(), "schematics");
+        
+        // Get schematic path from config, default to plugin data folder
+        String schematicPath = plugin.getConfig().getString("schematics.template-path", "schematics");
+        
+        // Handle both absolute and relative paths
+        if (schematicPath.startsWith("/") || schematicPath.contains(":")) {
+            // Absolute path
+            this.schematicFolder = new File(schematicPath);
+        } else {
+            // Relative path - relative to plugin data folder
+            this.schematicFolder = new File(plugin.getDataFolder(), schematicPath);
+        }
         
         // Create schematics folder if it doesn't exist
         if (!schematicFolder.exists()) {
@@ -37,27 +48,53 @@ public class SchematicManager {
     }
 
     public boolean pasteSchematic(String schematicName, Location location) {
+        plugin.getLogger().info("Attempting to paste schematic: " + schematicName + " at " + location);
+        
         File schematicFile = new File(schematicFolder, schematicName + ".schem");
         if (!schematicFile.exists()) {
             // Try .schematic extension as fallback
             schematicFile = new File(schematicFolder, schematicName + ".schematic");
             if (!schematicFile.exists()) {
-                plugin.getLogger().warning("Schematic file not found: " + schematicName);
+                plugin.getLogger().severe("SCHEMATIC ERROR: File not found for '" + schematicName + "'");
+                plugin.getLogger().severe("  Searched for: " + new File(schematicFolder, schematicName + ".schem").getAbsolutePath());
+                plugin.getLogger().severe("  Also searched: " + schematicFile.getAbsolutePath());
+                plugin.getLogger().severe("  Schematic folder: " + schematicFolder.getAbsolutePath());
+                plugin.getLogger().severe("  Folder exists: " + schematicFolder.exists());
+                if (schematicFolder.exists()) {
+                    File[] files = schematicFolder.listFiles();
+                    if (files != null && files.length > 0) {
+                        plugin.getLogger().severe("  Files in schematic folder:");
+                        for (File file : files) {
+                            plugin.getLogger().severe("    - " + file.getName());
+                        }
+                    } else {
+                        plugin.getLogger().severe("  Schematic folder is empty!");
+                    }
+                }
                 return false;
             }
         }
 
         try {
+            plugin.getLogger().info("Loading schematic file: " + schematicFile.getAbsolutePath());
+            
             // Load the schematic
             ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
             if (format == null) {
-                plugin.getLogger().warning("Unknown schematic format for file: " + schematicFile.getName());
+                plugin.getLogger().severe("SCHEMATIC ERROR: Unknown format for file: " + schematicFile.getName());
+                plugin.getLogger().severe("  Supported formats: .schem, .schematic");
                 return false;
             }
+
+            plugin.getLogger().info("Schematic format detected: " + format.getName());
 
             Clipboard clipboard;
             try (ClipboardReader reader = format.getReader(new FileInputStream(schematicFile))) {
                 clipboard = reader.read();
+                plugin.getLogger().info("Schematic loaded successfully. Dimensions: " + 
+                    clipboard.getDimensions().x() + "x" + 
+                    clipboard.getDimensions().y() + "x" + 
+                    clipboard.getDimensions().z());
             }
 
             // Paste the schematic
@@ -69,11 +106,16 @@ public class SchematicManager {
                         .build();
                 
                 Operations.complete(operation);
+                plugin.getLogger().info("Schematic '" + schematicName + "' pasted successfully at " + 
+                    location.getX() + ", " + location.getY() + ", " + location.getZ());
             }
 
             return true;
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to paste schematic: " + schematicName, e);
+            plugin.getLogger().log(Level.SEVERE, "SCHEMATIC ERROR: Failed to paste schematic '" + schematicName + "'", e);
+            plugin.getLogger().severe("  Location: " + location);
+            plugin.getLogger().severe("  World: " + (location.getWorld() != null ? location.getWorld().getName() : "null"));
+            plugin.getLogger().severe("  File: " + schematicFile.getAbsolutePath());
             return false;
         }
     }
@@ -104,11 +146,17 @@ public class SchematicManager {
     }
 
     public boolean pasteIslandTemplate(String islandType, Location location) {
+        plugin.getLogger().info("Pasting island template for type: " + islandType);
+        
         String templateName = plugin.getConfig().getString("island.templates." + islandType);
         if (templateName == null) {
+            plugin.getLogger().info("No template mapping found for '" + islandType + "', using type name directly");
             // Use islandType directly if no template mapping exists
             templateName = islandType;
+        } else {
+            plugin.getLogger().info("Template mapping found: " + islandType + " -> " + templateName);
         }
+        
         return pasteSchematic(templateName, location);
     }
 

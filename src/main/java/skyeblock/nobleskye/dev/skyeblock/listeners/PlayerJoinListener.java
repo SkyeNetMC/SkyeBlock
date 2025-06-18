@@ -4,99 +4,89 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin;
-import java.util.logging.Level;
-import java.nio.charset.StandardCharsets;
 
 /**
- * Listener to send custom server brand to players when they join or respawn
+ * Listener to handle player join events
  */
 public class PlayerJoinListener implements Listener {
     private final SkyeBlockPlugin plugin;
-    private final String customBrand;
 
     public PlayerJoinListener(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
-        
-        // Get the custom brand from config
-        this.customBrand = plugin.getConfig().getString("server-brand.name", "LegitiSkyeSlimePaper");
-        
-        // Register the brand channel when the listener is created
-        try {
-            plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "minecraft:brand");
-            plugin.getLogger().info("Registered minecraft:brand channel for server brand updates");
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to register minecraft:brand channel: " + e.getMessage());
-        }
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        // Log when a player joins so we know when to send brand info
-        plugin.getLogger().info("Player " + event.getPlayer().getName() + " joined, updating server brand...");
+        Player player = event.getPlayer();
+        
+        // Log when a player joins
+        plugin.getLogger().info("Player " + player.getName() + " joined");
         
         // Small delay to ensure the player is fully connected
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            updatePlayerBrand(event.getPlayer());
-        }, 20L); // 1 second delay (20 ticks)
-    }
-    
-    @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-        // Update brand when player respawns
-        plugin.getLogger().info("Player " + event.getPlayer().getName() + " respawned, updating server brand...");
-        
-        // Small delay to ensure the player is fully respawned
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            updatePlayerBrand(event.getPlayer());
+            // Check if we should teleport to island or spawn/hub
+            handlePlayerJoinTeleport(player);
         }, 20L); // 1 second delay (20 ticks)
     }
     
     /**
-     * Updates the server brand for a player using all available methods
+     * Handles player teleportation on join - either to their island or spawn/hub
      */
-    public void updatePlayerBrand(Player player) {
-        // Send the custom brand to the player using multiple methods for redundancy
-        
-        // Method 1: Use plugin messaging if available
+    private void handlePlayerJoinTeleport(Player player) {
         try {
-            if (plugin.getServerBrandChanger() != null) {
-                plugin.getServerBrandChanger().updatePlayerBrand(player);
-                plugin.getLogger().info("Updated server brand for " + player.getName() + " using plugin messaging");
+            // Check if island teleport on join is enabled
+            boolean teleportToIslandOnJoin = plugin.getConfig().getBoolean("island.teleport-to-island-on-join", false);
+            
+            if (teleportToIslandOnJoin) {
+                // Try to teleport to their island first
+                if (plugin.getIslandManager().hasIsland(player.getUniqueId())) {
+                    plugin.getLogger().info("Teleporting " + player.getName() + " to their island on join");
+                    if (plugin.getIslandManager().teleportToIsland(player)) {
+                        plugin.getLogger().info("Successfully teleported " + player.getName() + " to their island");
+                        return;
+                    } else {
+                        plugin.getLogger().warning("Failed to teleport " + player.getName() + " to their island, falling back to spawn");
+                    }
+                } else {
+                    plugin.getLogger().info("Player " + player.getName() + " has no island, teleporting to spawn");
+                }
             }
+            
+            // Fall back to spawn/hub teleportation
+            teleportToSpawnOnJoin(player);
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to update player brand with plugin messaging: " + e.getMessage());
-        }
-        
-        // Method 2: Use reflection if available
-        try {
-            if (plugin.getServerBrandListener() != null) {
-                plugin.getServerBrandListener().updatePlayerBrand(player);
-                plugin.getLogger().info("Updated server brand for " + player.getName() + " using reflection");
+            plugin.getLogger().warning("Failed to handle join teleport for " + player.getName() + ": " + e.getMessage());
+            // Emergency fallback - try to teleport to spawn
+            try {
+                teleportToSpawnOnJoin(player);
+            } catch (Exception fallbackError) {
+                plugin.getLogger().severe("Critical error: Failed to teleport " + player.getName() + " even to spawn: " + fallbackError.getMessage());
             }
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to update player brand with reflection: " + e.getMessage());
         }
-        
-        // Method 3: Try direct packet sending (last resort)
+    }
+    
+    /**
+     * Teleports player to their hub/spawn location on join
+     */
+    private void teleportToSpawnOnJoin(Player player) {
         try {
-            // Try to send brand via direct packet using Bukkit API
-            player.sendPluginMessage(plugin, "minecraft:brand", 
-                customBrand.getBytes(StandardCharsets.UTF_8));
-            plugin.getLogger().info("Sent direct plugin message with brand to " + player.getName());
-        } catch (Exception e) {
-            plugin.getLogger().fine("Failed to send direct plugin message: " + e.getMessage());
-        }
-        
-        // Method 4: Try Spigot-specific brand changer
-        try {
-            if (plugin.getSpigotBrandModifier() != null) {
-                plugin.getSpigotBrandModifier().updatePlayerBrand(player);
-                plugin.getLogger().info("Updated server brand for " + player.getName() + " using Spigot modifier");
+            // Check if hub teleportation is enabled
+            if (!plugin.getConfig().getBoolean("hub.teleport-on-join", true)) {
+                plugin.getLogger().info("Hub teleport on join is disabled for " + player.getName());
+                return;
             }
+            
+            if (!plugin.getConfig().getBoolean("hub.enabled", true)) {
+                plugin.getLogger().info("Hub is not enabled, skipping teleport for " + player.getName());
+                return;
+            }
+            
+            // Use the WorldManager's teleportToSpawn method as fallback
+            plugin.getWorldManager().teleportToSpawn(player);
+            plugin.getLogger().info("Teleported " + player.getName() + " to spawn/hub location");
         } catch (Exception e) {
-            plugin.getLogger().fine("Failed to update player brand with SpigotBrandModifier: " + e.getMessage());
+            plugin.getLogger().warning("Failed to teleport " + player.getName() + " on join: " + e.getMessage());
         }
     }
 }
