@@ -34,6 +34,12 @@ public class VisitCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return true;
+        }
+
         if (!player.hasPermission("skyeblock.island.visit")) {
             plugin.sendMessage(player, "no-permission");
             return true;

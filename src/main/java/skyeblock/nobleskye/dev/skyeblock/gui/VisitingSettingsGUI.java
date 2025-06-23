@@ -43,6 +43,12 @@ public class VisitingSettingsGUI implements InventoryHolder, Listener {
     }
     
     public void openVisitingSettings(Player player, String islandId) {
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return;
+        }
+        
         Island island = plugin.getIslandManager().getIsland(player.getUniqueId());
         if (island == null || !island.getIslandId().equals(islandId)) {
             plugin.sendMessage(player, "island-not-found");

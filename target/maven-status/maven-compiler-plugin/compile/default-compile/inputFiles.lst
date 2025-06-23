@@ -30,6 +30,7 @@
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/PermissionCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/WarpCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/IslandSettingsGUI.java
+/mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/listeners/VisitorPacketListener.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/DeleteCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/PermissionManagementGUI.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/managers/SchematicManager.java

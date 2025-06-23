@@ -6,11 +6,11 @@ version: 2.0.0
 # Hub world settings (teleportation destination - uses existing world)
 hub:
   # Name of the existing world to teleport players to (e.g., "world", "lobby", "spawn")
-  world: "hub"
+  world: "spawn"
   # Spawn coordinates within the hub world
   spawn:
     x: 0.5
-    y: 1
+    y: 62
     z: 0.5
     # Yaw (horizontal rotation: 0=south, 90=west, 180=north, 270=east)
     yaw: -90.0
@@ -92,6 +92,11 @@ island:
   default-template: "vanilla"
   # Default nether template for nether world generation
   default-nether-template: "nether_generic"
+  
+  # Island visiting settings
+  visiting:
+    # Whether island visiting is enabled globally
+    enabled: false
 
 # Messages (using MiniMessage format)
 messages:

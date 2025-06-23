@@ -3,11 +3,11 @@
 # Hub world settings (teleportation destination - uses existing world)
 hub:
   # Name of the existing world to teleport players to (e.g., "world", "lobby", "spawn")
-  world: "hub"
+  world: "spawn"
   # Spawn coordinates within the hub world
   spawn:
     x: 0.5
-    y: 1
+    y: 62
     z: 0.5
     # Yaw (horizontal rotation: 0=south, 90=west, 180=north, 270=east)
     yaw: -90.0
@@ -86,6 +86,11 @@ island:
   default-template: "vanilla"
   # Default nether template for nether world generation
   default-nether-template: "nether_generic"
+  
+  # Island visiting settings
+  visiting:
+    # Whether island visiting is enabled globally
+    enabled: false
 
 # Messages (using MiniMessage format)
 messages:
@@ -94,6 +99,7 @@ messages:
   island-already-exists: "<red>You already have an island!</red>"
   island-not-found: "<red>Island not found!</red>"
   no-permission: "<red>You don't have permission to do that!</red>"
+  visiting-disabled: "<red>Island visiting is currently disabled!</red>"
   invalid-template: "<red>Invalid island template! Available templates: <yellow>vanilla</yellow>, <yellow>beginner</yellow>, <yellow>mossy cavern</yellow>, <yellow>farmers dream</yellow>, <yellow>mineshaft</yellow>, <yellow>cozy grove</yellow>, <yellow>bare bones</yellow>, <yellow>campsite</yellow>, <yellow>fishermans paradise</yellow>, <yellow>inverted</yellow>, <yellow>grid map</yellow>, <yellow>2010</yellow>, <yellow>orchid</yellow>, <yellow>advanced</yellow>, <yellow>igloo</yellow>, <yellow>nether jail</yellow>, <yellow>desert</yellow>, <yellow>wilson</yellow>, <yellow>olympus</yellow>, <yellow>sandy isle</yellow></red>"
   teleported: "<green>You have been teleported to your island!</green>"
   invalid-command: "<red>Invalid command! Use <yellow>/island help</yellow> for available commands.</red>"

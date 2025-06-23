@@ -294,6 +294,12 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleVisitCommand(Player player, String[] args) {
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return;
+        }
+        
         if (!player.hasPermission("skyeblock.island.visit")) {
             plugin.sendMessage(player, "no-permission");
             return;
@@ -328,6 +334,12 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleLockCommand(Player player) {
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return;
+        }
+        
         if (!player.hasPermission("skyeblock.island.lock")) {
             plugin.sendMessage(player, "no-permission");
             return;
@@ -350,6 +362,12 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleUnlockCommand(Player player) {
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return;
+        }
+        
         if (!player.hasPermission("skyeblock.island.lock")) {
             plugin.sendMessage(player, "no-permission");
             return;
@@ -619,6 +637,12 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleCoopVisit(Player player, String targetPlayerName) {
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return;
+        }
+        
         // Check if player has permission to use coop visit
         if (!player.hasPermission("skyeblock.island.visit")) {
             plugin.sendMessage(player, "no-permission");
@@ -672,6 +696,12 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleVoteCommand(Player player, String[] args) {
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return;
+        }
+        
         if (!player.hasPermission("skyeblock.island.vote")) {
             plugin.sendMessage(player, "no-permission");
             return;
@@ -757,6 +787,11 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(miniMessage.deserialize("<green>Home location set!</green>"));
                 break;
             case "visit":
+                // Check if visiting is enabled for visit location setting
+                if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+                    plugin.sendMessage(player, "visiting-disabled");
+                    return;
+                }
                 island.setCustomVisitLocation(playerLocation);
                 plugin.getIslandManager().saveIsland(island);
                 player.sendMessage(miniMessage.deserialize("<green>Visit location set!</green>"));
@@ -793,17 +828,31 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(Player player) {
+        boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
+        
         plugin.sendMessage(player, "help-header");
         plugin.sendMessage(player, "help-create");
         plugin.sendMessage(player, "help-create-nether");
         player.sendMessage(miniMessage.deserialize("<yellow>/island types</yellow> <gray>-</gray> <gray>Show available island types</gray>"));
         plugin.sendMessage(player, "help-teleport");
-        player.sendMessage(miniMessage.deserialize("<yellow>/island visit [player]</yellow> <gray>-</gray> <gray>Visit islands or open island browser</gray>"));
-        player.sendMessage(miniMessage.deserialize("<yellow>/island lock/unlock</yellow> <gray>-</gray> <gray>Lock or unlock your island</gray>"));
+        
+        // Only show visiting-related commands if visiting is enabled
+        if (visitingEnabled) {
+            player.sendMessage(miniMessage.deserialize("<yellow>/island visit [player]</yellow> <gray>-</gray> <gray>Visit islands or open island browser</gray>"));
+            player.sendMessage(miniMessage.deserialize("<yellow>/island lock/unlock</yellow> <gray>-</gray> <gray>Lock or unlock your island</gray>"));
+            player.sendMessage(miniMessage.deserialize("<yellow>/island vote <player></yellow> <gray>-</gray> <gray>Vote for an island</gray>"));
+        }
+        
         player.sendMessage(miniMessage.deserialize("<yellow>/island edit <title|desc|icon> [value]</yellow> <gray>-</gray> <gray>Customize your island</gray>"));
-        player.sendMessage(miniMessage.deserialize("<yellow>/island coop <add|remove|role|visit|list> [player] [role]</yellow> <gray>-</gray> <gray>Manage coop members</gray>"));
-        player.sendMessage(miniMessage.deserialize("<yellow>/island vote <player></yellow> <gray>-</gray> <gray>Vote for an island</gray>"));
-        player.sendMessage(miniMessage.deserialize("<yellow>/island set <home|visit></yellow> <gray>-</gray> <gray>Set custom teleport locations</gray>"));
+        
+        if (visitingEnabled) {
+            player.sendMessage(miniMessage.deserialize("<yellow>/island coop <add|remove|role|visit|list> [player] [role]</yellow> <gray>-</gray> <gray>Manage coop members</gray>"));
+            player.sendMessage(miniMessage.deserialize("<yellow>/island set <home|visit></yellow> <gray>-</gray> <gray>Set custom teleport locations</gray>"));
+        } else {
+            player.sendMessage(miniMessage.deserialize("<yellow>/island coop <add|remove|role|list> [player] [role]</yellow> <gray>-</gray> <gray>Manage coop members</gray>"));
+            player.sendMessage(miniMessage.deserialize("<yellow>/island set home</yellow> <gray>-</gray> <gray>Set custom home location</gray>"));
+        }
+        
         player.sendMessage(miniMessage.deserialize("<yellow>/island settings</yellow> <gray>-</gray> <gray>Configure island settings</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/islandpermissions [player]</yellow> <gray>-</gray> <gray>Manage player permissions on your island</gray>"));
         player.sendMessage(miniMessage.deserialize("<yellow>/island help</yellow> <gray>-</gray> <gray>Show this help message</gray>"));
@@ -824,8 +873,15 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 1) {
             // First argument - subcommands
-            List<String> subCommands = new ArrayList<>(Arrays.asList("create", "home", "visit", "lock", "unlock", "edit", 
-                    "coop", "vote", "set", "default", "types", "settings", "help"));
+            boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
+            
+            List<String> subCommands = new ArrayList<>(Arrays.asList("create", "home", "edit", 
+                    "coop", "set", "default", "types", "settings", "help"));
+            
+            // Add visiting-related commands only if visiting is enabled
+            if (visitingEnabled) {
+                subCommands.addAll(Arrays.asList("visit", "lock", "unlock", "vote"));
+            }
             
             // Add delete if player has permission
             if (sender.hasPermission("skyeblock.island.delete")) {
@@ -890,17 +946,35 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                     
                 case "coop":
                     if (args.length == 2) {
-                        List<String> coopActions = Arrays.asList("add", "remove", "role", "leave", "accept", "reject", "visit", "list");
+                        boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
+                        List<String> coopActions = new ArrayList<>(Arrays.asList("add", "remove", "role", "leave", "accept", "reject", "list"));
+                        
+                        // Add "visit" only if visiting is enabled
+                        if (visitingEnabled) {
+                            coopActions.add("visit");
+                        }
+                        
                         for (String action : coopActions) {
                             if (action.toLowerCase().startsWith(args[1].toLowerCase())) {
                                 completions.add(action);
                             }
                         }
-                    } else if (args.length == 3 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("role") || args[1].equalsIgnoreCase("visit"))) {
-                        // Player names for coop commands
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            if (player.getName().toLowerCase().startsWith(args[2].toLowerCase())) {
-                                completions.add(player.getName());
+                    } else if (args.length == 3) {
+                        boolean needsPlayerNames = false;
+                        String action = args[1].toLowerCase();
+                        
+                        if (action.equals("add") || action.equals("remove") || action.equals("role")) {
+                            needsPlayerNames = true;
+                        } else if (action.equals("visit") && plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+                            needsPlayerNames = true;
+                        }
+                        
+                        if (needsPlayerNames) {
+                            // Player names for coop commands
+                            for (Player player : Bukkit.getOnlinePlayers()) {
+                                if (player.getName().toLowerCase().startsWith(args[2].toLowerCase())) {
+                                    completions.add(player.getName());
+                                }
                             }
                         }
                     } else if (args.length == 4 && args[1].equalsIgnoreCase("role")) {
@@ -916,7 +990,14 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                     
                 case "set":
                     if (args.length == 2) {
-                        List<String> setTypes = Arrays.asList("home", "visit");
+                        boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
+                        List<String> setTypes = new ArrayList<>(Arrays.asList("home"));
+                        
+                        // Add "visit" only if visiting is enabled
+                        if (visitingEnabled) {
+                            setTypes.add("visit");
+                        }
+                        
                         for (String type : setTypes) {
                             if (type.toLowerCase().startsWith(args[1].toLowerCase())) {
                                 completions.add(type);

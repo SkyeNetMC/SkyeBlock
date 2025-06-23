@@ -6,6 +6,7 @@ skyeblock/nobleskye/dev/skyeblock/permissions/IslandPermission$PermissionCategor
 skyeblock/nobleskye/dev/skyeblock/commands/CreateIslandCommand.class
 skyeblock/nobleskye/dev/skyeblock/managers/CustomSchematicManager.class
 skyeblock/nobleskye/dev/skyeblock/gui/IslandCreationGUI.class
+skyeblock/nobleskye/dev/skyeblock/listeners/VisitorPacketListener.class
 skyeblock/nobleskye/dev/skyeblock/managers/WorldManager.class
 skyeblock/nobleskye/dev/skyeblock/gui/IslandVisitGUI.class
 skyeblock/nobleskye/dev/skyeblock/gui/IslandCreationGUI$IslandType.class

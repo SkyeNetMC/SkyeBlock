@@ -49,6 +49,12 @@ public class IslandVisitGUI implements InventoryHolder, Listener {
     }
     
     public void openVisitGUI(Player player) {
+        // Check if visiting is enabled
+        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+            plugin.sendMessage(player, "visiting-disabled");
+            return;
+        }
+        
         playerPages.put(player.getUniqueId(), 0);
         openPage(player, 0);
     }

@@ -6,6 +6,7 @@ import skyeblock.nobleskye.dev.skyeblock.commands.SpawnCommand;
 import skyeblock.nobleskye.dev.skyeblock.listeners.VisitorProtectionListener;
 import skyeblock.nobleskye.dev.skyeblock.listeners.PlayerJoinListener;
 import skyeblock.nobleskye.dev.skyeblock.listeners.PlayerLocationListener;
+import skyeblock.nobleskye.dev.skyeblock.listeners.VisitorPacketListener;
 import skyeblock.nobleskye.dev.skyeblock.managers.CustomSchematicManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.IslandManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.SchematicManager;
@@ -239,6 +240,8 @@ public class SkyeBlockPlugin extends JavaPlugin {
     private void registerListeners() {
         this.visitorProtectionListener = new VisitorProtectionListener(this);
         getServer().getPluginManager().registerEvents(visitorProtectionListener, this);
+        // Register packet-level visitor protection
+        VisitorPacketListener.register(this);
         
         // Register player join listener
         this.playerJoinListener = new PlayerJoinListener(this);

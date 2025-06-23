@@ -53,32 +53,36 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
                 .color(NamedTextColor.DARK_BLUE)
                 .decoration(TextDecoration.BOLD, true));
         
-        // Visiting Settings (Ender Eye)
-        ItemStack visitingSettings = new ItemStack(Material.ENDER_EYE);
-        ItemMeta visitingMeta = visitingSettings.getItemMeta();
-        visitingMeta.displayName(Component.text("Visiting Settings")
-            .color(NamedTextColor.DARK_PURPLE)
-            .decoration(TextDecoration.ITALIC, false));
+        boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
         
-        List<Component> visitingLore = new ArrayList<>();
-        visitingLore.add(Component.empty());
-        visitingLore.add(Component.text("Configure island visiting:")
-            .color(NamedTextColor.GRAY));
-        visitingLore.add(Component.text("• Lock/unlock island")
-            .color(NamedTextColor.DARK_GRAY));
-        visitingLore.add(Component.text("• Adventure mode settings")
-            .color(NamedTextColor.DARK_GRAY));
-        visitingLore.add(Component.text("• Set home/visit locations")
-            .color(NamedTextColor.DARK_GRAY));
-        visitingLore.add(Component.empty());
-        visitingLore.add(Component.text("Click to open visiting settings")
-            .color(NamedTextColor.GREEN));
+        // Visiting Settings (Ender Eye) - Only show if visiting is enabled
+        if (visitingEnabled) {
+            ItemStack visitingSettings = new ItemStack(Material.ENDER_EYE);
+            ItemMeta visitingMeta = visitingSettings.getItemMeta();
+            visitingMeta.displayName(Component.text("Visiting Settings")
+                .color(NamedTextColor.DARK_PURPLE)
+                .decoration(TextDecoration.ITALIC, false));
+            
+            List<Component> visitingLore = new ArrayList<>();
+            visitingLore.add(Component.empty());
+            visitingLore.add(Component.text("Configure island visiting:")
+                .color(NamedTextColor.GRAY));
+            visitingLore.add(Component.text("• Lock/unlock island")
+                .color(NamedTextColor.DARK_GRAY));
+            visitingLore.add(Component.text("• Adventure mode settings")
+                .color(NamedTextColor.DARK_GRAY));
+            visitingLore.add(Component.text("• Set home/visit locations")
+                .color(NamedTextColor.DARK_GRAY));
+            visitingLore.add(Component.empty());
+            visitingLore.add(Component.text("Click to open visiting settings")
+                .color(NamedTextColor.GREEN));
+            
+            visitingMeta.lore(visitingLore);
+            visitingSettings.setItemMeta(visitingMeta);
+            inventory.setItem(11, visitingSettings);
+        }
         
-        visitingMeta.lore(visitingLore);
-        visitingSettings.setItemMeta(visitingMeta);
-        inventory.setItem(11, visitingSettings);
-        
-        // Gamerules Settings (Command Block)
+        // Gamerules Settings (Command Block) - Position changes based on visiting enabled
         ItemStack gameruleSettings = new ItemStack(Material.COMMAND_BLOCK);
         ItemMeta gameruleMeta = gameruleSettings.getItemMeta();
         gameruleMeta.displayName(Component.text("Gamerule Settings")
@@ -101,7 +105,8 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         
         gameruleMeta.lore(gameruleLore);
         gameruleSettings.setItemMeta(gameruleMeta);
-        inventory.setItem(15, gameruleSettings);
+        // Position gamerule settings: center if visiting disabled, right if visiting enabled
+        inventory.setItem(visitingEnabled ? 15 : 13, gameruleSettings);
         
         // Delete Island button
         ItemStack deleteIsland = new ItemStack(Material.TNT);
@@ -127,7 +132,8 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         
         deleteMeta.lore(deleteLore);
         deleteIsland.setItemMeta(deleteMeta);
-        inventory.setItem(17, deleteIsland);
+        // Position delete button: right if visiting disabled, far right if visiting enabled
+        inventory.setItem(visitingEnabled ? 17 : 15, deleteIsland);
         
         // Close button
         ItemStack close = new ItemStack(Material.BARRIER);
@@ -138,7 +144,7 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         close.setItemMeta(closeMeta);
         inventory.setItem(22, close);
         
-        // Info item
+        // Info item - Position changes based on visiting enabled
         ItemStack info = new ItemStack(Material.BOOK);
         ItemMeta infoMeta = info.getItemMeta();
         infoMeta.displayName(Component.text("Island Settings")
@@ -155,7 +161,7 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         
         infoMeta.lore(infoLore);
         info.setItemMeta(infoMeta);
-        inventory.setItem(13, info);
+        inventory.setItem(visitingEnabled ? 13 : 11, info);
         
         player.openInventory(inventory);
         
@@ -178,25 +184,44 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
         
+        boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
+        
         switch (slot) {
-            case 11: // Visiting Settings
-                if (clickedItem.getType() == Material.ENDER_EYE) {
+            case 11: // Visiting Settings (only if visiting enabled)
+                if (visitingEnabled && clickedItem.getType() == Material.ENDER_EYE) {
                     player.playSound(player.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.0f, 1.0f);
                     player.closeInventory();
                     plugin.getVisitingSettingsGUI().openVisitingSettings(player, islandId);
                 }
                 break;
                 
-            case 15: // Gamerule Settings
-                if (clickedItem.getType() == Material.COMMAND_BLOCK) {
+            case 13: // Info item (when visiting enabled) or Gamerule Settings (when visiting disabled)
+                if (visitingEnabled) {
+                    // Info item - do nothing
+                } else if (clickedItem.getType() == Material.COMMAND_BLOCK) {
+                    // Gamerule settings when visiting disabled
                     player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0f, 1.2f);
                     player.closeInventory();
                     plugin.getIslandSettingsGUI().openSettingsGUI(player, islandId);
                 }
                 break;
                 
-            case 17: // Delete Island
-                if (clickedItem.getType() == Material.TNT) {
+            case 15: // Gamerule Settings (when visiting enabled) or Delete Island (when visiting disabled)
+                if (visitingEnabled && clickedItem.getType() == Material.COMMAND_BLOCK) {
+                    // Gamerule settings when visiting enabled
+                    player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0f, 1.2f);
+                    player.closeInventory();
+                    plugin.getIslandSettingsGUI().openSettingsGUI(player, islandId);
+                } else if (!visitingEnabled && clickedItem.getType() == Material.TNT) {
+                    // Delete island when visiting disabled
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                    player.closeInventory();
+                    plugin.getDeleteConfirmationGUI().openDeleteConfirmation(player, player.getUniqueId());
+                }
+                break;
+                
+            case 17: // Delete Island (only when visiting enabled)
+                if (visitingEnabled && clickedItem.getType() == Material.TNT) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
                     player.closeInventory();
                     plugin.getDeleteConfirmationGUI().openDeleteConfirmation(player, player.getUniqueId());

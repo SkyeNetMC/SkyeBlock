@@ -23,6 +23,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.block.Action;
 import org.bukkit.block.Block;
+import org.bukkit.event.player.PlayerCommandSendEvent;
+import org.bukkit.event.inventory.InventoryCreativeEvent;
 
 /**
  * Comprehensive visitor protection system that prevents all unauthorized interactions
@@ -39,7 +41,7 @@ public class VisitorProtectionListener implements Listener {
     }
 
     /**
-     * Check if a player is a visitor and a specific action should be restricted
+     * Check if a player is a visitor and a specific action should be restricted.
      */
     private boolean isVisitorRestricted(Player player, String action) {
         // Admin bypass
@@ -50,7 +52,7 @@ public class VisitorProtectionListener implements Listener {
         // Get the island from the world the player is in
         String worldName = player.getWorld().getName();
         Island island = plugin.getIslandManager().getIslandById(worldName);
-        
+
         if (island == null) {
             return false; // Not on an island
         }
@@ -60,7 +62,7 @@ public class VisitorProtectionListener implements Listener {
         if (role != Island.CoopRole.VISITOR) {
             return false; // Not a visitor
         }
-        
+
         // Check specific action permissions for visitors
         switch (action.toLowerCase()) {
             case "break_blocks":
@@ -86,7 +88,7 @@ public class VisitorProtectionListener implements Listener {
     }
 
     /**
-     * Check if a player is a visitor on the current island and should be restricted (legacy method)
+     * Legacy method to check if a player is restricted.
      */
     private boolean isVisitorRestricted(Player player) {
         // Admin bypass
@@ -97,7 +99,7 @@ public class VisitorProtectionListener implements Listener {
         // Get the island from the world the player is in
         String worldName = player.getWorld().getName();
         Island island = plugin.getIslandManager().getIslandById(worldName);
-        
+
         if (island == null) {
             return false; // Not on an island
         }
@@ -118,11 +120,11 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent block breaking for visitors
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         
-        if (isVisitorRestricted(player, "break_blocks")) {
+        if (isStrictVisitorRestriction(player)) {
             event.setCancelled(true);
             sendRestrictionMessage(player, "break blocks");
         }
@@ -131,11 +133,11 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent block placing for visitors
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         
-        if (isVisitorRestricted(player, "place_blocks")) {
+        if (isStrictVisitorRestriction(player)) {
             event.setCancelled(true);
             sendRestrictionMessage(player, "place blocks");
         }
@@ -144,11 +146,11 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent most interactions for visitors but allow basic navigation
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         
-        if (!isVisitorRestricted(player, "redstone")) {
+        if (!isStrictVisitorRestriction(player)) {
             return;
         }
 
@@ -214,11 +216,11 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent entity interactions for visitors (including item frames, armor stands, animals, etc.)
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         
-        if (isVisitorRestricted(player, "interact_entities")) {
+        if (isStrictVisitorRestriction(player)) {
             event.setCancelled(true);
             
             EntityType entityType = event.getRightClicked().getType();
@@ -246,12 +248,12 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent item pickup for visitors
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityPickupItem(EntityPickupItemEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
             
-            if (isVisitorRestricted(player, "pickup_items")) {
+            if (isStrictVisitorRestriction(player)) {
                 event.setCancelled(true);
                 sendRestrictionMessage(player, "pick up items");
             }
@@ -261,11 +263,11 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent item dropping for visitors
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         
-        if (isVisitorRestricted(player, "drop_items")) {
+        if (isStrictVisitorRestriction(player)) {
             event.setCancelled(true);
             sendRestrictionMessage(player, "drop items");
         }
@@ -274,12 +276,12 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent inventory opening for visitors (containers)
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (event.getPlayer() instanceof Player) {
             Player player = (Player) event.getPlayer();
             
-            if (isVisitorRestricted(player, "open_containers")) {
+            if (isStrictVisitorRestriction(player)) {
                 InventoryType type = event.getInventory().getType();
                 
                 // Block container access but allow player's own inventory
@@ -331,12 +333,12 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent inventory manipulation for visitors in containers
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getWhoClicked() instanceof Player) {
             Player player = (Player) event.getWhoClicked();
             
-            if (isVisitorRestricted(player, "open_containers")) {
+            if (isStrictVisitorRestriction(player)) {
                 InventoryType type = event.getInventory().getType();
                 
                 // Block container interactions but allow player's own inventory
@@ -351,12 +353,12 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent PVP for visitors
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+        if (event.getDamager() instanceof Player) {
             Player damager = (Player) event.getDamager();
             
-            if (isVisitorRestricted(damager, "pvp")) {
+            if (isStrictVisitorRestriction(damager)) {
                 event.setCancelled(true);
                 sendRestrictionMessage(damager, "engage in PVP");
             }
@@ -366,16 +368,71 @@ public class VisitorProtectionListener implements Listener {
     /**
      * Prevent gamemode changes for visitors (unless by admin)
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
         
-        if (isVisitorRestricted(player)) {
+        if (isStrictVisitorRestriction(player)) {
             // Only allow adventure mode for visitors
             if (event.getNewGameMode() != GameMode.ADVENTURE) {
                 event.setCancelled(true);
                 sendRestrictionMessage(player, "change game mode");
             }
         }
+    }
+
+    /**
+     * Intercept commands for visitors.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerCommandSend(PlayerCommandSendEvent event) {
+        Player player = event.getPlayer();
+
+        if (isStrictVisitorRestriction(player)) {
+            event.getCommands().clear();
+            sendRestrictionMessage(player, "send commands");
+        }
+    }
+
+    /**
+     * This section previously contained a Paper-specific event handler that has been removed
+     * Paper's API is now handled through packet interception in VisitorPacketListener
+     */
+
+    /**
+     * Prevent creative inventory interactions for visitors (Paper API).
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCreativeInventory(InventoryCreativeEvent event) {
+        if (event.getWhoClicked() instanceof Player) {
+            Player player = (Player) event.getWhoClicked();
+            if (isStrictVisitorRestriction(player)) {
+                event.setCancelled(true);
+                sendRestrictionMessage(player, "modify containers");
+            }
+        }
+    }
+
+    /**
+     * Core visitor restriction check that strictly enforces all restrictions
+     * for visitors regardless of individual island settings
+     */
+    private boolean isStrictVisitorRestriction(Player player) {
+        // Admin bypass
+        if (player.hasPermission("skyeblock.admin.bypass")) {
+            return false;
+        }
+
+        // Get the island from the world the player is in
+        String worldName = player.getWorld().getName();
+        Island island = plugin.getIslandManager().getIslandById(worldName);
+        
+        if (island == null) {
+            return false; // Not on an island
+        }
+
+        // If player is a visitor, restrict ALL interactions
+        Island.CoopRole role = island.getCoopRole(player.getUniqueId());
+        return role == Island.CoopRole.VISITOR;
     }
 }
