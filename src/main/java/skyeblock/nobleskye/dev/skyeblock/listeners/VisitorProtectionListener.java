@@ -232,8 +232,7 @@ public class VisitorProtectionListener implements Listener {
                 sendRestrictionMessage(player, "interact with armor stands");
             } else if (entityType == EntityType.VILLAGER || entityType == EntityType.WANDERING_TRADER) {
                 sendRestrictionMessage(player, "trade with villagers");
-            } else if (entityType.name().contains("MINECART") || entityType == EntityType.BOAT ||
-                      entityType.name().contains("BOAT")) {
+            } else if (entityType.name().contains("MINECART") || entityType.name().contains("BOAT")) {
                 sendRestrictionMessage(player, "use vehicles");
             } else if (entityType == EntityType.COW || entityType == EntityType.SHEEP ||
                       entityType == EntityType.PIG || entityType == EntityType.CHICKEN ||

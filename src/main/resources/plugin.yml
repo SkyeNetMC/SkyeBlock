@@ -4,7 +4,7 @@ main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
 api-version: '1.21'
 authors: [SkyeNetwork]
 description: SkyeBlock plugin for Minecraft 1.21.10 - creating and managing skyeblock islands
-website: https:/skyemc.net
+website: https://skyemc.net/opensource
 depend: [WorldEdit, WorldGuard, ProtocolLib]
 softdepend: [SlimeWorldManager, AdvancedSlimeWorldManager, luckperms]
 
