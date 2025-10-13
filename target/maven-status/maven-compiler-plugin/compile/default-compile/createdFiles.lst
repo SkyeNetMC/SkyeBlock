@@ -12,6 +12,7 @@ skyeblock/nobleskye/dev/skyeblock/gui/IslandVisitGUI.class
 skyeblock/nobleskye/dev/skyeblock/gui/IslandCreationGUI$IslandType.class
 skyeblock/nobleskye/dev/skyeblock/commands/SkyeBlockAdminCommand.class
 skyeblock/nobleskye/dev/skyeblock/listeners/PlayerJoinListener.class
+skyeblock/nobleskye/dev/skyeblock/commands/MobSpawningCommand.class
 skyeblock/nobleskye/dev/skyeblock/managers/VoidWorldGenerator.class
 skyeblock/nobleskye/dev/skyeblock/permissions/IslandPermission$1.class
 skyeblock/nobleskye/dev/skyeblock/commands/DeleteCommand.class

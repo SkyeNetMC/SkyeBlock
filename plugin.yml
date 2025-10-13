@@ -48,6 +48,10 @@ commands:
     usage: /sba <island|create|delete|visit|hub|reload|debug|bypass> [args...]
     permission: skyeblock.admin
     aliases: [skyeblockadmin]
+  mobspawning:
+    description: Manage mob spawning settings for islands
+    usage: /mobspawning <status|reload>
+    permission: skyeblock.admin.mobspawning
 
 permissions:
   skyeblock.*:
@@ -69,6 +73,7 @@ permissions:
       skyeblock.admin.bypass: true
       skyeblock.admin.convert: true
       skyeblock.admin.reload: true
+      skyeblock.admin.mobspawning: true
       skyeblock.gamerules.adminbypass: true
       skyeblock.admin.bypass: true
   skyeblock.island:
@@ -244,3 +249,6 @@ permissions:
   skyeblock.gamerule.playerssleepingpercentage:
     description: Allow modifying players sleeping percentage gamerule
     default: true
+  skyeblock.admin.mobspawning:
+    description: Manage mob spawning settings for all islands
+    default: op

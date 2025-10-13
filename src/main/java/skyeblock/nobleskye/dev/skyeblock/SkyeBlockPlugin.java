@@ -235,6 +235,15 @@ public class SkyeBlockPlugin extends JavaPlugin {
         } else {
             getLogger().severe("Failed to register 'sba' command - command not found in plugin.yml!");
         }
+        
+        // Register mob spawning command
+        skyeblock.nobleskye.dev.skyeblock.commands.MobSpawningCommand mobSpawningCommand = 
+            new skyeblock.nobleskye.dev.skyeblock.commands.MobSpawningCommand(this);
+        if (getCommand("mobspawning") != null) {
+            getCommand("mobspawning").setExecutor(mobSpawningCommand);
+        } else {
+            getLogger().severe("Failed to register 'mobspawning' command - command not found in plugin.yml!");
+        }
     }
     
     private void registerListeners() {

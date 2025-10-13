@@ -28,6 +28,14 @@ world:
   border:
     enabled: true
     size: 10000
+  # Mob spawning settings
+  spawning:
+    # Whether to allow monster spawning on islands
+    allow-monsters: true
+    # Whether to allow animal spawning on islands
+    allow-animals: true
+    # Difficulty setting for island worlds (peaceful, easy, normal, hard)
+    difficulty: "normal"
   
 # Resource world settings (managed by ResourceWorldManager)
 resource-worlds:

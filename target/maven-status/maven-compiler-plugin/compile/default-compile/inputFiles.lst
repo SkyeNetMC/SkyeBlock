@@ -25,6 +25,7 @@
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/IslandCreationGUI.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/SkyeBlockAdminCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/WarpGUI.java
+/mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/MobSpawningCommand.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/gui/IslandVisitGUI.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/SkyeBlockPlugin.java
 /mnt/sda4/SkyeNetwork/SkyeBlock/src/main/java/skyeblock/nobleskye/dev/skyeblock/commands/PermissionCommand.java

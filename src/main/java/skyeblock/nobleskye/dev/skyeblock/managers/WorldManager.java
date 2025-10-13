@@ -125,12 +125,24 @@ public class WorldManager {
             skyBlockWorld = creator.createWorld();
             
             if (skyBlockWorld != null) {
-                // Set world properties
-                skyBlockWorld.setSpawnFlags(false, false);
+                // Set world properties - use config settings for mob spawning
+                boolean allowMonsters = plugin.getConfig().getBoolean("world.spawning.allow-monsters", true);
+                boolean allowAnimals = plugin.getConfig().getBoolean("world.spawning.allow-animals", true);
+                skyBlockWorld.setSpawnFlags(allowAnimals, allowMonsters);
                 skyBlockWorld.setTime(6000);
                 skyBlockWorld.setStorm(false);
                 skyBlockWorld.setThundering(false);
                 skyBlockWorld.setWeatherDuration(Integer.MAX_VALUE);
+                
+                // Set difficulty from config
+                String difficultyStr = plugin.getConfig().getString("world.spawning.difficulty", "normal");
+                try {
+                    org.bukkit.Difficulty difficulty = org.bukkit.Difficulty.valueOf(difficultyStr.toUpperCase());
+                    skyBlockWorld.setDifficulty(difficulty);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Invalid difficulty setting: " + difficultyStr + ", using NORMAL");
+                    skyBlockWorld.setDifficulty(org.bukkit.Difficulty.NORMAL);
+                }
                 
                 // Set spawn location from config
                 double spawnX = plugin.getConfig().getDouble("hub.spawn.x", 0);
@@ -271,9 +283,15 @@ public class WorldManager {
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, spawnX, 0);
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, spawnY, 100);
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, spawnZ, 0);
-        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, difficulty, "peaceful");
-        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowMonsters, false);
-        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowAnimals, false);
+        
+        // Use config settings for mob spawning and difficulty
+        String difficultyStr = plugin.getConfig().getString("world.spawning.difficulty", "normal");
+        boolean allowMonstersConfig = plugin.getConfig().getBoolean("world.spawning.allow-monsters", true);
+        boolean allowAnimalsConfig = plugin.getConfig().getBoolean("world.spawning.allow-animals", true);
+        
+        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, difficulty, difficultyStr.toLowerCase());
+        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowMonsters, allowMonstersConfig);
+        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowAnimals, allowAnimalsConfig);
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, pvp, false);
 
         // Create SlimeWorld for ASWM using the structured world name
@@ -335,9 +353,15 @@ public class WorldManager {
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, spawnX, 0);
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, spawnY, 100);
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, spawnZ, 0);
-        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, difficulty, "peaceful");
-        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowMonsters, false);
-        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowAnimals, false);
+        
+        // Use config settings for mob spawning and difficulty
+        String difficultyStr = plugin.getConfig().getString("world.spawning.difficulty", "normal");
+        boolean allowMonstersConfig = plugin.getConfig().getBoolean("world.spawning.allow-monsters", true);
+        boolean allowAnimalsConfig = plugin.getConfig().getBoolean("world.spawning.allow-animals", true);
+        
+        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, difficulty, difficultyStr.toLowerCase());
+        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowMonsters, allowMonstersConfig);
+        slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, allowAnimals, allowAnimalsConfig);
         slimePropertyMapClass.getMethod("setValue", Object.class, Object.class).invoke(properties, pvp, false);
 
         // Create SlimeWorld for old SWM using the structured world name
@@ -397,11 +421,24 @@ public class WorldManager {
             
             World world = creator.createWorld();
             if (world != null) {
-                world.setSpawnFlags(false, false);
+                // Set world properties - use config settings for mob spawning
+                boolean allowMonsters = plugin.getConfig().getBoolean("world.spawning.allow-monsters", true);
+                boolean allowAnimals = plugin.getConfig().getBoolean("world.spawning.allow-animals", true);
+                world.setSpawnFlags(allowAnimals, allowMonsters);
                 world.setTime(6000);
                 world.setStorm(false);
                 world.setThundering(false);
                 world.setWeatherDuration(Integer.MAX_VALUE);
+                
+                // Set difficulty from config
+                String difficultyStr = plugin.getConfig().getString("world.spawning.difficulty", "normal");
+                try {
+                    org.bukkit.Difficulty difficulty = org.bukkit.Difficulty.valueOf(difficultyStr.toUpperCase());
+                    world.setDifficulty(difficulty);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Invalid difficulty setting: " + difficultyStr + ", using NORMAL");
+                    world.setDifficulty(org.bukkit.Difficulty.NORMAL);
+                }
                 
                 // Set world border from config
                 setupWorldBorder(world);
@@ -598,10 +635,15 @@ public class WorldManager {
             World loadedWorld = createIslandWorld(islandId);
             if (loadedWorld != null && !loadedWorld.equals(skyBlockWorld)) {
                 plugin.getLogger().info("Successfully loaded island world for " + islandId + ": " + loadedWorld.getName());
+                // Apply current mob spawning settings to the newly loaded world
+                applyMobSpawningSettings(loadedWorld);
                 return loadedWorld;
             } else {
                 plugin.getLogger().warning("Failed to load island world for " + islandId + " - using default world");
             }
+        } else if (world != null && !world.equals(skyBlockWorld)) {
+            // Apply current mob spawning settings to existing loaded world
+            applyMobSpawningSettings(world);
         }
         
         return world;
@@ -793,5 +835,51 @@ public class WorldManager {
         }
         
         return false;
+    }
+
+    /**
+     * Apply mob spawning settings from config to an existing world
+     */
+    private void applyMobSpawningSettings(World world) {
+        if (world == null) return;
+        
+        // Set spawn flags from config
+        boolean allowMonsters = plugin.getConfig().getBoolean("world.spawning.allow-monsters", true);
+        boolean allowAnimals = plugin.getConfig().getBoolean("world.spawning.allow-animals", true);
+        world.setSpawnFlags(allowAnimals, allowMonsters);
+        
+        // Set difficulty from config
+        String difficultyStr = plugin.getConfig().getString("world.spawning.difficulty", "normal");
+        try {
+            org.bukkit.Difficulty difficulty = org.bukkit.Difficulty.valueOf(difficultyStr.toUpperCase());
+            world.setDifficulty(difficulty);
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("Invalid difficulty setting: " + difficultyStr + ", using NORMAL");
+            world.setDifficulty(org.bukkit.Difficulty.NORMAL);
+        }
+        
+        plugin.getLogger().info("Applied mob spawning settings to world " + world.getName() + 
+                               " - Monsters: " + allowMonsters + ", Animals: " + allowAnimals + 
+                               ", Difficulty: " + world.getDifficulty());
+    }
+    
+    /**
+     * Update mob spawning settings for all loaded island worlds
+     * This can be used after changing config settings to apply them to existing worlds
+     */
+    public void updateMobSpawningForAllIslands() {
+        plugin.getLogger().info("Updating mob spawning settings for all loaded island worlds...");
+        int updatedWorlds = 0;
+        
+        for (World world : Bukkit.getWorlds()) {
+            // Check if this is an island world (not the main skyblock world or other worlds)
+            if (world.getName().startsWith("skyeblock_islands_") || 
+                world.getName().contains("island-")) {
+                applyMobSpawningSettings(world);
+                updatedWorlds++;
+            }
+        }
+        
+        plugin.getLogger().info("Updated mob spawning settings for " + updatedWorlds + " island worlds");
     }
 }
