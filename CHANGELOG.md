@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.21.10]
+## [1.21.10 up2]
 - Enforce container/workstation access via per-island permissions and visitor settings (blocks external plugins like sell wands on others' chests).
 - Permission-aware inventory open/interaction handling integrated with IslandPermissionManager.
 
