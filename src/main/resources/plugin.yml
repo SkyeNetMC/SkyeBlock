@@ -95,6 +95,27 @@ permissions:
       skyeblock.warp.pvp: true
       skyeblock.warp.shop: true
       skyeblock.gamerules.adminbypass: true
+  skyeblock.player:
+    description: Base permissions for normal players (no gamerule access)
+    default: true
+    children:
+      skyeblock.island: true
+      skyeblock.island.visit: true
+      skyeblock.island.vote: true
+      skyeblock.island.edit: true
+      skyeblock.island.coop: true
+      skyeblock.island.lock: true
+      skyeblock.island.set: true
+      skyeblock.island.delete: true
+      skyeblock.island.permissions: true
+      skyeblock.hub: true
+      skyeblock.spawn: true
+      skyeblock.warp: true
+      skyeblock.warp.spawn: true
+      skyeblock.warp.nether: true
+      skyeblock.warp.end: true
+      skyeblock.warp.pvp: true
+      skyeblock.warp.shop: true
   skyeblock.island:
     description: Basic island commands (create, home, settings)
     default: true
@@ -134,6 +155,24 @@ permissions:
   skyeblock.gamerules.adminbypass:
     description: Bypass all gamerule permissions (see all gamerules)
     default: op
+  skyeblock.settings.gamerules:
+    description: Access to common island gamerule settings (day/time/weather safety)
+    default: false
+    children:
+      skyeblock.gamerule.dodaylightcycle: true
+      skyeblock.gamerule.doweathercycle: true
+      skyeblock.gamerule.keepinventory: true
+      skyeblock.gamerule.mobgriefing: true
+      skyeblock.gamerule.domobspawning: true
+      skyeblock.gamerule.dofiretick: true
+      skyeblock.gamerule.falldamage: true
+      skyeblock.gamerule.firedamage: true
+      skyeblock.gamerule.drowningdamage: true
+      skyeblock.gamerule.doinsomnia: true
+      skyeblock.gamerule.doimmediaterespawn: true
+      skyeblock.gamerule.naturalregeneration: true
+      skyeblock.gamerule.announceadvancements: true
+      skyeblock.gamerule.disableelytraMovementcheck: true
   skyeblock.gamerule.*:
     description: All gamerule permissions
     default: true
