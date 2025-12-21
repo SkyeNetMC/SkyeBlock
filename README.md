@@ -63,6 +63,4 @@ Generated files live in `plugins/SkyeBlock/`:
 PRs and issues welcome. For perms: start players with `skyeblock.player`, grant `skyeblock.settings.gamerules` for safe tweaks, reserve `skyeblock.gamerule.*`/`adminbypass` for staff.
 
 ## License
-See LICENSE in repository.
-
-# SkyeBlock Plugin
+Licensed under the GNU Lesser General Public License v3.0 (LGPL-3.0). See LICENSE file for details.
