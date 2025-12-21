@@ -25,6 +25,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.block.Block;
 import org.bukkit.event.player.PlayerCommandSendEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
+import skyeblock.nobleskye.dev.skyeblock.permissions.IslandPermissionManager;
 
 /**
  * Comprehensive visitor protection system that prevents all unauthorized interactions
@@ -34,10 +35,70 @@ public class VisitorProtectionListener implements Listener {
     
     private final SkyeBlockPlugin plugin;
     private final MiniMessage miniMessage;
+    private final IslandPermissionManager permissionManager;
 
     public VisitorProtectionListener(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
         this.miniMessage = MiniMessage.miniMessage();
+        this.permissionManager = plugin.getPermissionManager();
+    }
+
+    private boolean isContainerBlock(Material type) {
+        switch (type) {
+            case CHEST:
+            case TRAPPED_CHEST:
+            case BARREL:
+            case SHULKER_BOX:
+            case WHITE_SHULKER_BOX:
+            case ORANGE_SHULKER_BOX:
+            case MAGENTA_SHULKER_BOX:
+            case LIGHT_BLUE_SHULKER_BOX:
+            case YELLOW_SHULKER_BOX:
+            case LIME_SHULKER_BOX:
+            case PINK_SHULKER_BOX:
+            case GRAY_SHULKER_BOX:
+            case LIGHT_GRAY_SHULKER_BOX:
+            case CYAN_SHULKER_BOX:
+            case PURPLE_SHULKER_BOX:
+            case BLUE_SHULKER_BOX:
+            case BROWN_SHULKER_BOX:
+            case GREEN_SHULKER_BOX:
+            case RED_SHULKER_BOX:
+            case BLACK_SHULKER_BOX:
+            case HOPPER:
+            case DROPPER:
+            case DISPENSER:
+            case FURNACE:
+            case SMOKER:
+            case BLAST_FURNACE:
+            case BREWING_STAND:
+            case BEACON:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean shouldBlockContainerAccess(Player player, Material blockType) {
+        if (player.hasPermission("skyeblock.admin.bypass")) {
+            return false;
+        }
+
+        Island island = plugin.getIslandManager().getIslandById(player.getWorld().getName());
+        if (island == null) {
+            return false;
+        }
+
+        String islandId = island.getIslandId();
+        Island.CoopRole role = island.getCoopRole(player.getUniqueId());
+
+        // Visitors honor island settings toggle
+        if (role == Island.CoopRole.VISITOR) {
+            return !island.canVisitorOpenContainers();
+        }
+
+        // Members/coop/admin on island need container permission bundle
+        return !permissionManager.hasContainerAccess(player, islandId);
     }
 
     /**
@@ -149,66 +210,75 @@ public class VisitorProtectionListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        
+        Block clickedBlock = event.getClickedBlock();
+
+        if (clickedBlock == null) {
+            return;
+        }
+
+        Material blockType = clickedBlock.getType();
+
+        // Container and workstation protection tied to island permissions/settings
+        if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK)
+            && isContainerBlock(blockType)
+            && shouldBlockContainerAccess(player, blockType)) {
+            event.setCancelled(true);
+            sendRestrictionMessage(player, "open containers");
+            return;
+        }
+
+        // Original visitor navigation allowance/blocks
         if (!isStrictVisitorRestriction(player)) {
             return;
         }
 
         Action action = event.getAction();
-        Block clickedBlock = event.getClickedBlock();
         
         // Allow some basic interactions for navigation
-        if (clickedBlock != null) {
-            Material blockType = clickedBlock.getType();
+        if (blockType == Material.OAK_DOOR || blockType == Material.SPRUCE_DOOR || 
+            blockType == Material.BIRCH_DOOR || blockType == Material.JUNGLE_DOOR ||
+            blockType == Material.ACACIA_DOOR || blockType == Material.DARK_OAK_DOOR ||
+            blockType == Material.CRIMSON_DOOR || blockType == Material.WARPED_DOOR ||
+            blockType == Material.IRON_DOOR || blockType == Material.OAK_TRAPDOOR ||
+            blockType == Material.SPRUCE_TRAPDOOR || blockType == Material.BIRCH_TRAPDOOR ||
+            blockType == Material.JUNGLE_TRAPDOOR || blockType == Material.ACACIA_TRAPDOOR ||
+            blockType == Material.DARK_OAK_TRAPDOOR || blockType == Material.CRIMSON_TRAPDOOR ||
+            blockType == Material.WARPED_TRAPDOOR || blockType == Material.IRON_TRAPDOOR ||
+            blockType == Material.OAK_BUTTON || blockType == Material.SPRUCE_BUTTON ||
+            blockType == Material.BIRCH_BUTTON || blockType == Material.JUNGLE_BUTTON ||
+            blockType == Material.ACACIA_BUTTON || blockType == Material.DARK_OAK_BUTTON ||
+            blockType == Material.CRIMSON_BUTTON || blockType == Material.WARPED_BUTTON ||
+            blockType == Material.STONE_BUTTON || blockType == Material.POLISHED_BLACKSTONE_BUTTON ||
+            blockType == Material.OAK_PRESSURE_PLATE || blockType == Material.SPRUCE_PRESSURE_PLATE ||
+            blockType == Material.BIRCH_PRESSURE_PLATE || blockType == Material.JUNGLE_PRESSURE_PLATE ||
+            blockType == Material.ACACIA_PRESSURE_PLATE || blockType == Material.DARK_OAK_PRESSURE_PLATE ||
+            blockType == Material.CRIMSON_PRESSURE_PLATE || blockType == Material.WARPED_PRESSURE_PLATE ||
+            blockType == Material.STONE_PRESSURE_PLATE || blockType == Material.LIGHT_WEIGHTED_PRESSURE_PLATE ||
+            blockType == Material.HEAVY_WEIGHTED_PRESSURE_PLATE) {
+            // Allow door, button, and pressure plate interactions for navigation
+            return;
+        }
+        
+        // Block everything else including non-container interactables
+        if (action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK) {
+            event.setCancelled(true);
             
-            // Allow these basic interaction blocks for navigation
-            if (blockType == Material.OAK_DOOR || blockType == Material.SPRUCE_DOOR || 
-                blockType == Material.BIRCH_DOOR || blockType == Material.JUNGLE_DOOR ||
-                blockType == Material.ACACIA_DOOR || blockType == Material.DARK_OAK_DOOR ||
-                blockType == Material.CRIMSON_DOOR || blockType == Material.WARPED_DOOR ||
-                blockType == Material.IRON_DOOR || blockType == Material.OAK_TRAPDOOR ||
-                blockType == Material.SPRUCE_TRAPDOOR || blockType == Material.BIRCH_TRAPDOOR ||
-                blockType == Material.JUNGLE_TRAPDOOR || blockType == Material.ACACIA_TRAPDOOR ||
-                blockType == Material.DARK_OAK_TRAPDOOR || blockType == Material.CRIMSON_TRAPDOOR ||
-                blockType == Material.WARPED_TRAPDOOR || blockType == Material.IRON_TRAPDOOR ||
-                blockType == Material.OAK_BUTTON || blockType == Material.SPRUCE_BUTTON ||
-                blockType == Material.BIRCH_BUTTON || blockType == Material.JUNGLE_BUTTON ||
-                blockType == Material.ACACIA_BUTTON || blockType == Material.DARK_OAK_BUTTON ||
-                blockType == Material.CRIMSON_BUTTON || blockType == Material.WARPED_BUTTON ||
-                blockType == Material.STONE_BUTTON || blockType == Material.POLISHED_BLACKSTONE_BUTTON ||
-                blockType == Material.OAK_PRESSURE_PLATE || blockType == Material.SPRUCE_PRESSURE_PLATE ||
-                blockType == Material.BIRCH_PRESSURE_PLATE || blockType == Material.JUNGLE_PRESSURE_PLATE ||
-                blockType == Material.ACACIA_PRESSURE_PLATE || blockType == Material.DARK_OAK_PRESSURE_PLATE ||
-                blockType == Material.CRIMSON_PRESSURE_PLATE || blockType == Material.WARPED_PRESSURE_PLATE ||
-                blockType == Material.STONE_PRESSURE_PLATE || blockType == Material.LIGHT_WEIGHTED_PRESSURE_PLATE ||
-                blockType == Material.HEAVY_WEIGHTED_PRESSURE_PLATE) {
-                // Allow door, button, and pressure plate interactions for navigation
-                return;
-            }
-            
-            // Block everything else including containers, redstone devices, etc.
-            if (action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK) {
-                event.setCancelled(true);
-                
-                // Provide specific messages for common blocked actions
-                if (blockType.name().contains("CHEST") || blockType.name().contains("BARREL") ||
-                    blockType.name().contains("SHULKER") || blockType.name().contains("HOPPER")) {
-                    sendRestrictionMessage(player, "open containers");
-                } else if (blockType.name().contains("FURNACE") || blockType == Material.SMOKER ||
-                          blockType == Material.BLAST_FURNACE || blockType == Material.BREWING_STAND) {
-                    sendRestrictionMessage(player, "use crafting blocks");
-                } else if (blockType == Material.CRAFTING_TABLE || blockType == Material.ENCHANTING_TABLE ||
-                          blockType == Material.ANVIL || blockType == Material.CHIPPED_ANVIL ||
-                          blockType == Material.DAMAGED_ANVIL) {
-                    sendRestrictionMessage(player, "use workstations");
-                } else if (blockType.name().contains("BED")) {
-                    sendRestrictionMessage(player, "use beds");
-                } else if (blockType.name().contains("LEVER") || blockType.name().contains("REDSTONE") ||
-                          blockType == Material.REPEATER || blockType == Material.COMPARATOR) {
-                    sendRestrictionMessage(player, "interact with redstone");
-                } else {
-                    sendRestrictionMessage(player, "interact with blocks");
-                }
+            if (isContainerBlock(blockType)) {
+                sendRestrictionMessage(player, "open containers");
+            } else if (blockType.name().contains("FURNACE") || blockType == Material.SMOKER ||
+                      blockType == Material.BLAST_FURNACE || blockType == Material.BREWING_STAND) {
+                sendRestrictionMessage(player, "use crafting blocks");
+            } else if (blockType == Material.CRAFTING_TABLE || blockType == Material.ENCHANTING_TABLE ||
+                      blockType == Material.ANVIL || blockType == Material.CHIPPED_ANVIL ||
+                      blockType == Material.DAMAGED_ANVIL) {
+                sendRestrictionMessage(player, "use workstations");
+            } else if (blockType.name().contains("BED")) {
+                sendRestrictionMessage(player, "use beds");
+            } else if (blockType.name().contains("LEVER") || blockType.name().contains("REDSTONE") ||
+                      blockType == Material.REPEATER || blockType == Material.COMPARATOR) {
+                sendRestrictionMessage(player, "interact with redstone");
+            } else {
+                sendRestrictionMessage(player, "interact with blocks");
             }
         }
     }

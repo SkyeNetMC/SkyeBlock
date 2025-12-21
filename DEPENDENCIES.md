@@ -6,7 +6,9 @@ These plugins **must** be installed for SkyeBlock to load:
 1. **WorldEdit** - Required for island schematic management
    - Download: https://dev.bukkit.org/projects/worldedit
    - Version: 7.3.6 or newer
-
+2. **Vault** - Required for economy and permission integration
+   - Download: https://www.spigotmc.org/resources/vault.34315/
+   - Version: 1.7.3 or newer
 ## Optional Dependencies (Soft)
 These plugins are optional but recommended for full functionality:
 
@@ -20,7 +22,7 @@ These plugins are optional but recommended for full functionality:
    - Version: 5.3.0 or newer
    - Note: Advanced visitor protection requires this
 
-3. **LuckPerms** - Used for permission management
+3. **LuckPerms** - Used for permission management 
    - Download: https://luckperms.net/download
    - Version: 5.4 or newer
 
