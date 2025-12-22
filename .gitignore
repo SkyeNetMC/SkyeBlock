@@ -134,6 +134,7 @@ target/maven-status/
 target/generated-sources/
 target/classes/
 target/original-*.jar
+target/*
 
 # META-INF directory in target
 target/META-INF/
