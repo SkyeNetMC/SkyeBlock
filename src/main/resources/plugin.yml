@@ -3,10 +3,10 @@ version: '${project.version}'
 main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
 api-version: '1.21'
 authors: [SkyeNetwork]
-description: SkyeBlock plugin for creating and managing skyeblock islands
-website: https://skyenetwork.com
-depend: [WorldEdit, WorldGuard, ProtocolLib]
-softdepend: [SlimeWorldManager, AdvancedSlimeWorldManager, luckperms]
+description: SkyeBlock plugin for Minecraft 1.21.10 - creating and managing skyeblock islands
+website: https://skyemc.net/opensource
+depend: [WorldEdit]
+softdepend: [WorldGuard, ProtocolLib, SlimeWorldManager, AdvancedSlimeWorldManager, luckperms]
 
 commands:
   sb:
@@ -62,6 +62,11 @@ commands:
     usage: /warpadmin <create|delete|reset|reload> [args...]
     permission: skyeblock.admin.warp
     aliases: [wa]
+  mobspawning:
+    description: Manage mob spawning settings for all islands
+    usage: /mobspawning <status|reload>
+    permission: skyeblock.admin.mobspawning
+    aliases: [ms, mobspawn]
 
 permissions:
   skyeblock.*:
@@ -82,6 +87,7 @@ permissions:
       skyeblock.admin: true
       skyeblock.admin.convert: true
       skyeblock.admin.warp: true
+      skyeblock.admin.mobspawning: true
       skyeblock.warp: true
       skyeblock.warp.spawn: true
       skyeblock.warp.nether: true
@@ -89,6 +95,27 @@ permissions:
       skyeblock.warp.pvp: true
       skyeblock.warp.shop: true
       skyeblock.gamerules.adminbypass: true
+  skyeblock.player:
+    description: Base permissions for normal players (no gamerule access)
+    default: true
+    children:
+      skyeblock.island: true
+      skyeblock.island.visit: true
+      skyeblock.island.vote: true
+      skyeblock.island.edit: true
+      skyeblock.island.coop: true
+      skyeblock.island.lock: true
+      skyeblock.island.set: true
+      skyeblock.island.delete: true
+      skyeblock.island.permissions: true
+      skyeblock.hub: true
+      skyeblock.spawn: true
+      skyeblock.warp: true
+      skyeblock.warp.spawn: true
+      skyeblock.warp.nether: true
+      skyeblock.warp.end: true
+      skyeblock.warp.pvp: true
+      skyeblock.warp.shop: true
   skyeblock.island:
     description: Basic island commands (create, home, settings)
     default: true
@@ -122,9 +149,30 @@ permissions:
   skyeblock.admin:
     description: Admin commands (delete, list, status)
     default: op
+  skyeblock.admin.mobspawning:
+    description: Manage mob spawning settings for all islands
+    default: op
   skyeblock.gamerules.adminbypass:
     description: Bypass all gamerule permissions (see all gamerules)
     default: op
+  skyeblock.settings.gamerules:
+    description: Access to common island gamerule settings (day/time/weather safety)
+    default: false
+    children:
+      skyeblock.gamerule.dodaylightcycle: true
+      skyeblock.gamerule.doweathercycle: true
+      skyeblock.gamerule.keepinventory: true
+      skyeblock.gamerule.mobgriefing: true
+      skyeblock.gamerule.domobspawning: true
+      skyeblock.gamerule.dofiretick: true
+      skyeblock.gamerule.falldamage: true
+      skyeblock.gamerule.firedamage: true
+      skyeblock.gamerule.drowningdamage: true
+      skyeblock.gamerule.doinsomnia: true
+      skyeblock.gamerule.doimmediaterespawn: true
+      skyeblock.gamerule.naturalregeneration: true
+      skyeblock.gamerule.announceadvancements: true
+      skyeblock.gamerule.disableelytraMovementcheck: true
   skyeblock.gamerule.*:
     description: All gamerule permissions
     default: true

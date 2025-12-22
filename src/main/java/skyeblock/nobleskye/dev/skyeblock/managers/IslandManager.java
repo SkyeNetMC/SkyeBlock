@@ -596,7 +596,7 @@ public class IslandManager {
         // Reset food and health
         player.setFoodLevel(20);
         player.setSaturation(5.0f);
-        player.setHealth(player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue());
+        player.setHealth(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue());
         
         // Send confirmation message
         plugin.sendMessage(player, "<yellow>Your inventory has been cleared as part of island deletion.</yellow>");

@@ -294,8 +294,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleVisitCommand(Player player, String[] args) {
-        // Check if visiting is enabled
-        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+        // Check if visiting is enabled (bypass for admins)
+        boolean isAdmin = player.hasPermission("skyeblock.admin");
+        if (!isAdmin && !plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
             plugin.sendMessage(player, "visiting-disabled");
             return;
         }
@@ -334,8 +335,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleLockCommand(Player player) {
-        // Check if visiting is enabled
-        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+        // Check if visiting is enabled (bypass for admins)
+        boolean isAdmin = player.hasPermission("skyeblock.admin");
+        if (!isAdmin && !plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
             plugin.sendMessage(player, "visiting-disabled");
             return;
         }
@@ -362,8 +364,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleUnlockCommand(Player player) {
-        // Check if visiting is enabled
-        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+        // Check if visiting is enabled (bypass for admins)
+        boolean isAdmin = player.hasPermission("skyeblock.admin");
+        if (!isAdmin && !plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
             plugin.sendMessage(player, "visiting-disabled");
             return;
         }
@@ -637,8 +640,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleCoopVisit(Player player, String targetPlayerName) {
-        // Check if visiting is enabled
-        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+        // Check if visiting is enabled (bypass for admins)
+        boolean isAdmin = player.hasPermission("skyeblock.admin");
+        if (!isAdmin && !plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
             plugin.sendMessage(player, "visiting-disabled");
             return;
         }
@@ -696,8 +700,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleVoteCommand(Player player, String[] args) {
-        // Check if visiting is enabled
-        if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+        // Check if visiting is enabled (bypass for admins)
+        boolean isAdmin = player.hasPermission("skyeblock.admin");
+        if (!isAdmin && !plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
             plugin.sendMessage(player, "visiting-disabled");
             return;
         }
@@ -787,8 +792,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(miniMessage.deserialize("<green>Home location set!</green>"));
                 break;
             case "visit":
-                // Check if visiting is enabled for visit location setting
-                if (!plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
+                // Check if visiting is enabled for visit location setting (bypass for admins)
+                boolean isAdmin = player.hasPermission("skyeblock.admin");
+                if (!isAdmin && !plugin.getConfig().getBoolean("island.visiting.enabled", false)) {
                     plugin.sendMessage(player, "visiting-disabled");
                     return;
                 }

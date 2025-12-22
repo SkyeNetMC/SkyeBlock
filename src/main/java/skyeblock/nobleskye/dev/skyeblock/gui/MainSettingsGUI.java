@@ -55,6 +55,9 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         
         boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
         
+        // Check if player has access to any gamerules
+        boolean hasGameruleAccess = !plugin.getIslandSettingsManager().getAvailableGameRules(player).isEmpty();
+        
         // Visiting Settings (Ender Eye) - Only show if visiting is enabled
         if (visitingEnabled) {
             ItemStack visitingSettings = new ItemStack(Material.ENDER_EYE);
@@ -82,31 +85,33 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
             inventory.setItem(11, visitingSettings);
         }
         
-        // Gamerules Settings (Command Block) - Position changes based on visiting enabled
-        ItemStack gameruleSettings = new ItemStack(Material.COMMAND_BLOCK);
-        ItemMeta gameruleMeta = gameruleSettings.getItemMeta();
-        gameruleMeta.displayName(Component.text("Gamerule Settings")
-            .color(NamedTextColor.GOLD)
-            .decoration(TextDecoration.ITALIC, false));
-        
-        List<Component> gameruleLore = new ArrayList<>();
-        gameruleLore.add(Component.empty());
-        gameruleLore.add(Component.text("Configure island gamerules:")
-            .color(NamedTextColor.GRAY));
-        gameruleLore.add(Component.text("• Keep inventory settings")
-            .color(NamedTextColor.DARK_GRAY));
-        gameruleLore.add(Component.text("• Mob spawning controls")
-            .color(NamedTextColor.DARK_GRAY));
-        gameruleLore.add(Component.text("• World mechanics")
-            .color(NamedTextColor.DARK_GRAY));
-        gameruleLore.add(Component.empty());
-        gameruleLore.add(Component.text("Click to open gamerule settings")
-            .color(NamedTextColor.GREEN));
-        
-        gameruleMeta.lore(gameruleLore);
-        gameruleSettings.setItemMeta(gameruleMeta);
-        // Position gamerule settings: center if visiting disabled, right if visiting enabled
-        inventory.setItem(visitingEnabled ? 15 : 13, gameruleSettings);
+        // Gamerules Settings (Command Block) - Only show if player has gamerule permissions
+        if (hasGameruleAccess) {
+            ItemStack gameruleSettings = new ItemStack(Material.COMMAND_BLOCK);
+            ItemMeta gameruleMeta = gameruleSettings.getItemMeta();
+            gameruleMeta.displayName(Component.text("Gamerule Settings")
+                .color(NamedTextColor.GOLD)
+                .decoration(TextDecoration.ITALIC, false));
+            
+            List<Component> gameruleLore = new ArrayList<>();
+            gameruleLore.add(Component.empty());
+            gameruleLore.add(Component.text("Configure island gamerules:")
+                .color(NamedTextColor.GRAY));
+            gameruleLore.add(Component.text("• Keep inventory settings")
+                .color(NamedTextColor.DARK_GRAY));
+            gameruleLore.add(Component.text("• Mob spawning controls")
+                .color(NamedTextColor.DARK_GRAY));
+            gameruleLore.add(Component.text("• World mechanics")
+                .color(NamedTextColor.DARK_GRAY));
+            gameruleLore.add(Component.empty());
+            gameruleLore.add(Component.text("Click to open gamerule settings")
+                .color(NamedTextColor.GREEN));
+            
+            gameruleMeta.lore(gameruleLore);
+            gameruleSettings.setItemMeta(gameruleMeta);
+            // Position gamerule settings: center if visiting disabled, right if visiting enabled
+            inventory.setItem(visitingEnabled ? 15 : 13, gameruleSettings);
+        }
         
         // Delete Island button
         ItemStack deleteIsland = new ItemStack(Material.TNT);
@@ -185,6 +190,7 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
         
         boolean visitingEnabled = plugin.getConfig().getBoolean("island.visiting.enabled", false);
+        boolean hasGameruleAccess = !plugin.getIslandSettingsManager().getAvailableGameRules(player).isEmpty();
         
         switch (slot) {
             case 11: // Visiting Settings (only if visiting enabled)
@@ -198,7 +204,7 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
             case 13: // Info item (when visiting enabled) or Gamerule Settings (when visiting disabled)
                 if (visitingEnabled) {
                     // Info item - do nothing
-                } else if (clickedItem.getType() == Material.COMMAND_BLOCK) {
+                } else if (hasGameruleAccess && clickedItem.getType() == Material.COMMAND_BLOCK) {
                     // Gamerule settings when visiting disabled
                     player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0f, 1.2f);
                     player.closeInventory();
@@ -207,7 +213,7 @@ public class MainSettingsGUI implements InventoryHolder, Listener {
                 break;
                 
             case 15: // Gamerule Settings (when visiting enabled) or Delete Island (when visiting disabled)
-                if (visitingEnabled && clickedItem.getType() == Material.COMMAND_BLOCK) {
+                if (visitingEnabled && hasGameruleAccess && clickedItem.getType() == Material.COMMAND_BLOCK) {
                     // Gamerule settings when visiting enabled
                     player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1.0f, 1.2f);
                     player.closeInventory();
