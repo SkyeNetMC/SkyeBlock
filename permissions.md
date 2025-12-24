@@ -9,6 +9,7 @@ This document lists all permissions defined in the plugin and the defaults shipp
 | `skyeblock.*` | Everything in this file | `op` |
 | `skyeblock.player` | All player commands and warps (no gamerule admin bypass) | `true` |
 | `skyeblock.admin` | Admin commands (/sba), high-level management | `op` |
+| `skyeblock.gamerule.*` | All gamerule nodes (must be explicitly granted) | `false` |
 
 ## Core Commands
 
@@ -52,9 +53,9 @@ This document lists all permissions defined in the plugin and the defaults shipp
 
 - Global bypass: `skyeblock.gamerules.adminbypass` (see all gamerules) — default `op`.
 - Common bundle: `skyeblock.settings.gamerules` — default `false`, grants the listed gamerules below.
-- Full bundle: `skyeblock.gamerule.*` — default `true` (inherits all individual gamerule nodes).
+- Full bundle: `skyeblock.gamerule.*` — default `false` (must be explicitly granted).
 
-### Individual Gamerule Nodes (all default `true` unless overridden)
+### Individual Gamerule Nodes (all default `false`)
 `skyeblock.gamerule.dodaylightcycle`, `skyeblock.gamerule.doweathercycle`, `skyeblock.gamerule.keepinventory`, `skyeblock.gamerule.mobgriefing`, `skyeblock.gamerule.domobspawning`, `skyeblock.gamerule.dofiretick`, `skyeblock.gamerule.falldamage`, `skyeblock.gamerule.firedamage`, `skyeblock.gamerule.drowningdamage`, `skyeblock.gamerule.doinsomnia`, `skyeblock.gamerule.doimmediaterespawn`, `skyeblock.gamerule.announceadvancements`, `skyeblock.gamerule.disableelytraMovementcheck`, `skyeblock.gamerule.dolimitedcrafting`, `skyeblock.gamerule.naturalregeneration`, `skyeblock.gamerule.reduceddebuginfo`, `skyeblock.gamerule.sendcommandfeedback`, `skyeblock.gamerule.showdeathmessages`, `skyeblock.gamerule.doentitydrops`, `skyeblock.gamerule.dotiledrops`, `skyeblock.gamerule.domobloot`, `skyeblock.gamerule.dopatrolspawning`, `skyeblock.gamerule.dotraderSpawning`, `skyeblock.gamerule.forgivedeadplayers`, `skyeblock.gamerule.universalanger`, `skyeblock.gamerule.randomtickspeed`, `skyeblock.gamerule.spawnradius`, `skyeblock.gamerule.maxentitycramming`, `skyeblock.gamerule.maxcommandchainlength`, `skyeblock.gamerule.playerssleepingpercentage`.
 
 ## Quick Assignment Examples
