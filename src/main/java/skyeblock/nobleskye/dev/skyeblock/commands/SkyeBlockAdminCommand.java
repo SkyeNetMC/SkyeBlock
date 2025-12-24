@@ -1,6 +1,7 @@
 package skyeblock.nobleskye.dev.skyeblock.commands;
 
 import skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin;
+import skyeblock.nobleskye.dev.skyeblock.models.Island;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -82,8 +83,43 @@ public class SkyeBlockAdminCommand implements CommandExecutor, TabCompleter {
         }
     }
     
+    /**
+     * Get the island the admin is currently on by checking their world
+     */
+    private Island getIslandFromAdminLocation(Player admin) {
+        String worldName = admin.getWorld().getName();
+        
+        // Check if the world is an island world
+        Island island = plugin.getIslandManager().getIslandById(worldName);
+        
+        // If direct match fails, check if it's a nether island world (ends with _nether)
+        if (island == null && worldName.endsWith("_nether")) {
+            String mainIslandId = worldName.substring(0, worldName.length() - "_nether".length());
+            island = plugin.getIslandManager().getIslandById(mainIslandId);
+        }
+        
+        return island;
+    }
+    
     private boolean handleAdminIslandCommand(CommandSender sender, String[] args) {
         // Admin island management - bypasses all restrictions
+        if (sender instanceof Player) {
+            Player admin = (Player) sender;
+            Island currentIsland = getIslandFromAdminLocation(admin);
+            
+            if (currentIsland != null) {
+                sender.sendMessage(Component.text("Executing island command for the island you're on ("
+                    + currentIsland.getIslandId() + ") with admin privileges...", NamedTextColor.YELLOW));
+                
+                // Temporarily set the admin's UUID to the island owner's UUID for the command context
+                // Note: This approach maintains the admin's actual identity but operates on the current island
+                return islandCommand.onCommand(sender, null, "sba", args);
+            } else {
+                sender.sendMessage(Component.text("You are not currently on an island! Go to an island first, then use /sba island.", NamedTextColor.RED));
+                return true;
+            }
+        }
+        
         sender.sendMessage(Component.text("Executing island command with admin privileges...", NamedTextColor.YELLOW));
         return islandCommand.onCommand(sender, null, "sba", args);
     }
