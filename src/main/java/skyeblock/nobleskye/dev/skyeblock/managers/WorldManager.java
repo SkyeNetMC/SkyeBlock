@@ -612,8 +612,10 @@ public class WorldManager {
         }
         
         // Apply island settings to the world if found and it's not the main world
+        // This ensures gamerules are always correct when getting an island world
         if (world != null && !world.equals(skyBlockWorld)) {
             plugin.getIslandSettingsManager().applySettingsToWorld(islandId, world);
+            plugin.getLogger().fine("Reapplied gamerules to island world: " + islandId);
         }
         
         return world != null ? world : skyBlockWorld;
@@ -637,6 +639,9 @@ public class WorldManager {
                 plugin.getLogger().info("Successfully loaded island world for " + islandId + ": " + loadedWorld.getName());
                 // Apply current mob spawning settings to the newly loaded world
                 applyMobSpawningSettings(loadedWorld);
+                // Apply island-specific gamerules from settings
+                plugin.getIslandSettingsManager().applySettingsToWorld(islandId, loadedWorld);
+                plugin.getLogger().info("Applied gamerules to newly loaded world: " + islandId);
                 return loadedWorld;
             } else {
                 plugin.getLogger().warning("Failed to load island world for " + islandId + " - using default world");
@@ -644,6 +649,8 @@ public class WorldManager {
         } else if (world != null && !world.equals(skyBlockWorld)) {
             // Apply current mob spawning settings to existing loaded world
             applyMobSpawningSettings(world);
+            // Reapply island-specific gamerules to ensure they're correct
+            plugin.getIslandSettingsManager().applySettingsToWorld(islandId, world);
         }
         
         return world;

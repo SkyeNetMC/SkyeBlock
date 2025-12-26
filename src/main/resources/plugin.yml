@@ -175,7 +175,7 @@ permissions:
       skyeblock.gamerule.disableelytraMovementcheck: true
   skyeblock.gamerule.*:
     description: All gamerule permissions
-    default: true
+    default: false
     children:
       skyeblock.gamerule.dodaylightcycle: true
       skyeblock.gamerule.doweathercycle: true
@@ -210,94 +210,94 @@ permissions:
   # Individual gamerule permissions (default true, set to false to deny)
   skyeblock.gamerule.dodaylightcycle:
     description: Allow modifying daylight cycle gamerule
-    default: true
+    default: false
   skyeblock.gamerule.doweathercycle:
     description: Allow modifying weather cycle gamerule
-    default: true
+    default: false
   skyeblock.gamerule.keepinventory:
     description: Allow modifying keep inventory gamerule
-    default: true
+    default: false
   skyeblock.gamerule.mobgriefing:
     description: Allow modifying mob griefing gamerule
-    default: true
+    default: false
   skyeblock.gamerule.domobspawning:
     description: Allow modifying mob spawning gamerule
-    default: true
+    default: false
   skyeblock.gamerule.dofiretick:
     description: Allow modifying fire tick gamerule
-    default: true
+    default: false
   skyeblock.gamerule.falldamage:
     description: Allow modifying fall damage gamerule
-    default: true
+    default: false
   skyeblock.gamerule.firedamage:
     description: Allow modifying fire damage gamerule
-    default: true
+    default: false
   skyeblock.gamerule.drowningdamage:
     description: Allow modifying drowning damage gamerule
-    default: true
+    default: false
   skyeblock.gamerule.doinsomnia:
     description: Allow modifying insomnia gamerule
-    default: true
+    default: false
   skyeblock.gamerule.doimmediaterespawn:
     description: Allow modifying immediate respawn gamerule
-    default: true
+    default: false
   skyeblock.gamerule.announceadvancements:
     description: Allow modifying announce advancements gamerule
-    default: true
+    default: false
   skyeblock.gamerule.disableelytraMovementcheck:
     description: Allow modifying elytra movement check gamerule
-    default: true
+    default: false
   skyeblock.gamerule.dolimitedcrafting:
     description: Allow modifying limited crafting gamerule
-    default: true
+    default: false
   skyeblock.gamerule.naturalregeneration:
     description: Allow modifying natural regeneration gamerule
-    default: true
+    default: false
   skyeblock.gamerule.reduceddebuginfo:
     description: Allow modifying reduced debug info gamerule
-    default: true
+    default: false
   skyeblock.gamerule.sendcommandfeedback:
     description: Allow modifying send command feedback gamerule
-    default: true
+    default: false
   skyeblock.gamerule.showdeathmessages:
     description: Allow modifying show death messages gamerule
-    default: true
+    default: false
   skyeblock.gamerule.doentitydrops:
     description: Allow modifying entity drops gamerule
-    default: true
+    default: false
   skyeblock.gamerule.dotiledrops:
     description: Allow modifying tile drops gamerule
-    default: true
+    default: false
   skyeblock.gamerule.domobloot:
     description: Allow modifying mob loot gamerule
-    default: true
+    default: false
   skyeblock.gamerule.dopatrolspawning:
     description: Allow modifying patrol spawning gamerule
-    default: true
+    default: false
   skyeblock.gamerule.dotraderSpawning:
     description: Allow modifying trader spawning gamerule
-    default: true
+    default: false
   skyeblock.gamerule.forgivedeadplayers:
     description: Allow modifying forgive dead players gamerule
-    default: true
+    default: false
   skyeblock.gamerule.universalanger:
     description: Allow modifying universal anger gamerule
-    default: true
+    default: false
   skyeblock.gamerule.randomtickspeed:
     description: Allow modifying random tick speed gamerule
-    default: true
+    default: false
   skyeblock.gamerule.spawnradius:
     description: Allow modifying spawn radius gamerule
-    default: true
+    default: false
   skyeblock.gamerule.maxentitycramming:
     description: Allow modifying max entity cramming gamerule
-    default: true
+    default: false
   skyeblock.gamerule.maxcommandchainlength:
     description: Allow modifying max command chain length gamerule
-    default: true
+    default: false
   skyeblock.gamerule.playerssleepingpercentage:
     description: Allow modifying players sleeping percentage gamerule
-    default: true
+    default: false
   # Warp System Permissions
   skyeblock.warp:
     description: Access to warp GUI and teleportation

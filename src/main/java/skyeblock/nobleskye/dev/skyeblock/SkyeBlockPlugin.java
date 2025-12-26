@@ -65,6 +65,9 @@ public class SkyeBlockPlugin extends JavaPlugin {
         // Save default config
         saveDefaultConfig();
         
+        // Perform config migration if needed
+        migrateConfig();
+        
         // Initialize warp configuration
         loadWarpConfig();
         
@@ -390,6 +393,30 @@ public class SkyeBlockPlugin extends JavaPlugin {
         if (defConfigStream != null) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(defConfigStream));
             warpConfig.setDefaults(defConfig);
+        }
+    }
+    
+    /**
+     * Migrate configuration from older versions to current version
+     */
+    private void migrateConfig() {
+        String currentVersion = "2.0.0";
+        String configVersion = getConfig().getString("version", "1.0.0");
+        
+        if (!configVersion.equals(currentVersion)) {
+            getLogger().info("Migrating configuration from version " + configVersion + " to " + currentVersion);
+            
+            // Ensure visiting is disabled by default (safety feature)
+            if (!getConfig().contains("island.visiting.enabled")) {
+                getConfig().set("island.visiting.enabled", false);
+                getLogger().info("Set island.visiting.enabled to false (default)");
+            }
+            
+            // Update version
+            getConfig().set("version", currentVersion);
+            saveConfig();
+            
+            getLogger().info("Configuration migration completed successfully!");
         }
     }
     

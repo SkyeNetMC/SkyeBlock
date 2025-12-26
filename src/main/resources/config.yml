@@ -95,7 +95,7 @@ island:
   
   # Island visiting settings
   visiting:
-    # Whether island visiting is enabled globally
+    # Whether island visiting is enabled globally (auto-disabled for security)
     enabled: false
 
 # Messages (using MiniMessage format)
