@@ -21,14 +21,14 @@ public class VisitorPacketListener extends PacketAdapter {
         new java.util.concurrent.ConcurrentHashMap<UUID, Boolean>());
 
     public VisitorPacketListener(SkyeBlockPlugin plugin) {
-        super(plugin, ListenerPriority.LOWEST,  // Use LOWEST to ensure we get packets first
+        super(plugin, ListenerPriority.HIGHEST,  
               // Container interaction
               PacketType.Play.Client.WINDOW_CLICK,
               PacketType.Play.Client.CLOSE_WINDOW,
               PacketType.Play.Client.HELD_ITEM_SLOT,
               // Block interaction
               PacketType.Play.Client.USE_ENTITY,
-              PacketType.Play.Client.BLOCK_PLACE,
+              PacketType.Play.Client.USE_ITEM_ON,
               PacketType.Play.Client.BLOCK_DIG, 
               // Item interaction
               PacketType.Play.Client.SET_CREATIVE_SLOT,

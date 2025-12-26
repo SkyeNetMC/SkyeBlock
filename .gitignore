@@ -135,6 +135,7 @@ target/generated-sources/
 target/classes/
 target/original-*.jar
 target/*
+target/classes/*
 
 # META-INF directory in target
 target/META-INF/
