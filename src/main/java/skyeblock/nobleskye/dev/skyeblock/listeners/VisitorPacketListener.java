@@ -28,7 +28,7 @@ public class VisitorPacketListener extends PacketAdapter {
               PacketType.Play.Client.HELD_ITEM_SLOT,
               // Block interaction
               PacketType.Play.Client.USE_ENTITY,
-              PacketType.Play.Client.BLOCK_PLACE,
+              PacketType.Play.Client.USE_ITEM_ON,
               PacketType.Play.Client.BLOCK_DIG, 
               // Item interaction
               PacketType.Play.Client.SET_CREATIVE_SLOT,
