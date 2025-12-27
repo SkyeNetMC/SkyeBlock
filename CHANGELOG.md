@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.0-1.21.10] - 2025-12-26
+- Build now targets Java 21 for 1.21.x dependency compatibility.
+- CI/CD: GitHub Actions builds on pushes/PRs, publishes releases on `v*` tags, and maintains a rolling `main-latest` prerelease with auto-generated release notes.
+- Packaging: resource filtering adjusted so `.schem` files are included correctly.
+- Visitor protection: fixed ProtocolLib packet handling for block/container interaction restrictions.
+- Docs/config: added/expanded permission documentation and configuration migration support.
+
 ## [1.21.10 up2]
 - Enforce container/workstation access via per-island permissions and visitor settings (blocks external plugins like sell wands on others' chests).
 - Permission-aware inventory open/interaction handling integrated with IslandPermissionManager.
