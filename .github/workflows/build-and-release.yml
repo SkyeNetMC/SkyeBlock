@@ -66,6 +66,29 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Validate SemVer tag
+        id: semver
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          raw_tag="${GITHUB_REF_NAME}"
+          if [[ "${raw_tag}" != v* ]]; then
+            echo "Expected a tag starting with 'v' (e.g. v1.2.3), got: ${raw_tag}" >&2
+            exit 1
+          fi
+
+          version="${raw_tag#v}"
+
+          # SemVer 2.0.0 (without the leading 'v')
+          semver_re='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$'
+          if [[ ! "${version}" =~ ${semver_re} ]]; then
+            echo "Tag is not SemVer 2.0.0 after stripping leading 'v': ${version}" >&2
+            exit 1
+          fi
+
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -75,6 +98,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
+          name: ${{ steps.semver.outputs.version }}
           generate_release_notes: true
           files: |
             dist/**/*.jar
