@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name: Build (Maven)
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: read
     steps:
@@ -61,7 +61,7 @@ jobs:
   release:
     name: Release (GitHub)
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: build
     permissions:
       contents: write
@@ -106,7 +106,7 @@ jobs:
   release-main:
     name: Release (main)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: build
     concurrency:
       group: release-main-latest
