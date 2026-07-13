@@ -1,0 +1,71 @@
+name: Publish to Modrinth (Alpha)
+
+on:
+  push:
+    branches: [ main, 26.2 ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          maven-cache: true
+
+      - name: Build with Maven
+        run: mvn clean package -q
+        working-directory: SkyeBlock
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyeBlock-${{ github.sha }}
+          path: SkyeBlock/target/SkyeBlock-*.jar
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          maven-cache: true
+
+      - name: Build with Maven
+        run: mvn clean package -q
+        working-directory: SkyeBlock
+
+      - name: Get version from pom.xml
+        id: version
+        run: |
+          VERSION=$(grep -m1 '<version>' SkyeBlock/pom.xml | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Built version: $VERSION"
+
+      - name: Upload to Modrinth
+        uses: Modrinth/upload-artifact@v0.1.4
+        with:
+          file-path: SkyeBlock/target/SkyeBlock-${{ steps.version.outputs.version }}.jar
+          version-number: ${{ steps.version.outputs.version }}
+          version-name: "Alpha ${{ steps.version.outputs.version }}-${{ github.sha }}"
+          version-tag: alpha
+          game-versions: '[ "26.2" ]'
+          loaders: '[ "paper", "spigot" ]'
+          project-id: '${{ secrets.MODRINTH_PROJECT_ID }}'
+          token: '${{ secrets.MODRINTH_TOKEN }}'

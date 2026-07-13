@@ -1,6 +1,6 @@
 # SkyeBlock Changelog
 
-## 3.2.0-26.2 (2026-07-13)
+## 3.3.3 (2026-07-13)
 
 ### MC 26.2 & ASP 4.0.0 Support
 - Updated Paper API to `26.2.build.60-beta`
@@ -25,3 +25,9 @@
 - Transactional saves with rollback on failure
 - `MERGE INTO` for upserts on single-row updates
 - Old YAML files are now ignored; data is written to `skyeblock.db`
+
+### Changes
+- `/is` now teleports to your island instead of opening settings (use `/is settings` for settings)
+- Rewrote README with full feature, command, and permission reference
+- Added GitHub Actions workflow for Modrinth alpha publishing
+- Version bumped to 3.3.3

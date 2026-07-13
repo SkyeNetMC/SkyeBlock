@@ -6,7 +6,7 @@
 
     <groupId>skyeblock.nobleskye.dev</groupId>
     <artifactId>skyeblock</artifactId>
-    <version>3.3.2</version>
+    <version>3.3.3</version>
     <packaging>jar</packaging>
 
     <name>SkyeBlock</name>

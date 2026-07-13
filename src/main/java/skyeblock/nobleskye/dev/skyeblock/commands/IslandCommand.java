@@ -46,8 +46,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         if (args.length == 0) {
             // Check if player has an island first
             if (plugin.getIslandManager().hasIsland(player.getUniqueId())) {
-                // If they have an island, open settings instead of teleporting
-                handleSettingsCommand(player);
+                // Teleport to island
+                handleTeleportCommand(player);
             } else {
                 // If they don't have an island, open the creation GUI
                 if (player.hasPermission("skyeblock.island")) {
