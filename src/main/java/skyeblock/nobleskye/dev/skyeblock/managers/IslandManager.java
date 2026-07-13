@@ -33,7 +33,7 @@ public class IslandManager {
      */
     public void initialize() {
         plugin.getLogger().info("Initializing Island Manager...");
-        this.dataManager = new IslandDataManager(plugin);
+        this.dataManager = new IslandDataManager(plugin, plugin.getDatabaseManager());
         loadAllIslands();
         plugin.getLogger().info("Island Manager initialization complete. Players can now be teleported to their islands immediately.");
     }

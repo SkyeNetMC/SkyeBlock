@@ -17,11 +17,19 @@ import org.bukkit.Location;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 
 public class SchematicManager {
     private final SkyeBlockPlugin plugin;
     private final File schematicFolder;
+
+    private static final String[] BUNDLED_SCHEMATICS = {
+        "advanced", "bare_bones", "campsite", "cozy_grove", "desert",
+        "fishermans_paradise", "igloo", "inverted", "mineshaft",
+        "nether_generic", "nether_jail", "olympus", "orchid",
+        "sandy_isle", "vanilla", "wilson"
+    };
 
     public SchematicManager(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
@@ -43,8 +51,30 @@ public class SchematicManager {
             schematicFolder.mkdirs();
         }
         
+        // Extract bundled schematics from resources if missing
+        extractBundledSchematics();
+        
         // Create default schematic files if they don't exist
         createDefaultSchematics();
+    }
+
+    private void extractBundledSchematics() {
+        int extracted = 0;
+        for (String name : BUNDLED_SCHEMATICS) {
+            File target = new File(schematicFolder, name + ".schem");
+            if (target.exists()) continue;
+            
+            try (InputStream is = plugin.getResource("schematics/" + name + ".schem")) {
+                if (is == null) continue;
+                java.nio.file.Files.copy(is, target.toPath());
+                extracted++;
+            } catch (IOException e) {
+                plugin.getLogger().warning("Failed to extract schematic: " + name + ".schem");
+            }
+        }
+        if (extracted > 0) {
+            plugin.getLogger().info("Extracted " + extracted + " bundled schematics to " + schematicFolder.getAbsolutePath());
+        }
     }
 
     public boolean pasteSchematic(String schematicName, Location location) {
