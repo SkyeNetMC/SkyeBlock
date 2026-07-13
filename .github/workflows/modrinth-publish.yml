@@ -44,13 +44,26 @@ jobs:
           path: target/${{ steps.prepare.outputs.artifact }}
 
       - name: Upload to Modrinth
-        uses: Modrinth/upload-artifact@v0.1.4
-        with:
-          file-path: target/${{ steps.prepare.outputs.artifact }}
-          version-number: ${{ steps.prepare.outputs.version }}
-          version-name: "Alpha ${{ steps.prepare.outputs.version }}-${{ steps.prepare.outputs.short_sha }}"
-          version-tag: alpha
-          game-versions: '[ "26.2" ]'
-          loaders: '[ "paper", "spigot" ]'
-          project-id: '${{ secrets.MODRINTH_PROJECT_ID }}'
-          token: '${{ secrets.MODRINTH_TOKEN }}'
+        run: |
+          VERSION="${{ steps.prepare.outputs.version }}"
+          SHORT_SHA="${{ steps.prepare.outputs.short_sha }}"
+          FILE="target/${{ steps.prepare.outputs.artifact }}"
+
+          jq -n \
+            --arg version "$VERSION" \
+            --arg name "Alpha ${VERSION}-${SHORT_SHA}" \
+            --arg project "${{ secrets.MODRINTH_PROJECT_ID }}" \
+            '{
+              version_number: $version,
+              name: $name,
+              version_type: "alpha",
+              game_versions: ["26.2"],
+              loaders: ["paper", "spigot"],
+              project_id: $project,
+              file_parts: ["file"]
+            }' > /tmp/modrinth-data.json
+
+          curl -X POST "https://api.modrinth.com/v2/version" \
+            -H "Authorization: ${{ secrets.MODRINTH_TOKEN }}" \
+            -F "data=@/tmp/modrinth-data.json" \
+            -F "file=@${FILE}"; echo
