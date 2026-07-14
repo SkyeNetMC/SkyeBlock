@@ -50,7 +50,7 @@ jobs:
 
           jq -n \
             --arg version "$VERSION" \
-            --arg name "skyeblock.${VERSION}-alpha-${SHORT_SHA}" \
+            --arg name "${SHORT_SHA}-${VERSION}" \
             --arg project "${{ secrets.MODRINTH_PROJECT_ID }}" \
             '{
               version_number: $version,
