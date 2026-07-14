@@ -27,7 +27,7 @@ public class DatabaseManager {
 
     public DatabaseManager(SkyeBlockPlugin plugin) {
         this.plugin = plugin;
-        this.dbFile = new File(plugin.getDataFolder(), "skyeblock.db");
+        this.dbFile = new File(plugin.getDataFolder(), "skyeblock");
     }
 
     /**
