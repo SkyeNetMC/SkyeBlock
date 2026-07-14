@@ -59,7 +59,12 @@ jobs:
               game_versions: ["26.2"],
               loaders: ["paper", "spigot"],
               project_id: $project,
-              file_parts: ["file"]
+              file_parts: ["file"],
+              dependencies: [
+                { project_id: "Vebnzrzj", dependency_type: "optional" },
+                { project_id: "DKY9btbd", dependency_type: "optional" },
+                { project_id: "1u6JkXh5", dependency_type: "optional" }
+              ]
             }' > /tmp/modrinth-data.json
 
           curl -X POST "https://api.modrinth.com/v2/version" \
