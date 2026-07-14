@@ -36,11 +36,12 @@ public class DatabaseManager {
     public void open() {
         try {
             plugin.getDataFolder().mkdirs();
+            Class.forName("org.h2.Driver");
             String url = "jdbc:h2:file:" + dbFile.getAbsolutePath() + ";MODE=MySQL;DB_CLOSE_ON_EXIT=TRUE;AUTO_RECONNECT=TRUE";
             connection = DriverManager.getConnection(url, "sa", "");
             plugin.getLogger().info("H2 database opened: " + dbFile.getName());
             createTables();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to open H2 database", e);
         }
     }
@@ -214,6 +215,7 @@ public class DatabaseManager {
      */
     public Map<UUID, Island> loadAllIslands() {
         Map<UUID, Island> islands = new HashMap<>();
+        if (connection == null) return islands;
 
         try {
             // Load all islands from the islands table
@@ -588,6 +590,7 @@ public class DatabaseManager {
      */
     public Map<String, Map<GameRule<?>, Object>> loadAllIslandSettings() {
         Map<String, Map<GameRule<?>, Object>> allSettings = new HashMap<>();
+        if (connection == null) return allSettings;
 
         try (PreparedStatement ps = connection.prepareStatement("SELECT DISTINCT island_id FROM island_settings");
              ResultSet rs = ps.executeQuery()) {
@@ -710,6 +713,7 @@ public class DatabaseManager {
      */
     public Map<UUID, Location> loadAllPlayerData() {
         Map<UUID, Location> lastLocations = new HashMap<>();
+        if (connection == null) return lastLocations;
 
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM player_data");
              ResultSet rs = ps.executeQuery()) {
