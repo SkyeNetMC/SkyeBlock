@@ -59,6 +59,7 @@ jobs:
               game_versions: ["26.2"],
               loaders: ["paper", "spigot"],
               project_id: $project,
+              featured: false,
               file_parts: ["file"],
               dependencies: [
                 { project_id: "Vebnzrzj", dependency_type: "optional" },
