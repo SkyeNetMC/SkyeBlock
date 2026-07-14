@@ -74,7 +74,7 @@ public class DeleteConfirmationGUI implements InventoryHolder, Listener {
     
     private void createConfirmationInventory(Player player, DeleteSession session) {
         Inventory inventory = Bukkit.createInventory(this, INVENTORY_SIZE, 
-            Component.text("DELETE ISLAND - CLICK " + (REQUIRED_CLICKS - session.clickCount) + " MORE TIMES")
+            Component.text("DELETE ISLAND - CLICK 3 TIMES")
                 .color(NamedTextColor.DARK_RED)
                 .decoration(TextDecoration.BOLD, true));
         

@@ -1,27 +1,33 @@
-# Changelog
+# SkyeBlock Changelog
 
-All notable changes to this project will be documented in this file.
+## 3.3.3 (2026-07-13)
 
-## [3.2.0-1.21.10] - 2025-12-26
-- Build now targets Java 21 for 1.21.x dependency compatibility.
-- CI/CD: GitHub Actions builds on pushes/PRs, publishes releases on `v*` tags, and maintains a rolling `main-latest` prerelease with auto-generated release notes.
-- Packaging: resource filtering adjusted so `.schem` files are included correctly.
-- Visitor protection: fixed ProtocolLib packet handling for block/container interaction restrictions.
-- Docs/config: added/expanded permission documentation and configuration migration support.
+### MC 26.2 & ASP 4.0.0 Support
+- Updated Paper API to `26.2.build.60-beta`
+- Updated `plugin.yml` api-version to `26.2`
+- Integrated Advanced Slime World Manager (ASWM) API 4.0.0
+  - Two-stage world loading: `readWorld`/`createEmptyWorld` (async) -> `loadWorld` (sync)
+  - `FileLoader` shading (package `com.infernalsuite.asp.loaders`)
+  - `LegacySWMLoaderWrapper` for backward compatibility
+- Java 21 bytecode target (compatible with Java 25 runtime on MC 26.2)
 
-## [1.21.10 up2]
-- Enforce container/workstation access via per-island permissions and visitor settings (blocks external plugins like sell wands on others' chests).
-- Permission-aware inventory open/interaction handling integrated with IslandPermissionManager.
+### Schematic Bundling
+- Schematics are now bundled inside the plugin JAR under `resources/schematics/`
+- `SchematicManager` auto-extracts bundled schematics to the data folder on startup
+- 16 bundled schematics: advanced, bare_bones, campsite, cozy_grove, desert, fishermans_paradise, igloo, inverted, mineshaft, nether_generic, nether_jail, olympus, orchid, sandy_isle, vanilla, wilson
 
-## [1.21.10-dev] - 2025-12-20
-- Updated for Minecraft 1.21.10 API compatibility and opened the 1.21.10-dev line.
-- Lowered Java target to 17 for wider host compatibility.
-- Added gamerule access checks and new permission bundles (`skyeblock.player`, `skyeblock.settings.gamerules`), with GUI filtering.
-- Added `/mobspawning` command registration to plugin.yml.
-- Marked WorldGuard and ProtocolLib as soft dependencies; added DEPENDENCIES.md for setup guidance.
-- Added new schematic files for multiple environments.
-- Allowed admins to bypass visiting-disabled checks when appropriate.
-- Build/Maven updates to align with 1.21.10 APIs.
+### H2 Database Storage (replaces YAML)
+- Added embedded H2 `2.3.232` database (`skyeblock.db` in plugin data folder)
+- New `DatabaseManager` class handles all H2 connection, schema, and CRUD operations
+- **Island data** (`islands`, `island_visitor_permissions`, `island_coop_members`, `island_pending_invites`, `island_votes`, `island_custom_permissions`) — replaces `island-data.yml`
+- **Island settings** (`island_settings`) — replaces `island-settings.yml`
+- **Player data** (`player_data`) — replaces `player-data.yml`
+- Transactional saves with rollback on failure
+- `MERGE INTO` for upserts on single-row updates
+- Old YAML files are now ignored; data is written to `skyeblock.db`
 
-## [1.21.4]
-- Earlier 1.21.4 work predates this changelog; see git history for details.
+### Changes
+- `/is` now teleports to your island instead of opening settings (use `/is settings` for settings)
+- Rewrote README with full feature, command, and permission reference
+- Added GitHub Actions workflow for Modrinth alpha publishing
+- Version bumped to 3.3.3

@@ -1,0 +1,74 @@
+name: Publish to Modrinth (Alpha)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '25'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+
+      - name: Build with Maven
+        run: mvn -B clean package -q
+
+      - name: Prepare artifact
+        id: prepare
+        run: |
+          VERSION=$(grep -m1 '<version>' pom.xml | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          ARTIFACT_NAME="SkyeBlock-${VERSION}-${SHORT_SHA}.jar"
+          cp target/SkyeBlock-*.jar "target/${ARTIFACT_NAME}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "artifact=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Built: ${ARTIFACT_NAME}"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepare.outputs.artifact }}
+          path: target/${{ steps.prepare.outputs.artifact }}
+
+      - name: Upload to Modrinth
+        run: |
+          VERSION="${{ steps.prepare.outputs.version }}"
+          SHORT_SHA="${{ steps.prepare.outputs.short_sha }}"
+          FILE="target/${{ steps.prepare.outputs.artifact }}"
+
+          jq -n \
+            --arg version "$VERSION" \
+            --arg name "skyeblock.${VERSION}-alpha-${SHORT_SHA}" \
+            --arg project "${{ secrets.MODRINTH_PROJECT_ID }}" \
+            '{
+              version_number: $version,
+              name: $name,
+              version_type: "alpha",
+              game_versions: ["26.2"],
+              loaders: ["paper", "spigot"],
+              project_id: $project,
+              featured: false,
+              file_parts: ["file"],
+              dependencies: [
+                { project_id: "Vebnzrzj", dependency_type: "optional" },
+                { project_id: "DKY9btbd", dependency_type: "optional" },
+                { project_id: "1u6JkXh5", dependency_type: "optional" }
+              ]
+            }' > /tmp/modrinth-data.json
+
+          curl -X POST "https://api.modrinth.com/v2/version" \
+            -H "Authorization: ${{ secrets.MODRINTH_TOKEN }}" \
+            -F "data=@/tmp/modrinth-data.json" \
+            -F "file=@${FILE}"; echo

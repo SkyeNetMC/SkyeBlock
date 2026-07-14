@@ -1,9 +1,9 @@
 name: SkyeBlock
 version: '${project.version}'
 main: skyeblock.nobleskye.dev.skyeblock.SkyeBlockPlugin
-api-version: '1.21'
+api-version: '26.2'
 authors: [SkyeNetwork]
-description: SkyeBlock plugin for Minecraft 1.21.10 - creating and managing skyeblock islands
+description: SkyeBlock plugin for Minecraft 26.2 (Chaos Cubed) - creating and managing skyeblock islands
 website: https://skyemc.net/opensource
 modrinth-project-id: "UAeWLb2c"
 depend: [WorldEdit]

@@ -8,6 +8,7 @@ import skyeblock.nobleskye.dev.skyeblock.listeners.PlayerJoinListener;
 import skyeblock.nobleskye.dev.skyeblock.listeners.PlayerLocationListener;
 import skyeblock.nobleskye.dev.skyeblock.listeners.VisitorPacketListener;
 import skyeblock.nobleskye.dev.skyeblock.managers.CustomSchematicManager;
+import skyeblock.nobleskye.dev.skyeblock.managers.DatabaseManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.IslandManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.SchematicManager;
 import skyeblock.nobleskye.dev.skyeblock.managers.WorldManager;
@@ -41,6 +42,7 @@ public class SkyeBlockPlugin extends JavaPlugin {
     private SchematicManager schematicManager;
     private CustomSchematicManager customSchematicManager;
     private WorldManager worldManager;
+    private DatabaseManager databaseManager;
     private IslandSettingsManager islandSettingsManager;
     private IslandPermissionManager permissionManager;
     private ResourceWorldManager resourceWorldManager;
@@ -76,14 +78,16 @@ public class SkyeBlockPlugin extends JavaPlugin {
         
         // Initialize managers
         this.worldManager = new WorldManager(this);
+        this.databaseManager = new DatabaseManager(this);
+        this.databaseManager.open();
         this.schematicManager = new SchematicManager(this);
         this.customSchematicManager = new CustomSchematicManager(this);
         this.islandManager = new IslandManager(this);
-        this.islandSettingsManager = new IslandSettingsManager(this);
+        this.islandSettingsManager = new IslandSettingsManager(this, databaseManager);
         this.permissionManager = new IslandPermissionManager(this);
         this.resourceWorldManager = new ResourceWorldManager(this);
         this.warpManager = new WarpManager(this);
-        this.playerDataManager = new PlayerDataManager(this);
+        this.playerDataManager = new PlayerDataManager(this, databaseManager);
         
         // Initialize GUIs
         this.islandSettingsGUI = new IslandSettingsGUI(this);
@@ -125,6 +129,11 @@ public class SkyeBlockPlugin extends JavaPlugin {
         // Save player data before shutdown
         if (playerDataManager != null) {
             playerDataManager.savePlayerData();
+        }
+        
+        // Close database connection
+        if (databaseManager != null) {
+            databaseManager.close();
         }
         
         getComponentLogger().info(Component.text("SkyeBlock plugin disabled!", NamedTextColor.RED));
@@ -278,6 +287,10 @@ public class SkyeBlockPlugin extends JavaPlugin {
 
     public WorldManager getWorldManager() {
         return worldManager;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 
     public IslandSettingsManager getIslandSettingsManager() {
