@@ -31,9 +31,13 @@ jobs:
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           ARTIFACT_NAME="SkyeBlock-${VERSION}-${SHORT_SHA}.jar"
           cp target/SkyeBlock-*.jar "target/${ARTIFACT_NAME}"
+          CHANGELOG=$(git log --oneline -10 --pretty=format:"- %s (%h)")
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
           echo "artifact=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
           echo "Built: ${ARTIFACT_NAME}"
 
       - name: Upload build artifact
@@ -52,6 +56,7 @@ jobs:
             --arg version "$VERSION" \
             --arg name "${SHORT_SHA}-${VERSION}" \
             --arg project "${{ secrets.MODRINTH_PROJECT_ID }}" \
+            --arg changelog "$CHANGELOG" \
             '{
               version_number: $version,
               name: $name,
@@ -60,6 +65,7 @@ jobs:
               loaders: ["paper", "spigot"],
               project_id: $project,
               featured: false,
+              body: $changelog,
               file_parts: ["file"],
               dependencies: [
                 { project_id: "Vebnzrzj", dependency_type: "optional" },
